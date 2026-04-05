@@ -32,9 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install qara-insights          # install from PyPI
-          # OR install from source:
-          # pip install -e ".[dev]"
+          pip install -e ".[dev]"
 
       # ── 4. Run your test suite and generate an Allure report ──────────────
       #    Replace this block with your actual test runner command.
