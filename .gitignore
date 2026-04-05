@@ -59,6 +59,7 @@ __MACOSX/
 # IDEs
 .idea/
 .vscode/
+.claude/
 *.swp
 *.swo
 *~

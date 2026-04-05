@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(.venv/bin/python -m pytest tests/test_llm_client.py -v)",
-      "Bash(python3 -m pytest tests/test_contracts.py::TestRiskRankingPlan tests/test_contracts.py::TestRiskRankingPayload -v)"
-    ]
-  }
-}
