@@ -1,0 +1,20 @@
+{
+  "reportName": "My CI Project — Integration Suite",
+  "testRuns": [],
+  "statistic": {
+    "failed": 1,
+    "broken": 0,
+    "skipped": 1,
+    "passed": 2,
+    "unknown": 0,
+    "total": 4
+  },
+  "time": {
+    "start": 1720000000000,
+    "stop": 1720000060000,
+    "duration": 60000,
+    "minDuration": 500,
+    "maxDuration": 12000,
+    "sumDuration": 45000
+  }
+}

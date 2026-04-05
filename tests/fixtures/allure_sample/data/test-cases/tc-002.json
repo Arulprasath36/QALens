@@ -1,0 +1,78 @@
+{
+  "uid": "tc-002",
+  "name": "Login with invalid password",
+  "fullName": "com.example.tests.LoginTest#testInvalidPassword",
+  "historyId": "hist-tc-002",
+  "testId": "com.example.tests.LoginTest#testInvalidPassword",
+  "status": "failed",
+  "time": {"start": 1720000001000, "stop": 1720000002207, "duration": 1207},
+  "description": "Verify that login is rejected when an incorrect password is provided.",
+  "descriptionHtml": "<p>Verify that login is rejected when an incorrect password is provided.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 1,
+  "retriesStatusChange": false,
+  "steps": [
+    {
+      "name": "Navigate to login page",
+      "status": "passed",
+      "time": {"start": 1720000001000, "stop": 1720000001120, "duration": 120},
+      "steps": [],
+      "attachments": [],
+      "parameters": []
+    },
+    {
+      "name": "Enter invalid password",
+      "status": "passed",
+      "time": {"start": 1720000001120, "stop": 1720000001600, "duration": 480},
+      "steps": [],
+      "attachments": [],
+      "parameters": [
+        {"name": "password", "value": "wrongpassword123"}
+      ]
+    },
+    {
+      "name": "Assert error message is displayed",
+      "status": "failed",
+      "time": {"start": 1720000001600, "stop": 1720000002207, "duration": 607},
+      "steps": [],
+      "attachments": [
+        {
+          "uid": "att-002-screenshot",
+          "name": "failure-screenshot",
+          "source": "att-002-screenshot-attachment.png",
+          "type": "image/png",
+          "size": 45312
+        }
+      ],
+      "parameters": []
+    }
+  ],
+  "attachments": [
+    {
+      "uid": "att-002-log",
+      "name": "test-log",
+      "source": "att-002-log-attachment.txt",
+      "type": "text/plain",
+      "size": 1024
+    }
+  ],
+  "parameters": [],
+  "labels": [
+    {"name": "suite", "value": "Authentication Tests"},
+    {"name": "feature", "value": "Authentication"},
+    {"name": "story", "value": "Invalid Login"},
+    {"name": "severity", "value": "critical"},
+    {"name": "owner", "value": "qa-team"},
+    {"name": "tag", "value": "Smoke"},
+    {"name": "tag", "value": "Login"},
+    {"name": "tag", "value": "NegativeTest"}
+  ],
+  "links": [
+    {"name": "AUTH-105", "url": "https://jira.example.com/browse/AUTH-105", "type": "issue"}
+  ],
+  "statusMessage": "Expected error message element not found: By.cssSelector: .error-banner",
+  "statusTrace": "org.openqa.selenium.NoSuchElementException: Expected error message element not found: By.cssSelector: .error-banner\n\tat org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:318)\n\tat com.example.pages.LoginPage.getErrorBanner(LoginPage.java:87)\n\tat com.example.tests.LoginTest.testInvalidPassword(LoginTest.java:55)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)"
+}

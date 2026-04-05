@@ -1,0 +1,204 @@
+"""Analysis route handlers for the QARA FastAPI server.
+
+Factory function :func:`make_analysis_router` registers endpoints for
+stability, flaky-test detection, failure groups, and risk prediction.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Response
+
+from qara.server.models import _dc_to_dict
+
+
+def make_analysis_router(db_path: str | Path | None) -> APIRouter:
+    """Return an :class:`~fastapi.APIRouter` with all analysis endpoints."""
+    router = APIRouter()
+
+    @router.get("/api/stability", tags=["analysis"])
+    async def stability(
+        project: str | None = Query(None, description="Filter by project name."),
+        min_runs: int = Query(2, ge=1, description="Minimum run appearances."),
+        limit: int = Query(30, ge=5, le=100, description="History window size per test."),
+    ) -> list[dict[str, Any]]:
+        """Return flakiness profiles for all tests with sufficient history."""
+        from qara.analyzers.flaky import FlakyScorer
+        from qara.db.repository import RunRepository
+        from qara.db.schema import get_connection, init_db
+
+        conn = get_connection(db_path)
+        try:
+            init_db(conn)
+            results = FlakyScorer(conn).get_all(project=project, min_runs=min_runs, limit_per_test=limit)
+            suite_map = RunRepository(conn).get_latest_suite_per_canonical_name(project=project)
+            return [_dc_to_dict(r) | {"suite": suite_map.get(r.canonical_name, "")} for r in results]
+        finally:
+            conn.close()
+
+    @router.get("/api/stability/flaky", tags=["analysis"])
+    async def flaky_tests(
+        project: str | None = Query(None),
+        min_runs: int = Query(2, ge=1),
+    ) -> list[dict[str, Any]]:
+        """Return only tests classified as FLAKY."""
+        from qara.analyzers.flaky import FlakyScorer
+        from qara.db.schema import get_connection, init_db
+
+        conn = get_connection(db_path)
+        try:
+            init_db(conn)
+            results = FlakyScorer(conn).get_all_flaky(project=project, min_runs=min_runs)
+            return [_dc_to_dict(r) for r in results]
+        finally:
+            conn.close()
+
+    @router.get("/api/failure-groups", tags=["analysis"])
+    async def failure_groups(
+        project: str | None = Query(None),
+        limit: int = Query(20, ge=1, le=200),
+    ) -> list[dict[str, Any]]:
+        """Return recurring failure groups ranked by occurrence count."""
+        from qara.analyzers.categorizer import categorize_failure
+        from qara.db.repository import RunRepository
+        from qara.db.schema import get_connection
+
+        conn = get_connection(db_path)
+        try:
+            groups = RunRepository(conn).get_failure_groups(project=project, limit=limit)
+            for g in groups:
+                cat = categorize_failure(
+                    error_type=g.get("error_type"),
+                    message=g.get("message"),
+                )
+                g["category"] = cat.label
+            return groups
+        finally:
+            conn.close()
+
+    @router.get("/api/risk", tags=["analysis"])
+    async def risk_predictions(
+        project: str | None = Query(None, description="Filter by project name."),
+        min_runs: int = Query(2, ge=1, description="Minimum run appearances."),
+        tier: str | None = Query(None, description="Filter by tier: CRITICAL, HIGH, MEDIUM, LOW."),
+    ) -> list[dict[str, Any]]:
+        """Return flakiness risk predictions for all tests with sufficient history."""
+        from qara.analyzers.predictor import RiskPredictor
+        from qara.db.schema import get_connection, init_db
+
+        conn = get_connection(db_path)
+        try:
+            init_db(conn)
+            predictor = RiskPredictor(conn)
+            predictions = predictor.predict_all(project=project, min_runs=min_runs)
+            if tier:
+                tier_upper = tier.upper()
+                predictions = [p for p in predictions if p.tier.name == tier_upper]
+            return [_dc_to_dict(p) for p in predictions]
+        finally:
+            conn.close()
+
+    @router.get("/api/stability/trends", tags=["analysis"])
+    async def stability_trends(
+        project: str | None = Query(None),
+        min_runs: int = Query(2, ge=1),
+        limit: int = Query(30, ge=5, le=100, description="History window size per test."),
+    ) -> list[dict[str, Any]]:
+        """Return per-test pass-rate trend direction for the Flaky Tests table."""
+        from qara.analyzers.flaky import FlakyScorer
+        from qara.db.repository import RunRepository
+        from qara.db.schema import get_connection, init_db
+        from qara.llm.trend import RunRate, compute_trend
+
+        conn = get_connection(db_path)
+        try:
+            init_db(conn)
+            scorer = FlakyScorer(conn)
+            repo = RunRepository(conn)
+            results = scorer.get_all(project=project, min_runs=min_runs, limit_per_test=limit)
+            out = []
+            for r in results:
+                history = repo.get_test_history(
+                    r.canonical_name, project=project, limit=limit
+                )
+                if len(history) < 2:
+                    continue
+                run_rates = [
+                    RunRate(
+                        label=f"Run #{e.run_sequence}",
+                        pass_rate=1.0 if e.status == "passed" else 0.0,
+                    )
+                    for e in history
+                ]
+                trend = compute_trend(run_rates)
+                out.append({
+                    "canonical_name": r.canonical_name,
+                    "direction": trend.direction,
+                    "delta_pct": trend.delta_pct,
+                    "confidence": trend.confidence,
+                })
+            return out
+        finally:
+            conn.close()
+
+    @router.post("/api/failure-groups/{fingerprint}/bug-links", tags=["analysis"])
+    async def add_bug_link(fingerprint: str, body: dict) -> dict:
+        """Link a bug URL to a failure fingerprint."""
+        from qara.db.repository import RunRepository
+        from qara.db.schema import get_connection
+
+        url = (body.get("url") or "").strip()
+        if not url:
+            raise HTTPException(status_code=400, detail="url is required")
+        if len(url) > 2048:
+            raise HTTPException(status_code=400, detail="url must be 2048 characters or fewer")
+        from urllib.parse import urlparse
+        _scheme = urlparse(url).scheme.lower()
+        if _scheme not in ("http", "https"):
+            raise HTTPException(status_code=400, detail="url must use http or https")
+        label = (body.get("label") or _extract_label(url) or None)
+        conn = get_connection(db_path)
+        try:
+            repo = RunRepository(conn)
+            new_id = repo.add_bug_link(fingerprint, url, label)
+            return {"id": new_id, "bug_url": url, "label": label}
+        finally:
+            conn.close()
+
+    @router.delete("/api/failure-groups/{fingerprint}/bug-links/{link_id}", tags=["analysis"])
+    async def remove_bug_link(fingerprint: str, link_id: int) -> dict:
+        """Remove a bug link by ID."""
+        from qara.db.repository import RunRepository
+        from qara.db.schema import get_connection
+
+        conn = get_connection(db_path)
+        try:
+            repo = RunRepository(conn)
+            repo.remove_bug_link(link_id)
+            return {"ok": True}
+        finally:
+            conn.close()
+
+    return router
+
+
+def _extract_label(url: str) -> str | None:
+    """Auto-extract a short label from a bug tracker URL."""
+    # JIRA: /browse/PROJ-123
+    m = re.search(r"/browse/([A-Z]+-\d+)", url)
+    if m:
+        return m.group(1)
+    # GitHub issues/PRs: /issues/456 or /pull/456
+    m = re.search(r"/(?:issues|pull)/(\d+)", url)
+    if m:
+        return f"#{m.group(1)}"
+    # Linear: /issue/TEAM-789
+    m = re.search(r"/issue/([A-Z]+-\d+)", url)
+    if m:
+        return m.group(1)
+    return None

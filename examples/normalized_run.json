@@ -1,0 +1,259 @@
+{
+  "metadata": {
+    "run_id": "fd44865e-011a-48a5-bb32-f33e76c1ae68",
+    "report_format": "extent",
+    "report_version": "5.0.9",
+    "report_path": "/Users/aishwariya/develop/OpenSourceProjects/Automated Root Cause Insights/tests/fixtures/extent_sample",
+    "project": "My CI Project",
+    "environment": null,
+    "branch": null,
+    "build_number": null,
+    "execution_host": null,
+    "started_at": "2024-07-03T09:46:40Z",
+    "finished_at": "2024-07-03T09:46:44Z",
+    "total_duration_ms": 4000,
+    "custom_fields": {}
+  },
+  "test_cases": [
+    {
+      "test_id": "extent_0_login_with_valid_credentials",
+      "name": "Login with valid credentials",
+      "full_name": null,
+      "status": "passed",
+      "suite": null,
+      "feature": null,
+      "story": null,
+      "owner": "qa-team",
+      "tags": [
+        "Smoke",
+        "Login"
+      ],
+      "parameters": {},
+      "links": [],
+      "started_at": "2024-07-03T09:46:40Z",
+      "finished_at": "2024-07-03T09:46:40.843000Z",
+      "duration_ms": 843,
+      "steps": [
+        {
+          "step_id": "79cb40f8-265c-4edf-b32a-f57f3e763042",
+          "name": "Navigate to login page",
+          "status": "passed",
+          "started_at": "2024-07-03T09:46:40Z",
+          "finished_at": "2024-07-03T09:46:40.100000Z",
+          "duration_ms": 100,
+          "log_output": null,
+          "attachments": [],
+          "failure": null,
+          "depth": 0
+        },
+        {
+          "step_id": "79f279be-7684-4dc8-8035-4147b506d384",
+          "name": "Enter username and password",
+          "status": "passed",
+          "started_at": "2024-07-03T09:46:40.100000Z",
+          "finished_at": "2024-07-03T09:46:40.600000Z",
+          "duration_ms": 500,
+          "log_output": "Username: testuser@example.com",
+          "attachments": [],
+          "failure": null,
+          "depth": 0
+        },
+        {
+          "step_id": "cee4c5ed-4a5b-4808-bfb3-dcf6c56b18c3",
+          "name": "Click login button",
+          "status": "passed",
+          "started_at": "2024-07-03T09:46:40.600000Z",
+          "finished_at": "2024-07-03T09:46:40.843000Z",
+          "duration_ms": 243,
+          "log_output": null,
+          "attachments": [],
+          "failure": null,
+          "depth": 0
+        }
+      ],
+      "failure": null,
+      "attachments": [],
+      "retry_count": 0,
+      "is_retry": false,
+      "flaky_score": null,
+      "source_format": "extent",
+      "raw_id": "0"
+    },
+    {
+      "test_id": "extent_1_login_with_invalid_password",
+      "name": "Login with invalid password",
+      "full_name": null,
+      "status": "failed",
+      "suite": null,
+      "feature": null,
+      "story": null,
+      "owner": "qa-team",
+      "tags": [
+        "Smoke",
+        "Login",
+        "NegativeTest"
+      ],
+      "parameters": {},
+      "links": [],
+      "started_at": "2024-07-03T09:46:41Z",
+      "finished_at": "2024-07-03T09:46:42.207000Z",
+      "duration_ms": 1207,
+      "steps": [
+        {
+          "step_id": "cfb60798-0606-4413-9633-0be0650a56f1",
+          "name": "Navigate to login page",
+          "status": "passed",
+          "started_at": "2024-07-03T09:46:41Z",
+          "finished_at": "2024-07-03T09:46:41.100000Z",
+          "duration_ms": 100,
+          "log_output": null,
+          "attachments": [],
+          "failure": null,
+          "depth": 0
+        },
+        {
+          "step_id": "f9345cf3-1de0-4918-b7b6-ae0d20f026ff",
+          "name": "Enter invalid password",
+          "status": "passed",
+          "started_at": "2024-07-03T09:46:41.100000Z",
+          "finished_at": "2024-07-03T09:46:41.600000Z",
+          "duration_ms": 500,
+          "log_output": "Password: wrongpassword123",
+          "attachments": [],
+          "failure": null,
+          "depth": 0
+        },
+        {
+          "step_id": "e480231a-180d-4202-a2b7-453450b166a0",
+          "name": "Assert error message displayed",
+          "status": "failed",
+          "started_at": "2024-07-03T09:46:41.600000Z",
+          "finished_at": "2024-07-03T09:46:42.207000Z",
+          "duration_ms": 607,
+          "log_output": "Expected error banner to be visible but it was not found",
+          "attachments": [
+            {
+              "name": "tc1-step3-screenshot.png",
+              "kind": "screenshot",
+              "path": "img/tc1-step3-screenshot.png",
+              "resolved_path": null,
+              "mime_type": null,
+              "size_bytes": null,
+              "source": "extent"
+            }
+          ],
+          "failure": null,
+          "depth": 0
+        }
+      ],
+      "failure": {
+        "error_type": "org.openqa.selenium.NoSuchElementException",
+        "message": "Expected error message element not found: By.cssSelector: .error-banner",
+        "stack_trace": "org.openqa.selenium.NoSuchElementException: Expected error message element not found: By.cssSelector: .error-banner\n\tat org.openqa.selenium.remote.RemoteWebDriver.findElement(RemoteWebDriver.java:318)\n\tat com.example.pages.LoginPage.getErrorBanner(LoginPage.java:87)\n\tat com.example.tests.LoginTest.testInvalidPassword(LoginTest.java:55)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)",
+        "normalized_message": null,
+        "normalized_stack_trace": null,
+        "failure_signature": null,
+        "failed_step": null
+      },
+      "attachments": [
+        {
+          "name": "tc1-final-screenshot.png",
+          "kind": "screenshot",
+          "path": "img/tc1-final-screenshot.png",
+          "resolved_path": null,
+          "mime_type": null,
+          "size_bytes": null,
+          "source": "extent"
+        }
+      ],
+      "retry_count": 0,
+      "is_retry": false,
+      "flaky_score": null,
+      "source_format": "extent",
+      "raw_id": "1"
+    },
+    {
+      "test_id": "extent_2_view_dashboard_after_login",
+      "name": "View dashboard after login",
+      "full_name": null,
+      "status": "passed",
+      "suite": null,
+      "feature": null,
+      "story": null,
+      "owner": "qa-team",
+      "tags": [
+        "Smoke"
+      ],
+      "parameters": {},
+      "links": [],
+      "started_at": "2024-07-03T09:46:43Z",
+      "finished_at": "2024-07-03T09:46:43.621000Z",
+      "duration_ms": 621,
+      "steps": [
+        {
+          "step_id": "2b4118f7-cd57-4541-b4c4-e5e7f0d1bb14",
+          "name": "Login as admin",
+          "status": "passed",
+          "started_at": "2024-07-03T09:46:43Z",
+          "finished_at": "2024-07-03T09:46:43.400000Z",
+          "duration_ms": 400,
+          "log_output": null,
+          "attachments": [],
+          "failure": null,
+          "depth": 0
+        },
+        {
+          "step_id": "a5f1fe0b-c258-4ee2-a90f-f7dcf9830a24",
+          "name": "Navigate to dashboard",
+          "status": "passed",
+          "started_at": "2024-07-03T09:46:43.400000Z",
+          "finished_at": "2024-07-03T09:46:43.621000Z",
+          "duration_ms": 221,
+          "log_output": null,
+          "attachments": [],
+          "failure": null,
+          "depth": 0
+        }
+      ],
+      "failure": null,
+      "attachments": [],
+      "retry_count": 0,
+      "is_retry": false,
+      "flaky_score": null,
+      "source_format": "extent",
+      "raw_id": "2"
+    },
+    {
+      "test_id": "extent_3_export_report_as_pdf",
+      "name": "Export report as PDF",
+      "full_name": null,
+      "status": "skipped",
+      "suite": null,
+      "feature": null,
+      "story": null,
+      "owner": "qa-team",
+      "tags": [
+        "Export"
+      ],
+      "parameters": {},
+      "links": [],
+      "started_at": "2024-07-03T09:46:44Z",
+      "finished_at": "2024-07-03T09:46:44Z",
+      "duration_ms": 0,
+      "steps": [],
+      "failure": null,
+      "attachments": [],
+      "retry_count": 0,
+      "is_retry": false,
+      "flaky_score": null,
+      "source_format": "extent",
+      "raw_id": "3"
+    }
+  ],
+  "warnings": [],
+  "total_count": 4,
+  "passed_count": 2,
+  "failed_count": 1,
+  "skipped_count": 1,
+  "pass_rate": 0.5
+}

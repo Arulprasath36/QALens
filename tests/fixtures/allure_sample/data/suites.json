@@ -1,0 +1,52 @@
+{
+  "uid": "suites-root",
+  "name": "suites",
+  "children": [
+    {
+      "uid": "suite-auth",
+      "name": "Authentication Tests",
+      "children": [
+        {
+          "uid": "tc-001",
+          "name": "Login with valid credentials",
+          "status": "passed",
+          "time": {"start": 1720000000000, "stop": 1720000000843, "duration": 843},
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-002",
+          "name": "Login with invalid password",
+          "status": "failed",
+          "time": {"start": 1720000001000, "stop": 1720000002207, "duration": 1207},
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-003",
+          "name": "View dashboard after login",
+          "status": "passed",
+          "time": {"start": 1720000003000, "stop": 1720000003621, "duration": 621},
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-004",
+          "name": "Export report as PDF",
+          "status": "skipped",
+          "time": {"start": 1720000004000, "stop": 1720000004000, "duration": 0},
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    }
+  ]
+}

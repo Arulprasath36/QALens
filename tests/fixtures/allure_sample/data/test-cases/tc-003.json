@@ -1,0 +1,47 @@
+{
+  "uid": "tc-003",
+  "name": "View dashboard after login",
+  "fullName": "com.example.tests.DashboardTest#testDashboardVisible",
+  "historyId": "hist-tc-003",
+  "testId": "com.example.tests.DashboardTest#testDashboardVisible",
+  "status": "passed",
+  "time": {"start": 1720000003000, "stop": 1720000003621, "duration": 621},
+  "description": "",
+  "descriptionHtml": "",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [
+    {
+      "name": "Login as admin user",
+      "status": "passed",
+      "time": {"start": 1720000003000, "stop": 1720000003400, "duration": 400},
+      "steps": [],
+      "attachments": [],
+      "parameters": []
+    },
+    {
+      "name": "Assert dashboard widgets are visible",
+      "status": "passed",
+      "time": {"start": 1720000003400, "stop": 1720000003621, "duration": 221},
+      "steps": [],
+      "attachments": [],
+      "parameters": []
+    }
+  ],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {"name": "suite", "value": "Authentication Tests"},
+    {"name": "feature", "value": "Dashboard"},
+    {"name": "severity", "value": "normal"},
+    {"name": "owner", "value": "qa-team"},
+    {"name": "tag", "value": "Smoke"}
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

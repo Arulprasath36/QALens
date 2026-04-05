@@ -1,0 +1,15 @@
+# Tell git-archive (and GitHub's "Download ZIP") to strip dev/build artifacts.
+# These directories are never useful to someone consuming the source.
+
+.venv               export-ignore
+__pycache__         export-ignore
+.pytest_cache       export-ignore
+.ruff_cache         export-ignore
+__MACOSX            export-ignore
+*.pyc               export-ignore
+*.pyo               export-ignore
+.coverage           export-ignore
+htmlcov             export-ignore
+dist                export-ignore
+build               export-ignore
+*.egg-info          export-ignore

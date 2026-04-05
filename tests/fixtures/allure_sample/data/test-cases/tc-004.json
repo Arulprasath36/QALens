@@ -1,0 +1,30 @@
+{
+  "uid": "tc-004",
+  "name": "Export report as PDF",
+  "fullName": "com.example.tests.ExportTest#testExportPdf",
+  "historyId": "hist-tc-004",
+  "testId": "com.example.tests.ExportTest#testExportPdf",
+  "status": "skipped",
+  "time": {"start": 1720000004000, "stop": 1720000004000, "duration": 0},
+  "description": "Skipped: PDF module not yet deployed in this environment.",
+  "descriptionHtml": "<p>Skipped: PDF module not yet deployed in this environment.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {"name": "suite", "value": "Authentication Tests"},
+    {"name": "feature", "value": "Export"},
+    {"name": "severity", "value": "minor"},
+    {"name": "owner", "value": "qa-team"},
+    {"name": "tag", "value": "Export"}
+  ],
+  "links": [],
+  "statusMessage": "Skipped: PDF module not yet deployed in this environment.",
+  "statusTrace": null
+}

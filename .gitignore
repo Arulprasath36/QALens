@@ -1,0 +1,102 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.installed.cfg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env/
+.python-version
+
+# Distribution / packaging
+.Python
+develop-eggs/
+lib/
+lib64/
+
+# Pytest and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.cover
+*.py,cover
+.hypothesis/
+nosetests.xml
+test-results/
+junit*.xml
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ruff
+.ruff_cache/
+
+# macOS
+__MACOSX/
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Secrets / env files
+.env
+.env.*
+secrets.toml
+*.pem
+*.key
+
+# QARA — local history and output dirs
+history/
+.qara_cache/
+outputs/
+
+# Docs build
+docs/_build/
+docs/site/
+site/
+
+# SQLite databases
+*.db
+*.db-shm
+*.db-wal
+
+# QARA — local test data and generated reports
+tmp_test_data/
+ExtentReport.html
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.bak
+*.log

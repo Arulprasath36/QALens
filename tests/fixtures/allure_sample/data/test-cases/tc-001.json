@@ -1,0 +1,61 @@
+{
+  "uid": "tc-001",
+  "name": "Login with valid credentials",
+  "fullName": "com.example.tests.LoginTest#testValidLogin",
+  "historyId": "hist-tc-001",
+  "testId": "com.example.tests.LoginTest#testValidLogin",
+  "status": "passed",
+  "time": {"start": 1720000000000, "stop": 1720000000843, "duration": 843},
+  "description": "Verify that a registered user can log in with valid credentials.",
+  "descriptionHtml": "<p>Verify that a registered user can log in with valid credentials.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [
+    {
+      "name": "Navigate to login page",
+      "status": "passed",
+      "time": {"start": 1720000000000, "stop": 1720000000120, "duration": 120},
+      "steps": [],
+      "attachments": [],
+      "parameters": []
+    },
+    {
+      "name": "Enter username and password",
+      "status": "passed",
+      "time": {"start": 1720000000120, "stop": 1720000000600, "duration": 480},
+      "steps": [],
+      "attachments": [],
+      "parameters": [
+        {"name": "username", "value": "testuser@example.com"}
+      ]
+    },
+    {
+      "name": "Click login button and assert redirect",
+      "status": "passed",
+      "time": {"start": 1720000000600, "stop": 1720000000843, "duration": 243},
+      "steps": [],
+      "attachments": [],
+      "parameters": []
+    }
+  ],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {"name": "suite", "value": "Authentication Tests"},
+    {"name": "feature", "value": "Authentication"},
+    {"name": "story", "value": "Valid Login"},
+    {"name": "severity", "value": "critical"},
+    {"name": "owner", "value": "qa-team"},
+    {"name": "tag", "value": "Smoke"},
+    {"name": "tag", "value": "Login"}
+  ],
+  "links": [
+    {"name": "AUTH-101", "url": "https://jira.example.com/browse/AUTH-101", "type": "issue"}
+  ],
+  "statusMessage": null,
+  "statusTrace": null
+}
