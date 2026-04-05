@@ -12,7 +12,7 @@
 
 **QARA (Quality Analysis & Root Automation)** is an open-source Python CLI and library that reads existing automation test HTML reports — such as **Extent Reports** and **Allure Reports** — extracts structured execution data, and generates explainable root-cause insights for QA engineers and development teams.
 
-> QARA stands for Automated Root-cause Insights. The name also echoes the Tamil word "Ari," meaning "know," reflecting the project's goal of turning raw automation reports into actionable understanding.
+> QARA stands for Quality Analysis & Root Automation. The project's goal is turning raw automation reports into actionable understanding.
 
 QARA is **not** a test reporting framework. It is an intelligence layer *on top of* your existing reports.
 
