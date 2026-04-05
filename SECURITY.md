@@ -12,11 +12,11 @@ QARA is currently pre-1.0. Security fixes are applied to the latest `main` branc
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in ARI, **please do not open a public GitHub issue**.
+If you discover a security vulnerability in QARA, **please do not open a public GitHub issue**.
 
 Instead, report it privately by emailing the maintainers at:
 
-**security@your-org.example** *(replace with your actual contact)*
+**arulprasath36@gmail.com**
 
 Or use GitHub's [private security advisory](https://github.com/your-org/qara/security/advisories/new) feature if available.
 
