@@ -431,7 +431,15 @@ def gather_owner_context(
             SELECT
                 tc.canonical_name,
                 MAX(tc.name)                AS display_name,
-                MAX(tc.owner)               AS owner,
+                (
+                    SELECT tc_o.owner
+                    FROM   test_cases tc_o
+                    JOIN   runs r_o ON tc_o.run_id = r_o.run_id
+                    WHERE  tc_o.canonical_name = tc.canonical_name
+                    AND    tc_o.owner IS NOT NULL
+                    ORDER BY r_o.run_sequence DESC
+                    LIMIT 1
+                )                           AS owner,
                 MAX(tc.suite)               AS suite,
                 COUNT(*)                    AS total_runs,
                 SUM(CASE WHEN tc.status = 'passed'             THEN 1 ELSE 0 END) AS passes,
@@ -441,18 +449,33 @@ def gather_owner_context(
                     FROM   test_cases tc2
                     JOIN   runs r2 ON tc2.run_id = r2.run_id
                     WHERE  tc2.canonical_name = tc.canonical_name
-                    AND    LOWER(tc2.owner)   LIKE LOWER(?)
                     ORDER BY r2.run_sequence DESC
                     LIMIT 1
                 )                           AS latest_status
             FROM test_cases tc
             {project_join}
-            WHERE LOWER(tc.owner) LIKE LOWER(?)
+            WHERE tc.canonical_name IN (
+                -- Tests whose most recent NON-NULL owner matches.
+                -- Some runs (e.g. incident replays) have NULL owner — we skip
+                -- those and look at the last run that actually recorded ownership.
+                SELECT tc_cur.canonical_name
+                FROM   test_cases tc_cur
+                JOIN   runs r_cur ON tc_cur.run_id = r_cur.run_id
+                WHERE  LOWER(tc_cur.owner) LIKE LOWER(?)
+                AND    tc_cur.owner IS NOT NULL
+                AND    r_cur.run_sequence = (
+                    SELECT MAX(r_max.run_sequence)
+                    FROM   test_cases tc_max
+                    JOIN   runs r_max ON tc_max.run_id = r_max.run_id
+                    WHERE  tc_max.canonical_name = tc_cur.canonical_name
+                    AND    tc_max.owner IS NOT NULL
+                )
+            )
             {project_clause}
             GROUP BY tc.canonical_name
             ORDER BY failures DESC, tc.canonical_name
             """,
-            [pattern] + base_params,
+            base_params,
         )
         rows = cur.fetchall()
 
@@ -544,3 +567,197 @@ def gather_owner_context(
 
     parts.append("")
     return "\n".join(parts).strip(), sources  # type: ignore[name-defined]
+
+
+# ---------------------------------------------------------------------------
+# Flaky owner context (flaky test count per engineer)
+# ---------------------------------------------------------------------------
+
+
+def gather_flaky_owner_context(
+    *,
+    project: str | None = None,
+    db_path: str | Path | None = None,
+) -> tuple[str, list[dict]]:
+    """Build a context block ranking engineers by their flaky test count.
+
+    Uses :class:`~qara.analyzers.flaky.FlakyScorer` to score all tests, then
+    groups the FLAKY-classified ones by their most recent non-null owner.
+
+    Returns:
+        A tuple of ``(context_text, sources)``.
+    """
+    from collections import defaultdict
+
+    from qara.analyzers.flaky import FlakyScorer
+    from qara.db.schema import get_connection
+
+    conn = get_connection(db_path)
+    try:
+        scorer = FlakyScorer(conn)
+        all_flaky = scorer.get_all_flaky(project=project)
+    finally:
+        conn.close()
+
+    owner_tests: dict[str, list] = defaultdict(list)
+    for result in all_flaky:
+        owner = result.owner or "Unassigned"
+        owner_tests[owner].append(result)
+
+    if not owner_tests:
+        return "No flaky tests found in the database.", []
+
+    ranked = sorted(owner_tests.items(), key=lambda x: len(x[1]), reverse=True)
+    top_owner, top_tests = ranked[0]
+
+    proj_label = project or "(all projects)"
+    parts: list[str] = []
+    sources: list[dict] = []
+
+    parts.append(f"=== Flaky Test Count per Engineer ({proj_label}) ===")
+    parts.append(f"{'Engineer':<25} {'Flaky Tests':>12}")
+    parts.append("-" * 40)
+
+    for owner, tests in ranked:
+        parts.append(f"{owner:<25} {len(tests):>12}")
+        for t in tests:
+            parts.append(f"  - {t.display_name}  [flip={t.flip_score:.2f} · {t.sparkline}]")
+        sources.append({
+            "type": "owner",
+            "icon": "👤",
+            "label": owner,
+            "meta": f"{len(tests)} flaky test{'s' if len(tests) != 1 else ''}",
+        })
+        parts.append("")
+
+    parts.append(
+        f"Answer: {top_owner} owns the most flaky tests "
+        f"({len(top_tests)} unique flaky test{'s' if len(top_tests) != 1 else ''})."
+    )
+
+    return "\n".join(parts).strip(), sources
+
+
+# ---------------------------------------------------------------------------
+# Owner-aggregate context (failure rate / count across all engineers)
+# ---------------------------------------------------------------------------
+
+
+def gather_owner_aggregate_context(
+    *,
+    project: str | None = None,
+    db_path: str | Path | None = None,
+) -> tuple[str, list[dict]]:
+    """Build a context block with failure-rate and failure-count per engineer.
+
+    Uses each test's most recent non-NULL owner (same rule as
+    :func:`gather_owner_context`) so aggregate figures reflect current
+    ownership, not historical assignments.
+
+    Returns:
+        A tuple of ``(context_text, sources)``.
+    """
+    from qara.db.schema import get_connection
+
+    conn = get_connection(db_path)
+    try:
+        cur = conn.cursor()
+        project_clause = "AND r.project = ?" if project else ""
+        params: list = [project] if project else []
+
+        cur.execute(
+            f"""
+            WITH current_owner AS (
+                -- Most recent non-NULL owner per test
+                SELECT
+                    tc.canonical_name,
+                    tc.owner
+                FROM test_cases tc
+                JOIN runs r ON tc.run_id = r.run_id
+                WHERE tc.owner IS NOT NULL
+                AND r.run_sequence = (
+                    SELECT MAX(r2.run_sequence)
+                    FROM test_cases tc2
+                    JOIN runs r2 ON tc2.run_id = r2.run_id
+                    WHERE tc2.canonical_name = tc.canonical_name
+                    AND tc2.owner IS NOT NULL
+                )
+            )
+            SELECT
+                co.owner,
+                COUNT(*)                                                        AS total_executions,
+                SUM(CASE WHEN tc.status IN ('failed','broken') THEN 1 ELSE 0 END) AS failed_executions,
+                COUNT(DISTINCT tc.canonical_name)                               AS total_tests,
+                COUNT(DISTINCT CASE WHEN tc.status IN ('failed','broken')
+                                    THEN tc.canonical_name END)                 AS failing_tests,
+                COUNT(DISTINCT r.run_id)                                        AS run_count
+            FROM test_cases tc
+            JOIN runs r ON tc.run_id = r.run_id
+            JOIN current_owner co ON co.canonical_name = tc.canonical_name
+            WHERE 1=1
+            {project_clause}
+            GROUP BY co.owner
+            ORDER BY failed_executions DESC, co.owner
+            """,
+            params,
+        )
+        rows = cur.fetchall()
+
+        if project:
+            total_runs = cur.execute(
+                "SELECT COUNT(*) FROM runs WHERE project = ?", (project,)
+            ).fetchone()[0]
+        else:
+            total_runs = cur.execute("SELECT COUNT(*) FROM runs").fetchone()[0]
+    finally:
+        conn.close()
+
+    if not rows:
+        return "No owner data found in the database.", []
+
+    proj_label = project or "(all projects)"
+    parts: list[str] = []
+    sources: list[dict] = []
+
+    parts.append(f"=== Failure Rate per Engineer ({proj_label}) ===")
+    parts.append(f"Data covers all-time history: {total_runs} total run(s) in the database.")
+    parts.append(
+        f"{'Engineer':<25} {'Total Exec':>10} {'Failures':>9} {'Fail Rate':>10} "
+        f"{'Runs':>6} {'Tests':>7} {'Failing Tests':>14}"
+    )
+    parts.append("-" * 88)
+
+    for rank_idx, (owner, total, failed, tests, failing_tests, run_count) in enumerate(rows):
+        rate = failed / total if total else 0.0
+        parts.append(
+            f"{owner:<25} {total:>10} {failed:>9} {rate:>9.1%} "
+            f"{run_count:>6} {tests:>7} {failing_tests:>14}"
+        )
+        sources.append({
+            "type": "owner",
+            "icon": "👤",
+            "label": owner,
+            "meta": (
+                f"{rate:.1%} failure rate · {failed}/{total} executions · "
+                f"{failing_tests}/{tests} tests failing · {run_count} runs"
+            ),
+            # Structured fields for metric-aware evidence cards in the UI.
+            # These allow the frontend to render a computed-metric card without
+            # re-parsing the human-readable `meta` string.
+            "metric": "failure_rate",
+            "failure_rate": round(rate, 4),
+            "failed_executions": failed,
+            "total_executions": total,
+            "failing_tests": failing_tests,
+            "total_tests": tests,
+            "run_count": run_count,
+            "rank_label": "Highest" if rank_idx == 0 else None,
+        })
+
+    parts.append("")
+    parts.append(
+        f"Failure rate = failed executions / total executions (all-time, {total_runs} runs). "
+        "Sorted by failure count descending."
+    )
+
+    return "\n".join(parts).strip(), sources

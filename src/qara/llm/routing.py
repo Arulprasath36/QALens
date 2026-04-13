@@ -229,6 +229,9 @@ class QuerySignals:
     asks_about_owner: bool = False
     """Owner / team / responsible-party questions."""
 
+    asks_about_owner_aggregate: bool = False
+    """Aggregate breakdown across all engineers (failure rate per engineer, etc.)."""
+
     asks_about_root_cause: bool = False
     """Why / cause / explain questions."""
 
@@ -320,6 +323,19 @@ _OWNER_KEYWORDS: frozenset[str] = frozenset({
     "who owns", "maintainer", "belonging to", "tests by", "tests for",
 })
 
+# Aggregate owner-analytics questions — no single owner name, asks for a
+# breakdown or ranking across all engineers.
+_OWNER_AGGREGATE_KEYWORDS: frozenset[str] = frozenset({
+    "per engineer", "per owner", "per developer", "per person", "per team member",
+    "each engineer", "each owner", "each developer",
+    "failure rate per", "failure count per", "failures per",
+    "most failures", "highest failure", "engineer with", "owner with",
+    "who has the most", "who has more", "who owns the most",
+    "most flaky", "flakiest engineer", "flakiest owner",
+    "breakdown by engineer", "breakdown by owner", "breakdown by developer",
+    "by engineer", "by owner", "by developer",
+})
+
 _ROOT_CAUSE_KEYWORDS: frozenset[str] = frozenset({
     "why", "what caused", "cause", "reason", "explain",
     "root cause", "investigation", "investigate",
@@ -383,6 +399,7 @@ def detect_signals(normalized: str) -> QuerySignals:
         asks_about_comparison=_hit(_COMPARISON_KEYWORDS),
         asks_about_suite=_hit(_SUITE_KEYWORDS),
         asks_about_owner=_hit(_OWNER_KEYWORDS),
+        asks_about_owner_aggregate=_hit(_OWNER_AGGREGATE_KEYWORDS),
         asks_about_root_cause=_hit(_ROOT_CAUSE_KEYWORDS),
         asks_about_trend=_hit(_TREND_KEYWORDS),
     )
@@ -436,7 +453,44 @@ def gather_context_for_signals(
         A 4-tuple of ``(context_text, structured_facts, sources, mode)`` or
         ``("", "", [], "")`` when no signal-based routing applies.
     """
-    # ── Answer-plan routing (takes priority over generic signal routing) ───
+    # ── Owner aggregate: failure rate / count across ALL engineers ───────────
+    # Must come before single-owner check so "failure rate per engineer" doesn't
+    # accidentally try to extract a single owner name from the question.
+    if signals.asks_about_owner_aggregate:
+        if signals.asks_about_stability:
+            # "Who owns the most flaky tests?" — route to flaky-specific ranking.
+            from qara.llm.context import gather_flaky_owner_context
+
+            context, sources = gather_flaky_owner_context(
+                project=project, db_path=db_path
+            )
+        else:
+            from qara.llm.context import gather_owner_aggregate_context
+
+            context, sources = gather_owner_aggregate_context(
+                project=project, db_path=db_path
+            )
+        return context, "", sources, "project"
+
+    # ── Owner query: always intercept first before answer-plan routing ───────
+    # "Which tests owned by Fatima are failing?" classifies as SUMMARY_OVERVIEW
+    # by the heuristic intent detector, so it would fall into the summary branch
+    # and never reach the owner-context builder below. Checking owner first
+    # ensures the DB-backed gather_owner_context is always used for owner queries.
+    is_owner = (intent.is_owner_query if intent else signals.asks_about_owner)
+    if is_owner:
+        owner = (intent.owner_name if intent else None) or _extract_owner_from_question(question)
+        if owner:
+            from qara.llm.context import gather_owner_context
+
+            context, sources = gather_owner_context(
+                owner, project=project, db_path=db_path
+            )
+            header = _build_signals_header(signals)
+            full_context = header + "\n\n" + context if header else context
+            return full_context, "", sources, "project"
+
+    # ── Answer-plan routing (takes priority over remaining signal routing) ───
     if answer_plan is not None:
         from qara.llm.answer_plan import AnswerIntent
 
@@ -525,20 +579,6 @@ def gather_context_for_signals(
                 seen = {s.get("label") for s in cmp_src}
                 merged_src = list(cmp_src)
                 return merged_ctx, scope_facts, merged_src, "project"
-
-    # ── Owner query: prefer LLM-parsed intent name, fall back to regex ────
-    is_owner = (intent.is_owner_query if intent else signals.asks_about_owner)
-    if is_owner:
-        owner = (intent.owner_name if intent else None) or _extract_owner_from_question(question)
-        if owner:
-            from qara.llm.context import gather_owner_context
-
-            context, sources = gather_owner_context(
-                owner, project=project, db_path=db_path
-            )
-            header = _build_signals_header(signals)
-            full_context = header + "\n\n" + context if header else context
-            return full_context, "", sources, "project"
 
     # ── Specific-run query: "Run No 18", "run #18", "run 18" ─────────────
     run_number = _extract_run_number_from_question(question)

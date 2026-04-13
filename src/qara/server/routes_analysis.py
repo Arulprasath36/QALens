@@ -146,6 +146,80 @@ def make_analysis_router(db_path: str | Path | None) -> APIRouter:
         finally:
             conn.close()
 
+    @router.get("/api/owner-stats", tags=["analysis"])
+    async def owner_stats(
+        project: str | None = Query(None, description="Filter by project name."),
+    ) -> dict:
+        """Return all-time failure rate and execution counts per owner.
+
+        Uses each test's most recent non-NULL owner so figures reflect
+        current ownership.  Covers the full run history (no window limit).
+        """
+        from qara.db.schema import get_connection
+
+        conn = get_connection(db_path)
+        try:
+            cur = conn.cursor()
+            project_clause = "AND r.project = ?" if project else ""
+            params: list = [project] if project else []
+
+            cur.execute(
+                f"""
+                WITH current_owner AS (
+                    SELECT tc.canonical_name, tc.owner
+                    FROM test_cases tc
+                    JOIN runs r ON tc.run_id = r.run_id
+                    WHERE tc.owner IS NOT NULL
+                    AND r.run_sequence = (
+                        SELECT MAX(r2.run_sequence)
+                        FROM test_cases tc2
+                        JOIN runs r2 ON tc2.run_id = r2.run_id
+                        WHERE tc2.canonical_name = tc.canonical_name
+                        AND tc2.owner IS NOT NULL
+                    )
+                )
+                SELECT
+                    co.owner,
+                    COUNT(*)                                                            AS total_executions,
+                    SUM(CASE WHEN tc.status IN ('failed','broken') THEN 1 ELSE 0 END)  AS failed_executions,
+                    COUNT(DISTINCT tc.canonical_name)                                   AS total_tests,
+                    COUNT(DISTINCT CASE WHEN tc.status IN ('failed','broken')
+                                        THEN tc.canonical_name END)                     AS failing_tests,
+                    COUNT(DISTINCT r.run_id)                                            AS run_count
+                FROM test_cases tc
+                JOIN runs r ON tc.run_id = r.run_id
+                JOIN current_owner co ON co.canonical_name = tc.canonical_name
+                WHERE 1=1 {project_clause}
+                GROUP BY co.owner
+                ORDER BY failed_executions DESC, co.owner
+                """,
+                params,
+            )
+            rows = cur.fetchall()
+
+            if project:
+                total_runs = cur.execute(
+                    "SELECT COUNT(*) FROM runs WHERE project = ?", (project,)
+                ).fetchone()[0]
+            else:
+                total_runs = cur.execute("SELECT COUNT(*) FROM runs").fetchone()[0]
+        finally:
+            conn.close()
+
+        owners = [
+            {
+                "owner": row[0],
+                "total_executions": row[1],
+                "failed_executions": row[2],
+                "failure_rate": round(row[2] / row[1], 4) if row[1] else 0.0,
+                "total_tests": row[3],
+                "failing_tests": row[4],
+                "run_count": row[5],
+            }
+            for row in rows
+        ]
+        return {"total_runs": total_runs, "owners": owners}
+
     @router.post("/api/failure-groups/{fingerprint}/bug-links", tags=["analysis"])
     async def add_bug_link(fingerprint: str, body: dict) -> dict:
         """Link a bug URL to a failure fingerprint."""

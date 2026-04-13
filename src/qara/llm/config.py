@@ -109,7 +109,7 @@ api_key     = ""
 timeout     = 120
 
 # Maximum tokens to generate
-max_tokens  = 1024
+max_tokens  = 2048
 
 # Sampling temperature (0.0 = deterministic, 1.0 = creative)
 temperature = 0.2
@@ -144,7 +144,7 @@ class LLMConfig:
     model: str = "llama3.2"
     api_key: str = ""
     timeout: int = 120
-    max_tokens: int = 1024
+    max_tokens: int = 2048
     temperature: float = 0.2
     system_prompt: str = ""
 
@@ -223,7 +223,7 @@ def load_config(path: Path | None = None) -> LLMConfig:
         model=raw.get("model", defaults.get("model", "default")),
         api_key=raw.get("api_key", defaults.get("api_key", "")),
         timeout=int(raw.get("timeout", 120)),
-        max_tokens=int(raw.get("max_tokens", 1024)),
+        max_tokens=int(raw.get("max_tokens", 2048)),
         temperature=float(raw.get("temperature", 0.2)),
         system_prompt=raw.get("system_prompt", ""),
     )

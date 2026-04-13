@@ -47,6 +47,14 @@ class LLMError(Exception):
     """Raised when the LLM provider returns an error or is unreachable."""
 
 
+def _truncation_notice(max_tokens: int) -> str:
+    """Return a visible warning to append when a response was cut off at the token limit."""
+    return (
+        f"\n\n> **Note:** This response was truncated (token limit reached). "
+        f"Increase `max_tokens` (currently {max_tokens}) in `~/.qara/config.toml` for complete answers."
+    )
+
+
 class LLMClient:
     """Provider-agnostic LLM client.
 
@@ -171,7 +179,11 @@ class LLMClient:
 
         data = resp.json()
         try:
-            return data["choices"][0]["message"]["content"].strip()
+            choice = data["choices"][0]
+            content = choice["message"]["content"].strip()
+            if choice.get("finish_reason") == "length":
+                content += _truncation_notice(cfg.max_tokens)
+            return content
         except (KeyError, IndexError) as exc:
             raise LLMError(f"Unexpected response format from {cfg.provider}: {data}") from exc
 
@@ -212,7 +224,10 @@ class LLMClient:
 
         data = resp.json()
         try:
-            return data["content"][0]["text"].strip()
+            content = data["content"][0]["text"].strip()
+            if data.get("stop_reason") == "max_tokens":
+                content += _truncation_notice(cfg.max_tokens)
+            return content
         except (KeyError, IndexError) as exc:
             raise LLMError(f"Unexpected Anthropic response format: {data}") from exc
 
@@ -258,15 +273,11 @@ class LLMClient:
         try:
             candidate = data["candidates"][0]
             finish_reason = candidate.get("finishReason", "")
-            if finish_reason == "MAX_TOKENS":
-                raise LLMError(
-                    f"Gemini response was truncated (MAX_TOKENS). "
-                    f"Increase max_tokens (currently {cfg.max_tokens}) in your config."
-                )
             parts = candidate["content"]["parts"]
-            return "".join(p.get("text", "") for p in parts).strip()
-        except LLMError:
-            raise
+            content = "".join(p.get("text", "") for p in parts).strip()
+            if finish_reason == "MAX_TOKENS":
+                content += _truncation_notice(cfg.max_tokens)
+            return content
         except (KeyError, IndexError) as exc:
             raise LLMError(f"Unexpected Gemini response format: {data}") from exc
 

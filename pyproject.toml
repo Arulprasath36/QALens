@@ -48,6 +48,8 @@ dependencies = [
     "fastapi>=0.110",
     "uvicorn>=0.29",
     "python-multipart>=0.0.9",
+    "pandas>=2.0",
+    "rapidfuzz>=3.0",
 ]
 
 [project.optional-dependencies]
@@ -67,6 +69,8 @@ dev = [
     "numpy>=1.26",
     "httpx>=0.27",
     "pytest-httpx>=0.30",
+    "pandas>=2.0",
+    "rapidfuzz>=3.0",
 ]
 
 [project.urls]
