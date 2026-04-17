@@ -1,94 +1,106 @@
-import React from 'react';
 import type { ComparisonMetrics } from '../../types';
 
 // ─────────────────────────────────────────────────────────────
-// Single metric card
+// Helpers
 // ─────────────────────────────────────────────────────────────
 
-interface MetricCardProps {
-  label:    string;
-  valueA:   number | string;
-  valueB:   number | string;
-  labelA:   string;
-  labelB:   string;
-  format?:  'percent' | 'count';
-  icon:     string;
-  higher?:  'better' | 'worse'; // is a higher value better or worse?
-}
-
-function delta(a: number, b: number, higher: 'better' | 'worse'): 'better' | 'worse' | 'same' {
-  if (a === b) return 'same';
-  const aIsBetter = higher === 'worse' ? a < b : a > b;
-  return aIsBetter ? 'better' : 'worse';
-}
-
-function fmt(val: number | string, format?: 'percent' | 'count'): string {
-  if (typeof val !== 'number') return String(val);
+function fmt(val: number, format: 'percent' | 'count'): string {
   if (format === 'percent') return `${Math.round(val * 100)}%`;
   return String(val);
 }
 
-function ValueDisplay({
-  value, format, side, higher,
-  other,
-}: {
-  value:   number;
-  format?: 'percent' | 'count';
-  side:    'a' | 'b';
-  higher:  'better' | 'worse';
-  other:   number;
-}) {
-  const d = side === 'a' ? delta(value, other, higher) : delta(value, other, higher);
-
-  const color =
-    d === 'better' ? 'text-emerald-400' :
-    d === 'worse'  ? 'text-red-400'     :
-                     'text-zinc-300';
-
-  const dot =
-    d === 'better' ? '🟢' :
-    d === 'worse'  ? '🔴' :
-                     '⚪';
-
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className={`text-2xl font-bold tabular-nums ${color}`}>
-        {fmt(value, format)}
-      </span>
-      <span className="text-base">{dot}</span>
-    </div>
-  );
+function fmtDelta(diff: number, format: 'percent' | 'count'): string {
+  const sign = diff > 0 ? '+' : '';
+  if (format === 'percent') return `${sign}${Math.round(diff * 100)}%`;
+  return `${sign}${Math.round(diff)}`;
 }
 
-function MetricCard({ label, valueA, valueB, labelA, labelB, format, icon, higher = 'worse' }: MetricCardProps) {
-  const numA = typeof valueA === 'number' ? valueA : 0;
-  const numB = typeof valueB === 'number' ? valueB : 0;
+// ─────────────────────────────────────────────────────────────
+// MetricCard
+// ─────────────────────────────────────────────────────────────
+
+interface MetricCardProps {
+  label:  string;
+  valueA: number;   // A = baseline (left / older)
+  valueB: number;   // B = latest  (right / newer)
+  labelA: string;
+  labelB: string;
+  format: 'percent' | 'count';
+  higher: 'better' | 'worse';
+}
+
+function MetricCard({ label, valueA, valueB, format, higher }: MetricCardProps) {
+  const diff  = valueB - valueA;                               // positive = B is higher
+  const equal = diff === 0;
+
+  // Is the change an improvement?
+  // higher=worse → lower B is better → diff < 0 is improvement
+  // higher=better → higher B is better → diff > 0 is improvement
+  const improved = !equal && (higher === 'worse' ? diff < 0 : diff > 0);
+
+  // Color classes
+  const deltaClass = equal      ? 'text-muted'   :
+                     improved   ? 'text-success'  :
+                                  'text-danger';
+
+  const valueBClass = equal      ? 'text-primary'  :
+                      improved   ? 'text-success'   :
+                                   'text-danger';
+
+  // Direction indicator
+  const arrow = equal    ? '—'  :
+                improved ? '↑'  :
+                           '↓';
+
+  const dirLabel = equal    ? 'no change' :
+                   improved ? 'better'    :
+                              'worse';
 
   return (
-    <div className="flex-1 min-w-[180px] bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3 hover:border-zinc-700 transition-colors duration-150">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <span className="text-base">{icon}</span>
-        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">{label}</span>
+    <article className="qara-card qara-fade-up flex-1 min-w-[180px] p-5">
+
+      {/* Title */}
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted mb-4">
+        {label}
+      </p>
+
+      {/* Side-by-side values */}
+      <div className="flex items-end gap-5">
+        <div className="flex flex-col items-start">
+          <span className={`text-2xl font-semibold tabular-nums leading-none ${valueBClass}`}>
+            {fmt(valueB, format)}
+          </span>
+          <span className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted mt-1">Latest</span>
+        </div>
+        <div className="flex flex-col items-start">
+          <span className="text-2xl font-semibold text-secondary tabular-nums leading-none">
+            {fmt(valueA, format)}
+          </span>
+          <span className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted mt-1">Previous</span>
+        </div>
       </div>
 
-      {/* A vs B */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-[10px] text-zinc-600 mb-1 truncate" title={labelA}>{labelA}</p>
-          <ValueDisplay value={numA} format={format} side="a" higher={higher} other={numB} />
-        </div>
-        <div>
-          <p className="text-[10px] text-zinc-600 mb-1 truncate" title={labelB}>{labelB}</p>
-          <ValueDisplay value={numB} format={format} side="b" higher={higher} other={numA} />
-        </div>
+      {/* Delta + direction */}
+      <div className={`flex items-center gap-1.5 mt-4 ${deltaClass}`}>
+        <span className="text-base leading-none font-medium">{arrow}</span>
+        {equal ? (
+          <span className="text-sm font-medium">No change</span>
+        ) : (
+          <>
+            <span className="text-sm font-semibold tabular-nums">
+              {fmtDelta(diff, format)}
+            </span>
+            <span className="text-xs font-medium opacity-75">{dirLabel}</span>
+          </>
+        )}
       </div>
-    </div>
+
+    </article>
   );
 }
 
 // ─────────────────────────────────────────────────────────────
-// Summary cards row
+// ComparisonSummaryCards
 // ─────────────────────────────────────────────────────────────
 
 interface ComparisonSummaryCardsProps {
@@ -99,59 +111,45 @@ interface ComparisonSummaryCardsProps {
 export function ComparisonSummaryCards({ metricsA, metricsB }: ComparisonSummaryCardsProps) {
   const cards: MetricCardProps[] = [
     {
-      label:   'Failure Rate',
-      icon:    '📉',
-      valueA:  metricsA.failureRate,
-      valueB:  metricsB.failureRate,
-      labelA:  metricsA.label,
-      labelB:  metricsB.label,
-      format:  'percent',
-      higher:  'worse',
+      label:  'Failure Rate',
+      valueA: metricsA.failureRate,
+      valueB: metricsB.failureRate,
+      labelA: metricsA.label,
+      labelB: metricsB.label,
+      format: 'percent',
+      higher: 'worse',
     },
     {
-      label:   'Flaky Tests',
-      icon:    '🌊',
-      valueA:  metricsA.flakyCount,
-      valueB:  metricsB.flakyCount,
-      labelA:  metricsA.label,
-      labelB:  metricsB.label,
-      format:  'count',
-      higher:  'worse',
+      label:  'New Failures',
+      valueA: metricsA.newFailures,
+      valueB: metricsB.newFailures,
+      labelA: metricsA.label,
+      labelB: metricsB.label,
+      format: 'count',
+      higher: 'worse',
     },
     {
-      label:   'New Failures',
-      icon:    '🔥',
-      valueA:  metricsA.newFailures,
-      valueB:  metricsB.newFailures,
-      labelA:  metricsA.label,
-      labelB:  metricsB.label,
-      format:  'count',
-      higher:  'worse',
+      label:  'Recovered Tests',
+      valueA: metricsA.fixedTests,
+      valueB: metricsB.fixedTests,
+      labelA: metricsA.label,
+      labelB: metricsB.label,
+      format: 'count',
+      higher: 'better',
     },
     {
-      label:   'Fixed Tests',
-      icon:    '✅',
-      valueA:  metricsA.fixedTests,
-      valueB:  metricsB.fixedTests,
-      labelA:  metricsA.label,
-      labelB:  metricsB.label,
-      format:  'count',
-      higher:  'better',
-    },
-    {
-      label:   'Total Tests',
-      icon:    '🧪',
-      valueA:  metricsA.totalTests,
-      valueB:  metricsB.totalTests,
-      labelA:  metricsA.label,
-      labelB:  metricsB.label,
-      format:  'count',
-      higher:  'better',
+      label:  'Total Tests',
+      valueA: metricsA.totalTests,
+      valueB: metricsB.totalTests,
+      labelA: metricsA.label,
+      labelB: metricsB.label,
+      format: 'count',
+      higher: 'better',
     },
   ];
 
   return (
-    <div className="flex gap-3 flex-wrap">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
       {cards.map(card => (
         <MetricCard key={card.label} {...card} />
       ))}

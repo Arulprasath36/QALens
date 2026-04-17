@@ -5,7 +5,7 @@
 export type CompareDimension = 'runs' | 'owners' | 'suites' | 'status';
 export type TimeMode = 'last5' | 'last10' | 'latest_vs_previous' | 'custom';
 export type TestStatus = 'passed' | 'failed' | 'flaky' | 'skipped';
-export type DeltaDirection = 'improved' | 'regressed' | 'stable' | 'new' | 'fixed';
+export type DeltaDirection = 'improved' | 'regressed' | 'stable' | 'broken' | 'new';
 
 // ── Dimension metadata ───────────────────────────────────────
 
@@ -30,14 +30,14 @@ export const DIMENSION_CONFIG: Record<CompareDimension, DimensionConfig> = {
     icon: '👤',
     description: 'Compare failure rates between engineers',
     defaultTimeMode: 'last5',
-    maxSelections: 2,
+    maxSelections: 3,
   },
   suites: {
     label: 'Suites',
     icon: '📦',
     description: 'Compare health across test suites',
     defaultTimeMode: 'last10',
-    maxSelections: 2,
+    maxSelections: 3,
   },
   status: {
     label: 'Status',
@@ -127,6 +127,61 @@ export interface ComparisonRow {
 export interface ComparisonResult {
   metricsA: ComparisonMetrics;
   metricsB: ComparisonMetrics;
+  metricsC?: ComparisonMetrics;
   rows: ComparisonRow[];
   timeLabel: string;
+  contextLabel?: string;
+}
+
+// ── History / multi-run matrix types ─────────────────────────
+// Used by last5, last10, and custom modes on the runs dimension.
+
+export interface HistoryRunMeta {
+  runId: string;
+  sequence: number;
+  label: string;
+  startedAt: string | null;
+  passRate: number;
+  failedCount: number;
+  totalTests: number;
+}
+
+export interface HistoryCell {
+  runId: string;
+  /** passed | failed | broken | skipped | absent */
+  state: string;
+  message: string | null;
+}
+
+export interface HistoryRow {
+  testName: string;
+  displayName: string;
+  suite: string;
+  owner: string | null;
+  passRate: number;
+  flipScore: number;
+  /** stable | flaky | broken */
+  classification: string;
+  cells: HistoryCell[];
+}
+
+export interface HistorySummary {
+  windowSize: number;
+  uniqueTests: number;
+  flakyTests: number;
+  consistentlyBroken: number;
+  stableTests: number;
+  newFailuresLatest: number;
+  fixedLatest: number;
+}
+
+export interface HistoryResult {
+  runs: HistoryRunMeta[];
+  summary: HistorySummary;
+  rows: HistoryRow[];
+}
+
+/** True when the time mode is a multi-run history window, not pairwise. */
+export function isHistoryMode(timeMode: TimeMode): boolean {
+  return timeMode === 'last5' || timeMode === 'last10' || timeMode === 'custom';
 }

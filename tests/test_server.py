@@ -7,6 +7,7 @@ event loop is needed in the test process.
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -134,8 +135,7 @@ def test_index_returns_html(client: TestClient) -> None:
     assert "text/html" in res.headers["content-type"]
     body = res.text
     assert "<title>QARA" in body
-    assert "chat-messages" in body  # Chat panel present
-    assert "panel-runs" in body     # Runs panel present
+    assert '<div id="root"' in body   # React root present
 
 
 def test_index_includes_default_project(db_path: Path) -> None:
@@ -159,16 +159,20 @@ def test_index_no_default_project(db_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_static_css_served(client: TestClient) -> None:
-    res = client.get("/static/app.css")
-    assert res.status_code == 200
-    assert "text/css" in res.headers["content-type"]
+def test_static_assets_served(client: TestClient) -> None:
+    """Assets referenced by the Vite-built index.html must all return 200.
 
-
-def test_static_js_served(client: TestClient) -> None:
-    res = client.get("/static/app.js")
-    assert res.status_code == 200
-    assert "javascript" in res.headers["content-type"]
+    The asset filenames are content-hashed (e.g. index-DoZ8iY13.js), so we
+    extract the paths from the served HTML rather than hardcoding them.
+    """
+    body = client.get("/").text
+    js_paths  = re.findall(r'src="(/static/assets/[^"]+\.js)"', body)
+    css_paths = re.findall(r'href="(/static/assets/[^"]+\.css)"', body)
+    assert js_paths,  "No JS asset found in index.html — run make build-ui"
+    assert css_paths, "No CSS asset found in index.html — run make build-ui"
+    for url in js_paths + css_paths:
+        res = client.get(url)
+        assert res.status_code == 200, f"Asset not served: {url}"
 
 
 # ---------------------------------------------------------------------------

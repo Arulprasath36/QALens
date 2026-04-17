@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QARA · Test Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" />
+    <script>
+      (() => {
+        try {
+          const theme = localStorage.getItem('qara-theme');
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+        } catch (_) {}
+      })();
+    </script>
+  </head>
+  <body class="bg-page text-primary antialiased">
+    <div id="root"></div>
+    <!-- qara serve replaces __DEFAULT_PROJECT__ with a JSON-encoded string -->
+    <script>window._QARA_DEFAULT_PROJECT = __DEFAULT_PROJECT__;</script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

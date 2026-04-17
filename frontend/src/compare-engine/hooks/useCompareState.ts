@@ -7,11 +7,12 @@ import { DIMENSION_CONFIG } from '../types';
 // ─────────────────────────────────────────────────────────────
 
 type Action =
-  | { type: 'SET_DIMENSION';    dimension: CompareDimension }
-  | { type: 'SET_TIME';         timeMode: TimeMode }
-  | { type: 'TOGGLE_SELECTION'; id: string }
-  | { type: 'SET_SELECTIONS';   selections: string[] }
-  | { type: 'SET_CUSTOM_RUNS';  runIds: string[] }
+  | { type: 'SET_DIMENSION';       dimension: CompareDimension }
+  | { type: 'SET_TIME';            timeMode: TimeMode }
+  | { type: 'TOGGLE_SELECTION';    id: string }
+  | { type: 'SET_SELECTIONS';      selections: string[] }
+  | { type: 'SET_CUSTOM_RUNS';     runIds: string[] }
+  | { type: 'TOGGLE_CUSTOM_RUN';   id: string }
   | { type: 'RESET' };
 
 // ─────────────────────────────────────────────────────────────
@@ -33,9 +34,7 @@ function reducer(state: CompareState, action: Action): CompareState {
       return {
         ...state,
         dimension: action.dimension,
-        // Per-dimension intelligent default time scope
         timeMode: cfg.defaultTimeMode,
-        // Always reset selections when dimension changes — they're incompatible
         selections: [],
         customRunIds: [],
       };
@@ -73,6 +72,16 @@ function reducer(state: CompareState, action: Action): CompareState {
     case 'SET_CUSTOM_RUNS':
       return { ...state, customRunIds: action.runIds, timeMode: 'custom' };
 
+    // Individual toggle for runs custom mode — add/remove without rotating.
+    case 'TOGGLE_CUSTOM_RUN': {
+      const { id } = action;
+      const already = state.customRunIds.includes(id);
+      const next = already
+        ? state.customRunIds.filter(r => r !== id)
+        : [...state.customRunIds, id];
+      return { ...state, customRunIds: next, timeMode: 'custom' };
+    }
+
     case 'RESET':
       return INITIAL_STATE;
 
@@ -87,33 +96,38 @@ function reducer(state: CompareState, action: Action): CompareState {
 
 export interface UseCompareStateReturn {
   state: CompareState;
-  setDimension:   (d: CompareDimension) => void;
-  setTimeMode:    (t: TimeMode)         => void;
-  toggleSelection:(id: string)          => void;
-  setSelections:  (ids: string[])       => void;
-  setCustomRuns:  (ids: string[])       => void;
-  reset:          ()                    => void;
-  /** True when the minimum 2 selections are chosen */
+  setDimension:     (d: CompareDimension) => void;
+  setTimeMode:      (t: TimeMode)         => void;
+  toggleSelection:  (id: string)          => void;
+  setSelections:    (ids: string[])       => void;
+  setCustomRuns:    (ids: string[])       => void;
+  toggleCustomRun:  (id: string)          => void;
+  reset:            ()                    => void;
+  /**
+   * True when there is enough state to fire a comparison fetch and show results.
+   *
+   * - runs + last5 / last10 / latest_vs_previous  → always true (auto-fetch)
+   * - runs + custom                               → at least 1 custom run selected
+   * - owners / suites                             → at least 2 selections
+   */
   canCompare: boolean;
-  /** Human-readable summary of the current compare intent */
-  intentLabel: string;
 }
 
 export function useCompareState(): UseCompareStateReturn {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
-  const setDimension    = useCallback((d: CompareDimension) => dispatch({ type: 'SET_DIMENSION',    dimension: d }),   []);
-  const setTimeMode     = useCallback((t: TimeMode)         => dispatch({ type: 'SET_TIME',         timeMode: t }),    []);
-  const toggleSelection = useCallback((id: string)          => dispatch({ type: 'TOGGLE_SELECTION', id }),             []);
-  const setSelections   = useCallback((ids: string[])       => dispatch({ type: 'SET_SELECTIONS',   selections: ids }),[]);
-  const setCustomRuns   = useCallback((ids: string[])       => dispatch({ type: 'SET_CUSTOM_RUNS',  runIds: ids }),    []);
-  const reset           = useCallback(()                    => dispatch({ type: 'RESET' }),                            []);
+  const setDimension    = useCallback((d: CompareDimension) => dispatch({ type: 'SET_DIMENSION',     dimension: d }),   []);
+  const setTimeMode     = useCallback((t: TimeMode)         => dispatch({ type: 'SET_TIME',          timeMode: t }),    []);
+  const toggleSelection = useCallback((id: string)          => dispatch({ type: 'TOGGLE_SELECTION',  id }),             []);
+  const setSelections   = useCallback((ids: string[])       => dispatch({ type: 'SET_SELECTIONS',    selections: ids }),[]);
+  const setCustomRuns   = useCallback((ids: string[])       => dispatch({ type: 'SET_CUSTOM_RUNS',   runIds: ids }),    []);
+  const toggleCustomRun = useCallback((id: string)          => dispatch({ type: 'TOGGLE_CUSTOM_RUN', id }),             []);
+  const reset           = useCallback(()                    => dispatch({ type: 'RESET' }),                             []);
 
-  const canCompare = state.selections.length >= 2;
-
-  const intentLabel = canCompare
-    ? `${DIMENSION_CONFIG[state.dimension].label}: ${state.selections.join(' vs ')}`
-    : `Select ${DIMENSION_CONFIG[state.dimension].maxSelections} ${DIMENSION_CONFIG[state.dimension].label.toLowerCase()} to compare`;
+  const isRunsDimension = state.dimension === 'runs';
+  const canCompare = isRunsDimension
+    ? (state.timeMode === 'custom' ? state.customRunIds.length >= 1 : true)
+    : state.selections.length >= 2;
 
   return {
     state,
@@ -122,8 +136,8 @@ export function useCompareState(): UseCompareStateReturn {
     toggleSelection,
     setSelections,
     setCustomRuns,
+    toggleCustomRun,
     reset,
     canCompare,
-    intentLabel,
   };
 }

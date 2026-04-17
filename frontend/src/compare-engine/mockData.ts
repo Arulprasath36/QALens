@@ -72,7 +72,7 @@ export const MOCK_COMPARISON_FATIMA_VS_ARJUN: ComparisonResult = {
     { testName: 'testCreateOrder',             displayName: 'testCreateOrder()',             suite: 'Order Management', owner: 'Fatima Al-Rashid', statusA: 'flaky',   statusB: 'passed', delta: 'improved'  },
     { testName: 'testOrderHistoryList',        displayName: 'testOrderHistoryList()',        suite: 'Order Management', owner: 'Arjun Mehta',      statusA: 'passed',  statusB: 'failed', delta: 'regressed' },
     { testName: 'testSearchByKeyword',         displayName: 'testSearchByKeyword()',         suite: 'Search & Filter',  owner: 'Arjun Mehta',      statusA: 'passed',  statusB: 'passed', delta: 'stable'    },
-    { testName: 'testExportMonthlyReport',     displayName: 'testExportMonthlyReport()',     suite: 'Reports & Exports',owner: 'Fatima Al-Rashid', statusA: 'skipped', statusB: 'passed', delta: 'fixed'     },
+    { testName: 'testExportMonthlyReport',     displayName: 'testExportMonthlyReport()',     suite: 'Reports & Exports',owner: 'Fatima Al-Rashid', statusA: 'skipped', statusB: 'passed', delta: 'improved'  },
   ],
 };
 

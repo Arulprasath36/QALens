@@ -1,67 +1,54 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Dropdown } from '../../../components/Dropdown';
 import type { ComparisonRow, ComparisonMetrics, DeltaDirection, TestStatus } from '../../types';
 
-// ─────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────
-
-const STATUS_ICON: Record<TestStatus, string> = {
-  passed:  '✅',
-  failed:  '❌',
-  flaky:   '⚠️',
-  skipped: '⏭',
+const STATUS_CONFIG: Record<TestStatus, { label: string; className: string }> = {
+  passed:  { label: 'Pass',    className: 'qara-badge-success' },
+  failed:  { label: 'Fail',    className: 'qara-badge-danger' },
+  flaky:   { label: 'Flaky',   className: 'qara-badge-warning' },
+  skipped: { label: 'Skip',    className: 'qara-badge-neutral' },
 };
 
-const STATUS_COLOR: Record<TestStatus, string> = {
-  passed:  'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-  failed:  'text-red-400     bg-red-500/10     border-red-500/20',
-  flaky:   'text-amber-400   bg-amber-500/10   border-amber-500/20',
-  skipped: 'text-zinc-400    bg-zinc-800       border-zinc-700',
-};
-
-const DELTA_CONFIG: Record<DeltaDirection, { label: string; color: string; icon: string }> = {
-  improved:  { label: 'Improved',  color: 'text-emerald-400  bg-emerald-500/10  border-emerald-500/20',  icon: '↑' },
-  regressed: { label: 'Regressed', color: 'text-red-400      bg-red-500/10      border-red-500/20',      icon: '↓' },
-  stable:    { label: 'Stable',    color: 'text-zinc-500     bg-zinc-800        border-zinc-700',         icon: '—' },
-  new:       { label: 'New',       color: 'text-violet-400   bg-violet-500/10   border-violet-500/20',   icon: '★' },
-  fixed:     { label: 'Fixed',     color: 'text-sky-400      bg-sky-500/10      border-sky-500/20',       icon: '✓' },
+const DELTA_CONFIG: Record<DeltaDirection, { label: string; className: string }> = {
+  improved:  { label: 'Recovered', className: 'qara-badge-success' },
+  regressed: { label: 'Regressed', className: 'qara-badge-danger' },
+  stable:    { label: 'Stable',    className: 'qara-badge-neutral' },
+  broken:    { label: 'Broken',    className: 'qara-badge-danger'  },
+  new:       { label: 'New',       className: 'qara-badge-info' },
 };
 
 function StatusBadge({ status }: { status: TestStatus }) {
-  return (
-    <span className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full border ${STATUS_COLOR[status]}`}>
-      {STATUS_ICON[status]} {status}
-    </span>
-  );
+  const cfg = STATUS_CONFIG[status];
+  return <span className={cfg.className}>{cfg.label}</span>;
 }
 
 function DeltaBadge({ delta }: { delta: DeltaDirection }) {
   const cfg = DELTA_CONFIG[delta];
-  return (
-    <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${cfg.color}`}>
-      {cfg.icon} {cfg.label}
-    </span>
-  );
+  return <span className={cfg.className}>{cfg.label}</span>;
 }
 
 type FilterDelta = 'all' | DeltaDirection;
 
-// ─────────────────────────────────────────────────────────────
-// Main table
-// ─────────────────────────────────────────────────────────────
-
 interface ComparisonTableProps {
-  rows:     ComparisonRow[];
+  rows: ComparisonRow[];
   metricsA: ComparisonMetrics;
   metricsB: ComparisonMetrics;
+  initialFilter?: FilterDelta;
 }
 
-export function ComparisonTable({ rows, metricsA, metricsB }: ComparisonTableProps) {
-  const [filter,  setFilter]  = useState<FilterDelta>('all');
-  const [search,  setSearch]  = useState('');
-  const [sortKey, setSortKey] = useState<'delta' | 'suite' | 'name'>('delta');
+export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all' }: ComparisonTableProps) {
+  const [filter, setFilter] = useState<FilterDelta>(initialFilter);
 
-  // ── Filter / search / sort ─────────────────────────────────
+  useEffect(() => {
+    setFilter(initialFilter);
+  }, [initialFilter]);
+  const [search, setSearch] = useState('');
+  const [sortKey, setSortKey] = useState<'delta' | 'suite' | 'name'>('delta');
+  const sortOptions = [
+    { value: 'delta', label: 'Sort: by change' },
+    { value: 'suite', label: 'Sort: by suite' },
+    { value: 'name', label: 'Sort: by name' },
+  ] as const;
 
   const visible = rows
     .filter(r => filter === 'all' || r.delta === filter)
@@ -72,7 +59,7 @@ export function ComparisonTable({ rows, metricsA, metricsB }: ComparisonTablePro
     )
     .sort((a, b) => {
       if (sortKey === 'delta') {
-        const order: DeltaDirection[] = ['regressed', 'new', 'flaky', 'stable', 'improved', 'fixed'];
+        const order: DeltaDirection[] = ['regressed', 'broken', 'new', 'improved', 'stable'];
         return order.indexOf(a.delta) - order.indexOf(b.delta);
       }
       if (sortKey === 'suite') return a.suite.localeCompare(b.suite);
@@ -82,142 +69,119 @@ export function ComparisonTable({ rows, metricsA, metricsB }: ComparisonTablePro
   const filterCounts = {
     all:       rows.length,
     regressed: rows.filter(r => r.delta === 'regressed').length,
+    broken:    rows.filter(r => r.delta === 'broken').length,
     improved:  rows.filter(r => r.delta === 'improved').length,
     stable:    rows.filter(r => r.delta === 'stable').length,
-    fixed:     rows.filter(r => r.delta === 'fixed').length,
     new:       rows.filter(r => r.delta === 'new').length,
   };
 
-  // ─────────────────────────────────────────────────────────
+  const filterPills: { key: FilterDelta; label: string; count: number }[] = [
+    { key: 'all',       label: 'All',       count: filterCounts.all       },
+    { key: 'regressed', label: 'Regressed', count: filterCounts.regressed },
+    { key: 'broken',    label: 'Broken',    count: filterCounts.broken    },
+    { key: 'improved',  label: 'Recovered', count: filterCounts.improved  },
+    { key: 'stable',    label: 'Stable',    count: filterCounts.stable    },
+  ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <div className="qara-card p-4 lg:p-5">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex items-center gap-2 rounded-full border border-border-default bg-surface-subtle p-1">
+            {filterPills.map(pill => (
+              <button
+                key={pill.key}
+                onClick={() => setFilter(pill.key)}
+                className={[
+                  'qara-pill px-3 py-1.5',
+                  filter === pill.key ? 'qara-pill-active' : 'border-transparent bg-transparent hover:bg-hover',
+                ].join(' ')}
+              >
+                <span>{pill.label}</span>
+                <span className="text-[10px] text-muted tabular-nums">{pill.count}</span>
+              </button>
+            ))}
+          </div>
 
-      {/* ── Toolbar ────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 flex-wrap">
+          <div className="qara-control relative flex-1 min-w-[220px] max-w-sm">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+              <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search tests or suites…"
+              className="qara-input h-11 pl-8 pr-3 text-sm"
+            />
+          </div>
 
-        {/* Delta filters */}
-        <div className="flex items-center gap-1 bg-zinc-900 border border-zinc-800 rounded-lg p-1">
-          {(['all', 'regressed', 'improved', 'stable', 'fixed'] as FilterDelta[]).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={[
-                'px-3 py-1 rounded-md text-xs font-medium transition-all duration-150 capitalize',
-                filter === f
-                  ? 'bg-zinc-700 text-zinc-100'
-                  : 'text-zinc-500 hover:text-zinc-300',
-              ].join(' ')}
-            >
-              {f === 'all' ? 'All' : f}
-              {' '}
-              <span className="opacity-60">({filterCounts[f as keyof typeof filterCounts] ?? 0})</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Search */}
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600">
-            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-          <input
-            type="text"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Filter tests…"
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-8 pr-3 py-1.5 text-sm text-zinc-300 placeholder:text-zinc-600 outline-none focus:border-zinc-600 transition-colors"
+          <Dropdown
+            value={sortKey}
+            onChange={value => setSortKey(value as typeof sortKey)}
+            triggerClassName="h-11 px-3 text-sm"
+            options={sortOptions.map(option => ({ value: option.value, label: option.label }))}
           />
+
+          <span className="text-xs text-muted tabular-nums">
+            {visible.length} of {rows.length} tests
+          </span>
         </div>
-
-        {/* Sort */}
-        <select
-          value={sortKey}
-          onChange={e => setSortKey(e.target.value as typeof sortKey)}
-          className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-xs text-zinc-400 outline-none cursor-pointer hover:border-zinc-700 transition-colors appearance-none"
-        >
-          <option value="delta">Sort: by change</option>
-          <option value="suite">Sort: by suite</option>
-          <option value="name">Sort: by name</option>
-        </select>
-
-        <span className="text-xs text-zinc-600">
-          {visible.length} of {rows.length} tests
-        </span>
       </div>
 
-      {/* ── Table ─────────────────────────────────────────── */}
-      <div className="overflow-x-auto rounded-xl border border-zinc-800">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-zinc-800 bg-zinc-900/50">
-              <th className="text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-4 py-3">
-                Test
-              </th>
-              <th className="text-left text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-3 py-3">
-                Suite
-              </th>
-              <th className="text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-3 py-3">
-                {metricsA.label}
-              </th>
-              <th className="text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-3 py-3">
-                {metricsB.label}
-              </th>
-              <th className="text-center text-[11px] font-semibold uppercase tracking-wider text-zinc-500 px-3 py-3">
-                Change
-              </th>
+      <div className="qara-table-shell">
+        <table className="qara-table w-full text-sm">
+          <thead className="qara-table-head">
+            <tr>
+              <th className="text-left w-[48%]">Test</th>
+              <th className="text-left">Suite</th>
+              <th className="text-center w-[12%]">{metricsA.label}</th>
+              <th className="text-center w-[12%]">{metricsB.label}</th>
+              <th className="text-center w-[14%]">Change</th>
             </tr>
           </thead>
           <tbody>
             {visible.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center py-12 text-zinc-600">
+                <td colSpan={5} className="px-6 py-16 text-center text-muted">
                   No tests match the current filter
                 </td>
               </tr>
             ) : (
-              visible.map((row, i) => (
+              visible.map(row => (
                 <tr
                   key={row.testName}
-                  className={[
-                    'border-b border-zinc-800/50 transition-colors duration-100',
-                    'hover:bg-zinc-800/40',
-                    row.delta === 'regressed' ? 'bg-red-500/[0.03]' : '',
-                    row.delta === 'improved'  ? 'bg-emerald-500/[0.03]' : '',
-                  ].join(' ')}
+                  className="qara-table-row"
                 >
-                  {/* Test name */}
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-mono text-xs text-zinc-200 font-medium">
+                  <td className="qara-table-cell">
+                    <div className="space-y-1">
+                      <div className="font-medium text-primary leading-snug">
                         {row.displayName}
-                      </span>
+                      </div>
                       {row.owner && (
-                        <span className="text-[10px] text-zinc-600">{row.owner}</span>
+                        <div className="text-[11px] text-muted">
+                          {row.owner}
+                        </div>
                       )}
                     </div>
                   </td>
 
-                  {/* Suite */}
-                  <td className="px-3 py-3">
-                    <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-md">
+                  <td className="qara-table-cell">
+                    <span className="qara-pill">
                       {row.suite}
                     </span>
                   </td>
 
-                  {/* Status A */}
-                  <td className="px-3 py-3 text-center">
+                  <td className="qara-table-cell text-center">
                     <StatusBadge status={row.statusA} />
                   </td>
 
-                  {/* Status B */}
-                  <td className="px-3 py-3 text-center">
+                  <td className="qara-table-cell text-center">
                     <StatusBadge status={row.statusB} />
                   </td>
 
-                  {/* Delta */}
-                  <td className="px-3 py-3 text-center">
+                  <td className="qara-table-cell text-center">
                     <DeltaBadge delta={row.delta} />
                   </td>
                 </tr>

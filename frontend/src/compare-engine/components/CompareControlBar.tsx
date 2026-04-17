@@ -1,72 +1,15 @@
-import React from 'react';
 import type { CompareDimension, TimeMode } from '../types';
-import { DIMENSION_CONFIG, TIME_MODE_LABELS } from '../types';
+import { DIMENSION_CONFIG } from '../types';
 import type { UseCompareStateReturn } from '../hooks/useCompareState';
 import type { Owner, Run, Suite } from '../types';
+import { Dropdown } from '../../components/Dropdown';
 import { OwnerPicker }       from './pickers/OwnerPicker';
 import { RunPicker }         from './pickers/RunPicker';
 import { SuitePicker }       from './pickers/SuitePicker';
 import { StatusToggleGroup } from './pickers/StatusToggleGroup';
 
 // ─────────────────────────────────────────────────────────────
-// Sub-components
-// ─────────────────────────────────────────────────────────────
-
-interface DropdownProps<T extends string> {
-  label: string;
-  value: T;
-  options: { value: T; label: string; icon?: string }[];
-  onChange: (v: T) => void;
-}
-
-function Dropdown<T extends string>({ label, value, options, onChange }: DropdownProps<T>) {
-  const selected = options.find(o => o.value === value);
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 px-0.5">
-        {label}
-      </span>
-      <div className="relative">
-        <select
-          value={value}
-          onChange={e => onChange(e.target.value as T)}
-          className={[
-            'appearance-none cursor-pointer',
-            'bg-zinc-900 border border-zinc-700 rounded-lg',
-            'pl-3 pr-8 py-2',
-            'text-sm font-medium text-zinc-100',
-            'hover:border-zinc-500 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/30',
-            'transition-colors duration-150 outline-none',
-            'min-w-[160px]',
-          ].join(' ')}
-        >
-          {options.map(o => (
-            <option key={o.value} value={o.value}>
-              {o.icon ? `${o.icon}  ` : ''}{o.label}
-            </option>
-          ))}
-        </select>
-        {/* Chevron */}
-        <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Divider() {
-  return (
-    <div className="self-end pb-[9px]">
-      <div className="w-px h-8 bg-zinc-800" />
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Dimension options
+// Dimension tab strip
 // ─────────────────────────────────────────────────────────────
 
 const DIMENSION_OPTIONS: { value: CompareDimension; label: string; icon: string }[] = [
@@ -77,26 +20,81 @@ const DIMENSION_OPTIONS: { value: CompareDimension; label: string; icon: string 
 ];
 
 const TIME_OPTIONS: { value: TimeMode; label: string }[] = [
-  { value: 'last5',              label: 'Last 5 runs' },
-  { value: 'last10',             label: 'Last 10 runs' },
   { value: 'latest_vs_previous', label: 'Latest vs Previous' },
-  { value: 'custom',             label: 'Custom range…' },
+  { value: 'last5',              label: 'Last 5 runs'        },
+  { value: 'last10',             label: 'Last 10 runs'       },
+  { value: 'custom',             label: 'Custom range…'      },
 ];
+
+function DimensionTabs({
+  value,
+  onChange,
+}: {
+  value: CompareDimension;
+  onChange: (v: CompareDimension) => void;
+}) {
+  return (
+    <div className="flex items-center gap-0.5 p-1 rounded-xl border border-border-default bg-surface-subtle">
+      {DIMENSION_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          onClick={() => onChange(opt.value)}
+          className={[
+            'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150',
+            value === opt.value
+              ? 'bg-surface text-primary shadow-sm border border-border-default'
+              : 'text-muted hover:text-secondary hover:bg-hover',
+          ].join(' ')}
+        >
+          <span className="text-[13px] leading-none">{opt.icon}</span>
+          <span>{opt.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Time selector — compact inline dropdown
+// ─────────────────────────────────────────────────────────────
+
+function TimeSelect({
+  value,
+  onChange,
+}: {
+  value: TimeMode;
+  onChange: (v: TimeMode) => void;
+}) {
+  return (
+    <Dropdown
+      value={value}
+      onChange={onChange}
+      triggerClassName="min-w-[172px] pl-3 pr-3 py-2 text-sm font-medium"
+      leftIcon={(
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M8 5v3.5l2.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )}
+      options={TIME_OPTIONS}
+    />
+  );
+}
 
 // ─────────────────────────────────────────────────────────────
 // Props
 // ─────────────────────────────────────────────────────────────
 
 interface CompareControlBarProps extends UseCompareStateReturn {
-  owners:  Owner[];
-  runs:    Run[];
-  suites:  Suite[];
-  /** Optional date range label computed by parent */
+  owners:     Owner[];
+  runs:       Run[];
+  suites:     Suite[];
   timeLabel?: string;
+  onReset?: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────
-// Component
+// Main component
 // ─────────────────────────────────────────────────────────────
 
 export function CompareControlBar({
@@ -104,73 +102,83 @@ export function CompareControlBar({
   setDimension,
   setTimeMode,
   toggleSelection,
+  toggleCustomRun,
   setCustomRuns,
   canCompare,
   owners,
   runs,
   suites,
   timeLabel,
+  onReset,
 }: CompareControlBarProps) {
-
   const cfg = DIMENSION_CONFIG[state.dimension];
+  const hideSecondarySelector = state.dimension === 'runs' && state.timeMode !== 'custom';
+
+  // Status pill for entity dimensions (owners / suites)
+  const selectionPill = (() => {
+    if (state.dimension === 'runs') return null;
+    if (state.selections.length >= 2) {
+      return state.selections.join('  ·  ');
+    }
+    return null;
+  })();
 
   return (
-    <div className="w-full space-y-3">
-      {/* ── Main control row ─────────────────────────────── */}
-      <div className="flex items-end gap-3 flex-wrap">
+    <div className="space-y-4">
 
-        {/* Compare (dimension) */}
-        <Dropdown<CompareDimension>
-          label="Compare"
-          value={state.dimension}
-          options={DIMENSION_OPTIONS}
-          onChange={setDimension}
-        />
-
-        <Divider />
-
-        {/* Time scope */}
-        <Dropdown<TimeMode>
-          label="Time"
-          value={state.timeMode}
-          options={TIME_OPTIONS}
-          onChange={setTimeMode}
-        />
-
-        <Divider />
-
-        {/* Dynamic selector */}
-        <div className="flex flex-col gap-1 flex-1 min-w-0">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-500 px-0.5">
-            Select {cfg.label}
-          </span>
-          <DynamicSelector
-            state={state}
-            toggleSelection={toggleSelection}
-            setCustomRuns={setCustomRuns}
-            owners={owners}
-            runs={runs}
-            suites={suites}
-          />
+      {/* ── Top row: dimension + time ───────────────────────── */}
+      <div className="flex items-center gap-3 flex-wrap justify-between">
+        <div className="flex items-center gap-3 flex-wrap">
+        <DimensionTabs value={state.dimension} onChange={setDimension} />
+        <TimeSelect value={state.timeMode} onChange={setTimeMode} />
         </div>
 
-        {/* Compare CTA */}
-        {canCompare && (
-          <div className="self-end pb-0.5">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/30">
-              <span className="text-xs font-medium text-violet-300">
-                {state.selections.length === 2
-                  ? `${state.selections[0]}  vs  ${state.selections[1]}`
-                  : `${state.selections.length} selected`}
-              </span>
-            </div>
+        {/* Active comparison badge */}
+        {canCompare && selectionPill && (
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="qara-pill qara-pill-active text-xs">
+              {selectionPill}
+            </span>
           </div>
+        )}
+
+        {onReset && (
+          <button
+            onClick={onReset}
+            className="qara-chip type-chip"
+          >
+            Reset
+          </button>
         )}
       </div>
 
-      {/* ── Context label ────────────────────────────────── */}
-      {timeLabel && (
-        <p className="text-xs text-zinc-500 pl-0.5">
+      {/* ── Bottom row: entity / run picker ─────────────────── */}
+      {!hideSecondarySelector && (
+      <div className="space-y-2 border-t border-border-subtle pt-4">
+        {/* Section label */}
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted mb-2">
+          {state.dimension === 'runs' && (
+            state.timeMode === 'last5' || state.timeMode === 'last10' || state.timeMode === 'latest_vs_previous'
+          )
+            ? 'Run window'
+            : `Select ${cfg.label}`}
+        </p>
+
+        <DynamicSelector
+          state={state}
+          toggleSelection={toggleSelection}
+          toggleCustomRun={toggleCustomRun}
+          setCustomRuns={setCustomRuns}
+          owners={owners}
+          runs={runs}
+          suites={suites}
+        />
+      </div>
+      )}
+
+      {/* ── Context label ─────────────────────────────────────── */}
+      {timeLabel && !hideSecondarySelector && (
+        <p className="text-xs text-muted">
           {timeLabel}
         </p>
       )}
@@ -183,24 +191,25 @@ export function CompareControlBar({
 // ─────────────────────────────────────────────────────────────
 
 interface DynamicSelectorProps {
-  state:            CompareControlBarProps['state'];
-  toggleSelection:  CompareControlBarProps['toggleSelection'];
-  setCustomRuns:    CompareControlBarProps['setCustomRuns'];
-  owners:           Owner[];
-  runs:             Run[];
-  suites:           Suite[];
+  state:           CompareControlBarProps['state'];
+  toggleSelection: CompareControlBarProps['toggleSelection'];
+  toggleCustomRun: CompareControlBarProps['toggleCustomRun'];
+  setCustomRuns:   CompareControlBarProps['setCustomRuns'];
+  owners:          Owner[];
+  runs:            Run[];
+  suites:          Suite[];
 }
 
-function DynamicSelector({ state, toggleSelection, setCustomRuns, owners, runs, suites }: DynamicSelectorProps) {
+function DynamicSelector({ state, toggleSelection, toggleCustomRun, setCustomRuns, owners, runs, suites }: DynamicSelectorProps) {
   switch (state.dimension) {
     case 'runs':
       return (
         <RunPicker
           runs={runs}
-          selected={state.selections}
-          onToggle={toggleSelection}
-          onCustomSelect={setCustomRuns}
+          selected={state.customRunIds}
           timeMode={state.timeMode}
+          onCustomToggle={toggleCustomRun}
+          onCustomSet={setCustomRuns}
         />
       );
     case 'owners':
@@ -209,6 +218,7 @@ function DynamicSelector({ state, toggleSelection, setCustomRuns, owners, runs, 
           owners={owners}
           selected={state.selections}
           onToggle={toggleSelection}
+          maxSelections={DIMENSION_CONFIG.owners.maxSelections}
         />
       );
     case 'suites':
@@ -217,6 +227,7 @@ function DynamicSelector({ state, toggleSelection, setCustomRuns, owners, runs, 
           suites={suites}
           selected={state.selections}
           onToggle={toggleSelection}
+          maxSelections={DIMENSION_CONFIG.suites.maxSelections}
         />
       );
     case 'status':
