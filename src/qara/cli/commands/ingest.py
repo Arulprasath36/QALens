@@ -133,6 +133,18 @@ def ingest(
         min=0,
         help="Maximum screenshots retained per failed test (0 = unlimited).",
     ),
+    max_screenshot_bytes: int = typer.Option(
+        5 * 1024 * 1024,
+        "--max-screenshot-bytes",
+        min=1024,
+        help="Maximum bytes allowed for one screenshot artifact.",
+    ),
+    max_total_screenshot_bytes: int = typer.Option(
+        50 * 1024 * 1024,
+        "--max-total-screenshot-bytes",
+        min=1024,
+        help="Maximum screenshot bytes decoded for one run.",
+    ),
     compress_images: bool = typer.Option(
         True,
         "--compress-images/--no-compress-images",
@@ -200,6 +212,8 @@ def ingest(
     artifact_config = ArtifactConfig(
         mode=mode,
         max_screenshots_per_failure=max_screenshots_per_failure,
+        max_screenshot_bytes=max_screenshot_bytes,
+        max_total_screenshot_bytes_per_run=max_total_screenshot_bytes,
         compress_images=compress_images,
         max_image_width=max_image_width,
         jpeg_quality=jpeg_quality,

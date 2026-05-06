@@ -390,29 +390,65 @@ class RunRepository:
         if project is not None:
             rows = self._conn.execute(
                 """
-                SELECT r.*,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id) AS total_tests,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id AND status = 'passed') AS passed_count,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id AND status IN ('failed','broken')) AS failed_count,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id AND status = 'skipped') AS skipped_count
-                FROM runs r
-                WHERE r.project = ?
-                ORDER BY r.started_at DESC
-                LIMIT ?
+                WITH selected_runs AS (
+                    SELECT *
+                    FROM runs
+                    WHERE project = ?
+                    ORDER BY started_at DESC
+                    LIMIT ?
+                ),
+                counts AS (
+                    SELECT
+                        tc.run_id,
+                        COUNT(*) AS total_tests,
+                        SUM(CASE WHEN tc.status = 'passed' THEN 1 ELSE 0 END) AS passed_count,
+                        SUM(CASE WHEN tc.status IN ('failed','broken') THEN 1 ELSE 0 END) AS failed_count,
+                        SUM(CASE WHEN tc.status = 'skipped' THEN 1 ELSE 0 END) AS skipped_count
+                    FROM test_cases tc
+                    JOIN selected_runs sr ON sr.run_id = tc.run_id
+                    GROUP BY tc.run_id
+                )
+                SELECT
+                    sr.*,
+                    COALESCE(c.total_tests, 0) AS total_tests,
+                    COALESCE(c.passed_count, 0) AS passed_count,
+                    COALESCE(c.failed_count, 0) AS failed_count,
+                    COALESCE(c.skipped_count, 0) AS skipped_count
+                FROM selected_runs sr
+                LEFT JOIN counts c ON c.run_id = sr.run_id
+                ORDER BY sr.started_at DESC
                 """,
                 (project, limit),
             ).fetchall()
         else:
             rows = self._conn.execute(
                 """
-                SELECT r.*,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id) AS total_tests,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id AND status = 'passed') AS passed_count,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id AND status IN ('failed','broken')) AS failed_count,
-                    (SELECT COUNT(*) FROM test_cases WHERE run_id = r.run_id AND status = 'skipped') AS skipped_count
-                FROM runs r
-                ORDER BY r.started_at DESC
-                LIMIT ?
+                WITH selected_runs AS (
+                    SELECT *
+                    FROM runs
+                    ORDER BY started_at DESC
+                    LIMIT ?
+                ),
+                counts AS (
+                    SELECT
+                        tc.run_id,
+                        COUNT(*) AS total_tests,
+                        SUM(CASE WHEN tc.status = 'passed' THEN 1 ELSE 0 END) AS passed_count,
+                        SUM(CASE WHEN tc.status IN ('failed','broken') THEN 1 ELSE 0 END) AS failed_count,
+                        SUM(CASE WHEN tc.status = 'skipped' THEN 1 ELSE 0 END) AS skipped_count
+                    FROM test_cases tc
+                    JOIN selected_runs sr ON sr.run_id = tc.run_id
+                    GROUP BY tc.run_id
+                )
+                SELECT
+                    sr.*,
+                    COALESCE(c.total_tests, 0) AS total_tests,
+                    COALESCE(c.passed_count, 0) AS passed_count,
+                    COALESCE(c.failed_count, 0) AS failed_count,
+                    COALESCE(c.skipped_count, 0) AS skipped_count
+                FROM selected_runs sr
+                LEFT JOIN counts c ON c.run_id = sr.run_id
+                ORDER BY sr.started_at DESC
                 """,
                 (limit,),
             ).fetchall()
@@ -423,6 +459,7 @@ class RunRepository:
         run_id: str,
         *,
         status: str | None = None,
+        include_details: bool = True,
     ) -> list[TestCaseRow]:
         """Return all test cases for a run, optionally filtered by status.
 
@@ -434,9 +471,13 @@ class RunRepository:
         Returns:
             List of :class:`TestCaseRow` objects.
         """
-        base = """
-            SELECT tc.*, f.error_type, f.message, f.stack_trace,
-                          f.fingerprint, f.failed_step
+        failure_columns = (
+            "f.error_type, f.message, f.stack_trace, f.fingerprint, f.failed_step"
+            if include_details
+            else "f.error_type, substr(f.message, 1, 240) AS message, NULL AS stack_trace, f.fingerprint, f.failed_step"
+        )
+        base = f"""
+            SELECT tc.*, {failure_columns}
             FROM test_cases tc
             LEFT JOIN failures f ON f.tc_id = tc.tc_id
             WHERE tc.run_id = ?
@@ -448,7 +489,7 @@ class RunRepository:
         else:
             rows = self._conn.execute(base, (run_id,)).fetchall()
         results = [_row_to_tc(r) for r in rows]
-        if results:
+        if results and include_details:
             placeholders = ",".join("?" * len(results))
             tc_ids = [tc.tc_id for tc in results]
             att_rows = self._conn.execute(
@@ -599,77 +640,70 @@ class RunRepository:
         *,
         project: str | None = None,
         limit: int = 50,
+        run_ids: list[str] | None = None,
     ) -> list[dict]:
         """Return failures grouped by fingerprint, ranked by occurrence count.
 
+        When ``run_ids`` is provided all counts are scoped to those runs only
+        and each row carries ``scope="window"``.  Without ``run_ids`` the query
+        is all-time and rows carry ``scope="all_time"``.
+
         Each returned dict contains:
         - ``fingerprint``: the 16-char hash
-        - ``occurrence_count``: how many test cases share this fingerprint
-        - ``affected_tests``: number of distinct canonical names affected
-        - ``affected_runs``: number of distinct runs affected
-        - ``error_type``: representative error type (from first occurrence)
-        - ``message``: representative message (first line, first occurrence)
-        - ``first_seen_seq``: earliest run_sequence
-        - ``last_seen_seq``: most recent run_sequence
-
-        Args:
-            project: Restrict to this project, or ``None`` for all.
-            limit: Maximum number of groups to return.
-
-        Returns:
-            List of dicts ordered by ``occurrence_count`` descending.
+        - ``occurrence_count``: failures in scope
+        - ``affected_tests``: distinct canonical names in scope
+        - ``affected_runs``: distinct runs in scope
+        - ``window_size``: len(run_ids) when scoped, else None
+        - ``scope``: "window" | "all_time"
+        - ``error_type``, ``message``, ``first_seen_seq``, ``last_seen_seq``
         """
+        base_select = """
+            SELECT
+                f.fingerprint,
+                COUNT(*)                          AS occurrence_count,
+                COUNT(DISTINCT tc.canonical_name) AS affected_tests,
+                COUNT(DISTINCT r.run_id)          AS affected_runs,
+                MIN(f.error_type)                 AS error_type,
+                MIN(f.message)                    AS message,
+                MIN(r.run_sequence)               AS first_seen_seq,
+                MAX(r.run_sequence)               AS last_seen_seq,
+                GROUP_CONCAT(DISTINCT tc.canonical_name) AS canonical_names
+            FROM failures f
+            JOIN test_cases tc ON tc.tc_id = f.tc_id
+            JOIN runs r        ON r.run_id = tc.run_id
+        """
+
+        conditions: list[str] = []
+        params: list = []
+
+        if run_ids:
+            placeholders = ",".join("?" * len(run_ids))
+            conditions.append(f"r.run_id IN ({placeholders})")
+            params.extend(run_ids)
+
         if project is not None:
-            rows = self._conn.execute(
-                """
-                SELECT
-                    f.fingerprint,
-                    COUNT(*)                          AS occurrence_count,
-                    COUNT(DISTINCT tc.canonical_name) AS affected_tests,
-                    COUNT(DISTINCT r.run_id)          AS affected_runs,
-                    MIN(f.error_type)                 AS error_type,
-                    MIN(f.message)                    AS message,
-                    MIN(r.run_sequence)               AS first_seen_seq,
-                    MAX(r.run_sequence)               AS last_seen_seq,
-                    GROUP_CONCAT(DISTINCT tc.canonical_name) AS canonical_names
-                FROM failures f
-                JOIN test_cases tc ON tc.tc_id = f.tc_id
-                JOIN runs r        ON r.run_id = tc.run_id
-                WHERE r.project = ?
-                GROUP BY f.fingerprint
-                ORDER BY occurrence_count DESC
-                LIMIT ?
-                """,
-                (project, limit),
-            ).fetchall()
-        else:
-            rows = self._conn.execute(
-                """
-                SELECT
-                    f.fingerprint,
-                    COUNT(*)                          AS occurrence_count,
-                    COUNT(DISTINCT tc.canonical_name) AS affected_tests,
-                    COUNT(DISTINCT r.run_id)          AS affected_runs,
-                    MIN(f.error_type)                 AS error_type,
-                    MIN(f.message)                    AS message,
-                    MIN(r.run_sequence)               AS first_seen_seq,
-                    MAX(r.run_sequence)               AS last_seen_seq,
-                    GROUP_CONCAT(DISTINCT tc.canonical_name) AS canonical_names
-                FROM failures f
-                JOIN test_cases tc ON tc.tc_id = f.tc_id
-                JOIN runs r        ON r.run_id = tc.run_id
-                GROUP BY f.fingerprint
-                ORDER BY occurrence_count DESC
-                LIMIT ?
-                """,
-                (limit,),
-            ).fetchall()
+            conditions.append("r.project = ?")
+            params.append(project)
+
+        where = ("WHERE " + " AND ".join(conditions)) if conditions else ""
+        params.append(limit)
+
+        rows = self._conn.execute(
+            f"{base_select} {where} GROUP BY f.fingerprint ORDER BY occurrence_count DESC LIMIT ?",
+            params,
+        ).fetchall()
+
+        scope = "window" if run_ids else "all_time"
+        window_size = len(run_ids) if run_ids else None
+
         result = []
         for r in rows:
             d = dict(r)
             raw = d.pop("canonical_names", None)
             d["affected_canonical_names"] = raw.split(",") if raw else []
             d["bug_links"] = self.get_bug_links(d["fingerprint"])
+            d["scope"] = scope
+            d["window_size"] = window_size
             result.append(d)
         return result
 

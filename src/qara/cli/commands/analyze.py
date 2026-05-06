@@ -86,6 +86,7 @@ def analyze(
                 FlakyClassification.FLAKY: "yellow",
                 FlakyClassification.CONSISTENTLY_BROKEN: "red",
                 FlakyClassification.STABLE: "green",
+                FlakyClassification.CONSISTENT: "cyan",
                 FlakyClassification.INSUFFICIENT_DATA: "dim",
             }
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typer.testing import CliRunner
 
 from qara.cli import app
+from qara.cli.commands.serve import _is_public_bind_host
 from qara.version import __version__
 
 runner = CliRunner()
@@ -48,3 +49,16 @@ class TestHelpText:
     def test_clusters_help(self) -> None:
         result = runner.invoke(app, ["clusters", "--help"])
         assert result.exit_code == 0
+
+
+class TestServeSafety:
+    def test_public_bind_host_detection(self) -> None:
+        assert _is_public_bind_host("0.0.0.0")
+        assert _is_public_bind_host("::")
+        assert not _is_public_bind_host("127.0.0.1")
+        assert not _is_public_bind_host("localhost")
+
+    def test_serve_help_documents_public_bind_opt_in(self) -> None:
+        result = runner.invoke(app, ["serve", "--help"])
+        assert result.exit_code == 0
+        assert "--allow-public-bind" in result.output

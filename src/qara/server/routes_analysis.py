@@ -16,6 +16,9 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse, Res
 
 from qara.server.models import _dc_to_dict
 
+_ALLOWED_RISK_TIERS = frozenset({"CRITICAL", "HIGH", "MEDIUM", "LOW"})
+_MAX_FAILURE_GROUP_RUN_IDS = 50
+
 
 def make_analysis_router(db_path: str | Path | None) -> APIRouter:
     """Return an :class:`~fastapi.APIRouter` with all analysis endpoints."""
@@ -62,15 +65,29 @@ def make_analysis_router(db_path: str | Path | None) -> APIRouter:
     async def failure_groups(
         project: str | None = Query(None),
         limit: int = Query(20, ge=1, le=200),
+        run_ids: str | None = Query(None, description="Comma-separated run IDs to scope counts to a window."),
     ) -> list[dict[str, Any]]:
-        """Return recurring failure groups ranked by occurrence count."""
+        """Return recurring failure groups ranked by occurrence count.
+
+        When ``run_ids`` is supplied all counts are scoped to those runs and
+        each group carries ``scope="window"``.  Without ``run_ids`` the
+        response is all-time and groups carry ``scope="all_time"``.
+        """
         from qara.analyzers.categorizer import categorize_failure
         from qara.db.repository import RunRepository
         from qara.db.schema import get_connection
 
+        parsed_run_ids = [r.strip() for r in run_ids.split(",") if r.strip()] if run_ids else None
+        if parsed_run_ids is not None and len(parsed_run_ids) > _MAX_FAILURE_GROUP_RUN_IDS:
+            raise HTTPException(status_code=422, detail="At most 50 run IDs allowed.")
+
         conn = get_connection(db_path)
         try:
-            groups = RunRepository(conn).get_failure_groups(project=project, limit=limit)
+            groups = RunRepository(conn).get_failure_groups(
+                project=project,
+                limit=limit,
+                run_ids=parsed_run_ids,
+            )
             for g in groups:
                 cat = categorize_failure(
                     error_type=g.get("error_type"),
@@ -98,6 +115,9 @@ def make_analysis_router(db_path: str | Path | None) -> APIRouter:
             predictions = predictor.predict_all(project=project, min_runs=min_runs)
             if tier:
                 tier_upper = tier.upper()
+                if tier_upper not in _ALLOWED_RISK_TIERS:
+                    allowed = ", ".join(sorted(_ALLOWED_RISK_TIERS))
+                    raise HTTPException(status_code=422, detail=f"Invalid risk tier. Allowed: {allowed}.")
                 predictions = [p for p in predictions if p.tier.name == tier_upper]
             return [_dc_to_dict(p) for p in predictions]
         finally:
@@ -160,23 +180,32 @@ def make_analysis_router(db_path: str | Path | None) -> APIRouter:
         conn = get_connection(db_path)
         try:
             cur = conn.cursor()
-            project_clause = "AND r.project = ?" if project else ""
-            params: list = [project] if project else []
+            current_owner_project_clause = "AND r.project = ?" if project else ""
+            main_project_clause = "AND r.project = ?" if project else ""
+            params: list = []
+            if project:
+                params.append(project)
+                params.append(project)
 
             cur.execute(
                 f"""
-                WITH current_owner AS (
-                    SELECT tc.canonical_name, tc.owner
+                WITH latest_owner AS (
+                    SELECT tc.canonical_name, MAX(r.run_sequence) AS run_sequence
                     FROM test_cases tc
                     JOIN runs r ON tc.run_id = r.run_id
                     WHERE tc.owner IS NOT NULL
-                    AND r.run_sequence = (
-                        SELECT MAX(r2.run_sequence)
-                        FROM test_cases tc2
-                        JOIN runs r2 ON tc2.run_id = r2.run_id
-                        WHERE tc2.canonical_name = tc.canonical_name
-                        AND tc2.owner IS NOT NULL
-                    )
+                      {current_owner_project_clause}
+                    GROUP BY tc.canonical_name
+                ),
+                current_owner AS (
+                    SELECT tc.canonical_name, MAX(tc.owner) AS owner
+                    FROM test_cases tc
+                    JOIN runs r ON tc.run_id = r.run_id
+                    JOIN latest_owner lo
+                      ON lo.canonical_name = tc.canonical_name
+                     AND lo.run_sequence = r.run_sequence
+                    WHERE tc.owner IS NOT NULL
+                    GROUP BY tc.canonical_name
                 )
                 SELECT
                     co.owner,
@@ -189,7 +218,7 @@ def make_analysis_router(db_path: str | Path | None) -> APIRouter:
                 FROM test_cases tc
                 JOIN runs r ON tc.run_id = r.run_id
                 JOIN current_owner co ON co.canonical_name = tc.canonical_name
-                WHERE 1=1 {project_clause}
+                WHERE 1=1 {main_project_clause}
                 GROUP BY co.owner
                 ORDER BY failed_executions DESC, co.owner
                 """,

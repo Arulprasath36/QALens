@@ -33,6 +33,7 @@ from qara.artifacts.models import ArtifactIngestStats, ArtifactRecord
 from qara.artifacts.selector import select_screenshots
 from qara.artifacts.storage import ArtifactStore, mime_to_ext
 from qara.models.artifact_ref import ArtifactRef
+from qara.security import validate_image_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +60,7 @@ class ArtifactIngestionPolicy:
     ) -> None:
         self._config = config
         self._store = store
+        self._total_screenshot_bytes = 0
 
     # ------------------------------------------------------------------
     # Public API
@@ -134,7 +136,23 @@ class ArtifactIngestionPolicy:
         run_stats: ArtifactIngestStats,
     ) -> ArtifactRecord:
         """Decode, inspect, optionally store, and build an ArtifactRecord."""
-        data, mime_type = _decode_ref(ref)
+        data, reported_mime = _decode_ref(
+            ref,
+            max_bytes=self._config.max_screenshot_bytes,
+        )
+        if ref.kind == "screenshot" or (reported_mime or "").lower().startswith("image/"):
+            mime_type = validate_image_bytes(data, reported_mime or ref.mime_type)
+            if (
+                self._total_screenshot_bytes + len(data)
+                > self._config.max_total_screenshot_bytes_per_run
+            ):
+                raise ValueError(
+                    "Run screenshot byte limit exceeded "
+                    f"({self._config.max_total_screenshot_bytes_per_run} bytes)."
+                )
+            self._total_screenshot_bytes += len(data)
+        else:
+            mime_type = reported_mime
 
         # Content hash on *original* bytes (before compression)
         sha256 = hashlib.sha256(data).hexdigest()
@@ -227,7 +245,7 @@ class ArtifactIngestionPolicy:
 # ---------------------------------------------------------------------------
 
 
-def _decode_ref(ref: ArtifactRef) -> tuple[bytes, str]:
+def _decode_ref(ref: ArtifactRef, *, max_bytes: int) -> tuple[bytes, str]:
     """Decode a :class:`~ari.models.artifact_ref.ArtifactRef` to ``(bytes, mime_type)``.
 
     Raises:
@@ -240,10 +258,16 @@ def _decode_ref(ref: ArtifactRef) -> tuple[bytes, str]:
     if m:
         mime_type = m.group(1)
         b64_payload = m.group(2).strip()
+        # Base64 expands data by roughly 4/3. Reject before allocating decoded
+        # bytes when the encoded payload is clearly too large.
+        if len(b64_payload) > max_bytes * 4 // 3 + 4:
+            raise ValueError(f"Artifact exceeds {max_bytes}-byte limit.")
         try:
             data = base64.b64decode(b64_payload, validate=True)
         except Exception as exc:
             raise ValueError(f"Base64 decode failed: {exc}") from exc
+        if len(data) > max_bytes:
+            raise ValueError(f"Artifact exceeds {max_bytes}-byte limit.")
         return data, mime_type
 
     # Treat as a file path
@@ -251,6 +275,8 @@ def _decode_ref(ref: ArtifactRef) -> tuple[bytes, str]:
     if not path.is_file():
         raise ValueError(f"Artifact file not found: {uri!r}")
     try:
+        if path.stat().st_size > max_bytes:
+            raise ValueError(f"Artifact exceeds {max_bytes}-byte limit.")
         data = path.read_bytes()
     except OSError as exc:
         raise ValueError(f"Cannot read artifact file: {exc}") from exc

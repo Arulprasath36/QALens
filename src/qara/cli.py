@@ -36,6 +36,12 @@ console = Console()
 err_console = Console(stderr=True)
 
 
+def _is_public_bind_host(host: str) -> bool:
+    """Return True when *host* binds beyond loopback interfaces."""
+    normalized = host.strip().lower()
+    return normalized in {"0.0.0.0", "::", "[::]"}
+
+
 def _version_callback(value: bool) -> None:
     if value:
         console.print(f"ari version [bold]{__version__}[/bold]")
@@ -284,6 +290,7 @@ def analyze(
                 FlakyClassification.FLAKY: "yellow",
                 FlakyClassification.CONSISTENTLY_BROKEN: "red",
                 FlakyClassification.STABLE: "green",
+                FlakyClassification.CONSISTENT: "cyan",
                 FlakyClassification.INSUFFICIENT_DATA: "dim",
             }
 
@@ -789,6 +796,11 @@ def serve(
         "--reload",
         help="Enable uvicorn auto-reload (development mode).",
     ),
+    allow_public_bind: bool = typer.Option(
+        False,
+        "--allow-public-bind",
+        help="Allow binding to a public interface. Do not use without authentication or a trusted reverse proxy.",
+    ),
 ) -> None:
     """Start the QARA web UI on [bold]http://host:port[/bold].
 
@@ -800,7 +812,7 @@ def serve(
 
         ari serve
         ari serve --port 9090 --project "Allure Report"
-        ari serve --no-open --host 0.0.0.0
+        ari serve --no-open --host 0.0.0.0 --allow-public-bind
     """
     try:
         import uvicorn  # noqa: PLC0415
@@ -812,6 +824,13 @@ def serve(
         raise typer.Exit(code=1)
 
     from qara.server.app import create_app
+
+    if _is_public_bind_host(host) and not allow_public_bind:
+        err_console.print(
+            "[red]Refusing to bind QARA to a public interface by default.[/red] "
+            "Use [bold]--allow-public-bind[/bold] only behind authentication or a trusted reverse proxy."
+        )
+        raise typer.Exit(code=2)
 
     db_path = str(db) if db else None
     cfg_path = str(config) if config else None

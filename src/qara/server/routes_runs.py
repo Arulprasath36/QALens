@@ -15,6 +15,8 @@ from fastapi.responses import Response
 
 from qara.server.models import _dc_to_dict
 
+_ALLOWED_TEST_STATUSES = frozenset({"passed", "failed", "broken", "skipped", "unknown"})
+
 
 def make_runs_router(db_path: str | Path | None) -> APIRouter:
     """Return an :class:`~fastapi.APIRouter` with all run-data endpoints."""
@@ -56,6 +58,7 @@ def make_runs_router(db_path: str | Path | None) -> APIRouter:
     async def get_run_tests(
         run_id: str,
         status: str | None = Query(None, description="Filter by status (passed/failed/skipped)."),
+        include_details: bool = Query(True, description="Include stack traces and attachment metadata."),
     ) -> list[dict[str, Any]]:
         """Return all test cases for a run."""
         from qara.db.repository import RunRepository
@@ -63,10 +66,14 @@ def make_runs_router(db_path: str | Path | None) -> APIRouter:
 
         conn = get_connection(db_path)
         try:
+            if status is not None and status.lower() not in _ALLOWED_TEST_STATUSES:
+                allowed = ", ".join(sorted(_ALLOWED_TEST_STATUSES))
+                raise HTTPException(status_code=422, detail=f"Invalid status filter. Allowed: {allowed}.")
+            status_filter = status.lower() if status else None
             repo = RunRepository(conn)
             if repo.get_run(run_id) is None:
                 raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found.")
-            tests = repo.get_test_cases_for_run(run_id, status=status)
+            tests = repo.get_test_cases_for_run(run_id, status=status_filter, include_details=include_details)
             return [_dc_to_dict(t) for t in tests]
         finally:
             conn.close()

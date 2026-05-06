@@ -31,6 +31,7 @@ from qara.parsers.extent import (
     _MAX_JSON_BLOB_CHARS,
     _MAX_TEST_NODES,
 )
+from qara.security import validate_report_input_path
 from qara.utils.fs import safe_join
 
 
@@ -475,3 +476,28 @@ class TestSafeReadTextSizeLimit:
         f.write_text(content, encoding="utf-8")
         result = safe_read_text(f, max_bytes=None)
         assert result == content
+
+
+# ---------------------------------------------------------------------------
+# L. Report input type validation
+# ---------------------------------------------------------------------------
+
+class TestReportInputTypeValidation:
+
+    @pytest.mark.parametrize("name", ["report.html", "report.htm", "result.json"])
+    def test_supported_report_file_extensions_allowed(self, tmp_path, name):
+        path = tmp_path / name
+        path.write_text("{}", encoding="utf-8")
+        validate_report_input_path(path)
+
+    def test_report_directory_allowed(self, tmp_path):
+        report_dir = tmp_path / "allure-report"
+        report_dir.mkdir()
+        validate_report_input_path(report_dir)
+
+    @pytest.mark.parametrize("name", ["report.xml", "report.zip", "run.exe", "notes.txt"])
+    def test_unsupported_report_file_extensions_rejected(self, tmp_path, name):
+        path = tmp_path / name
+        path.write_text("x", encoding="utf-8")
+        with pytest.raises(ValueError, match="Unsupported report file type"):
+            validate_report_input_path(path)

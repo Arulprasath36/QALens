@@ -42,6 +42,8 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+from qara.security import validate_sqlite_db_path
+
 # ---------------------------------------------------------------------------
 # Default database location
 # ---------------------------------------------------------------------------
@@ -78,7 +80,7 @@ def get_connection(db_path: str | Path | None = None) -> sqlite3.Connection:
     if db_path is None:
         path: str | Path = default_db_path()
     else:
-        path = db_path
+        path = validate_sqlite_db_path(db_path)
 
     conn = sqlite3.connect(str(path), detect_types=sqlite3.PARSE_DECLTYPES)
     conn.row_factory = sqlite3.Row
@@ -182,6 +184,7 @@ CREATE INDEX IF NOT EXISTS idx_tc_canonical      ON test_cases (canonical_name);
 CREATE INDEX IF NOT EXISTS idx_tc_run_status     ON test_cases (run_id, status);
 CREATE INDEX IF NOT EXISTS idx_fail_fp           ON failures   (fingerprint);
 CREATE INDEX IF NOT EXISTS idx_runs_proj_ts      ON runs       (project, started_at);
+CREATE INDEX IF NOT EXISTS idx_runs_proj_seq     ON runs       (project, run_sequence);
 CREATE INDEX IF NOT EXISTS idx_bug_links_fp      ON bug_links  (fingerprint);
 """
 

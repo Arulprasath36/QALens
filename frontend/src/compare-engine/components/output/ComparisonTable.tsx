@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dropdown } from '../../../components/Dropdown';
 import type { ComparisonRow, ComparisonMetrics, DeltaDirection, TestStatus } from '../../types';
 
@@ -50,30 +50,33 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
     { value: 'name', label: 'Sort: by name' },
   ] as const;
 
-  const visible = rows
-    .filter(r => filter === 'all' || r.delta === filter)
-    .filter(r =>
-      search === '' ||
-      r.displayName.toLowerCase().includes(search.toLowerCase()) ||
-      r.suite.toLowerCase().includes(search.toLowerCase())
-    )
-    .sort((a, b) => {
-      if (sortKey === 'delta') {
-        const order: DeltaDirection[] = ['regressed', 'broken', 'new', 'improved', 'stable'];
-        return order.indexOf(a.delta) - order.indexOf(b.delta);
-      }
-      if (sortKey === 'suite') return a.suite.localeCompare(b.suite);
-      return a.displayName.localeCompare(b.displayName);
-    });
+  const visible = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return rows
+      .filter(r => filter === 'all' || r.delta === filter)
+      .filter(r =>
+        needle === '' ||
+        r.displayName.toLowerCase().includes(needle) ||
+        r.suite.toLowerCase().includes(needle)
+      )
+      .sort((a, b) => {
+        if (sortKey === 'delta') {
+          const order: DeltaDirection[] = ['regressed', 'broken', 'new', 'improved', 'stable'];
+          return order.indexOf(a.delta) - order.indexOf(b.delta);
+        }
+        if (sortKey === 'suite') return a.suite.localeCompare(b.suite);
+        return a.displayName.localeCompare(b.displayName);
+      });
+  }, [filter, rows, search, sortKey]);
 
-  const filterCounts = {
+  const filterCounts = useMemo(() => ({
     all:       rows.length,
     regressed: rows.filter(r => r.delta === 'regressed').length,
     broken:    rows.filter(r => r.delta === 'broken').length,
     improved:  rows.filter(r => r.delta === 'improved').length,
     stable:    rows.filter(r => r.delta === 'stable').length,
     new:       rows.filter(r => r.delta === 'new').length,
-  };
+  }), [rows]);
 
   const filterPills: { key: FilterDelta; label: string; count: number }[] = [
     { key: 'all',       label: 'All',       count: filterCounts.all       },

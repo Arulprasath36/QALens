@@ -166,7 +166,14 @@ class LocalFilesystemStore(ArtifactStore):
         if not uri.startswith("file://"):
             return None
         path = Path(uri[len("file://"):])
-        return path if path.is_file() else None
+        try:
+            resolved = path.resolve(strict=True)
+            base = self._base_dir.resolve()
+        except OSError:
+            return None
+        if resolved == base or not resolved.is_relative_to(base):
+            return None
+        return resolved if resolved.is_file() else None
 
     # ------------------------------------------------------------------
     # Private helpers
@@ -185,7 +192,9 @@ class LocalFilesystemStore(ArtifactStore):
                     line = line.strip()
                     if "\t" in line:
                         sha, fname = line.split("\t", 1)
-                        self._index[sha.strip()] = fname.strip()
+                        clean_name = Path(fname.strip()).name
+                        if clean_name == fname.strip():
+                            self._index[sha.strip()] = clean_name
             except OSError as exc:
                 logger.warning("Could not load artifact index: %s", exc)
         self._index_loaded = True

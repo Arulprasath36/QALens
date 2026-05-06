@@ -108,6 +108,34 @@ def test_chat_sends_system_and_user_messages(httpx_mock):
     assert messages[1]["content"] == "my question"
 
 
+def test_chat_redacts_secrets_before_sending_prompt(httpx_mock):
+    cfg = _ollama_cfg()
+    httpx_mock.add_response(
+        url="http://localhost:11434/v1/chat/completions",
+        json=_openai_response("ok"),
+    )
+    secret = "sk-proj-abcdefghijklmnopqrstuvwxyz123456"
+    LLMClient(cfg).chat(f"Failure log leaked api_key={secret}")
+    request = httpx_mock.get_request()
+    payload = json.loads(request.content)
+    assert secret not in payload["messages"][1]["content"]
+    assert "[REDACTED]" in payload["messages"][1]["content"]
+
+
+def test_chat_truncates_oversized_prompt_before_sending(httpx_mock):
+    cfg = _ollama_cfg()
+    httpx_mock.add_response(
+        url="http://localhost:11434/v1/chat/completions",
+        json=_openai_response("ok"),
+    )
+    LLMClient(cfg).chat("x" * 90_000)
+    request = httpx_mock.get_request()
+    payload = json.loads(request.content)
+    content = payload["messages"][1]["content"]
+    assert len(content) < 81_000
+    assert "prompt text was truncated" in content
+
+
 def test_chat_sends_bearer_token_when_api_key_set(httpx_mock):
     cfg = _ollama_cfg(api_key="sk-mykey")
     httpx_mock.add_response(

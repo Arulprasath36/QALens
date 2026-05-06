@@ -100,9 +100,23 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
         finally:
             conn.close()
 
+    @router.get("/api/compare/facets", tags=["comparison"])
+    async def compare_facets(
+        project: str | None = Query(None),
+        limit: int = Query(3, ge=1, le=50, description="Recent run window used for picker facets."),
+    ) -> dict[str, Any]:
+        """Return owner/suite picker facets without building a full comparison matrix."""
+        from qara.db.schema import get_connection
+
+        conn = get_connection(db_path)
+        try:
+            return _build_compare_facets(conn, project=project, limit=limit)
+        finally:
+            conn.close()
+
     @router.post("/api/compare/owners", tags=["comparison"])
     async def compare_owners(body: dict) -> dict[str, Any]:
-        """Compare test results between two or three owners across the last N runs.
+        """Compare test results between two or three owners across a run window.
 
         Request body::
 
@@ -110,7 +124,8 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
                 "owner_a":  "Arjun Patel",
                 "owner_b":  "Fatima Al-Rashid",
                 "owner_c":  "Lucas Ferreira",   // optional third owner
-                "limit":    5,
+                "limit":    5,               // optional when run_ids provided
+                "run_ids":  ["...", "..."],  // optional explicit custom range
                 "project":  "OrangeHRM"          // optional
             }
 
@@ -132,6 +147,12 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
             limit = min(max(int(body.get("limit") or 5), 1), 50)
         except (TypeError, ValueError):
             limit = 5
+        run_ids_raw = body.get("run_ids") or None
+        run_ids = list(dict.fromkeys([str(rid) for rid in run_ids_raw])) if isinstance(run_ids_raw, list) else None
+        if run_ids is not None and not run_ids:
+            raise HTTPException(status_code=400, detail="run_ids must not be empty.")
+        if run_ids is not None and len(run_ids) > 50:
+            raise HTTPException(status_code=400, detail="At most 50 run IDs allowed.")
         project = (body.get("project") or None)
 
         from qara.db.schema import get_connection, init_db
@@ -142,14 +163,14 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
             return _build_entity_comparison(
                 conn, column="owner",
                 entity_a=owner_a, entity_b=owner_b, entity_c=owner_c,
-                limit=limit, project=project,
+                limit=limit, project=project, run_ids=run_ids,
             )
         finally:
             conn.close()
 
     @router.post("/api/compare/suites", tags=["comparison"])
     async def compare_suites(body: dict) -> dict[str, Any]:
-        """Compare test results between two or three suites across the last N runs.
+        """Compare test results between two or three suites across a run window.
 
         Request body::
 
@@ -157,7 +178,8 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
                 "suite_a":  "Authentication",
                 "suite_b":  "Checkout",
                 "suite_c":  "Payments",   // optional third suite
-                "limit":    10,
+                "limit":    10,              // optional when run_ids provided
+                "run_ids":  ["...", "..."],  // optional explicit custom range
                 "project":  "OrangeHRM"   // optional
             }
         """
@@ -175,6 +197,12 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
             limit = min(max(int(body.get("limit") or 10), 1), 50)
         except (TypeError, ValueError):
             limit = 10
+        run_ids_raw = body.get("run_ids") or None
+        run_ids = list(dict.fromkeys([str(rid) for rid in run_ids_raw])) if isinstance(run_ids_raw, list) else None
+        if run_ids is not None and not run_ids:
+            raise HTTPException(status_code=400, detail="run_ids must not be empty.")
+        if run_ids is not None and len(run_ids) > 50:
+            raise HTTPException(status_code=400, detail="At most 50 run IDs allowed.")
         project = (body.get("project") or None)
 
         from qara.db.schema import get_connection, init_db
@@ -185,7 +213,7 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
             return _build_entity_comparison(
                 conn, column="suite",
                 entity_a=suite_a, entity_b=suite_b, entity_c=suite_c,
-                limit=limit, project=project,
+                limit=limit, project=project, run_ids=run_ids,
             )
         finally:
             conn.close()
@@ -236,6 +264,70 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
 
 
 # ---------------------------------------------------------------------------
+# Lightweight compare catalogue helper
+# ---------------------------------------------------------------------------
+
+def _build_compare_facets(conn: Any, *, project: str | None, limit: int) -> dict[str, Any]:
+    """Build picker facets from recent runs without row/cell comparison work."""
+    params: list[Any] = []
+    project_clause = ""
+    if project:
+        project_clause = "WHERE project = ?"
+        params.append(project)
+
+    run_rows = conn.execute(
+        f"SELECT run_id FROM runs {project_clause} ORDER BY run_sequence DESC LIMIT ?",
+        params + [limit],
+    ).fetchall()
+    run_ids = [r["run_id"] for r in run_rows]
+    if not run_ids:
+        return {"owners": [], "suites": []}
+
+    ph = ",".join("?" * len(run_ids))
+    rows = conn.execute(
+        f"""
+        SELECT tc.canonical_name, tc.owner, tc.suite, r.run_sequence
+        FROM test_cases tc
+        JOIN runs r ON r.run_id = tc.run_id
+        WHERE tc.run_id IN ({ph})
+          AND tc.is_retry = 0
+        ORDER BY r.run_sequence DESC
+        """,
+        run_ids,
+    ).fetchall()
+
+    latest_by_name: dict[str, dict[str, str | None]] = {}
+    for row in rows:
+        cname = row["canonical_name"]
+        current = latest_by_name.setdefault(cname, {"owner": None, "suite": None})
+        if current["owner"] is None and row["owner"]:
+            current["owner"] = row["owner"]
+        if current["suite"] is None and row["suite"]:
+            current["suite"] = row["suite"]
+
+    owner_counts: dict[str, int] = {}
+    suite_counts: dict[str, int] = {}
+    for meta in latest_by_name.values():
+        owner = meta["owner"]
+        suite = meta["suite"]
+        if owner:
+            owner_counts[owner] = owner_counts.get(owner, 0) + 1
+        if suite:
+            suite_counts[suite] = suite_counts.get(suite, 0) + 1
+
+    return {
+        "owners": [
+            {"name": name, "test_count": owner_counts[name]}
+            for name in sorted(owner_counts)
+        ],
+        "suites": [
+            {"name": name, "test_count": suite_counts[name]}
+            for name in sorted(suite_counts)
+        ],
+    }
+
+
+# ---------------------------------------------------------------------------
 # Entity comparison helper (owner / suite)
 # ---------------------------------------------------------------------------
 
@@ -248,6 +340,7 @@ def _build_entity_comparison(
     entity_c: str | None = None,
     limit: int,
     project: str | None,
+    run_ids: list[str] | None = None,
 ) -> dict[str, Any]:
     """Build the owner-vs-owner or suite-vs-suite comparison payload.
 
@@ -262,17 +355,26 @@ def _build_entity_comparison(
     * The ``owner`` field on every row tells the UI which entity owns it.
     """
     # 1. Resolve run window
-    params: list = []
-    project_clause = ""
-    if project:
-        project_clause = "AND project = ?"
-        params.append(project)
+    if run_ids:
+        placeholders = ",".join("?" * len(run_ids))
+        run_rows = conn.execute(
+            f"SELECT run_id, run_sequence, started_at FROM runs"
+            f" WHERE run_id IN ({placeholders})"
+            f" ORDER BY run_sequence DESC",
+            run_ids,
+        ).fetchall()
+    else:
+        params: list = []
+        project_clause = ""
+        if project:
+            project_clause = "AND project = ?"
+            params.append(project)
 
-    run_rows = conn.execute(
-        f"SELECT run_id, run_sequence FROM runs WHERE 1=1 {project_clause}"
-        f" ORDER BY run_sequence DESC LIMIT ?",
-        params + [limit],
-    ).fetchall()
+        run_rows = conn.execute(
+            f"SELECT run_id, run_sequence, started_at FROM runs WHERE 1=1 {project_clause}"
+            f" ORDER BY run_sequence DESC LIMIT ?",
+            params + [limit],
+        ).fetchall()
 
     if not run_rows:
         return _empty_entity_result(column, entity_a, entity_b, entity_c)
@@ -285,7 +387,11 @@ def _build_entity_comparison(
     # run sequences oldest→newest (for history pills in the UI)
     run_seqs_asc = sorted(r["run_sequence"] for r in run_rows)
     runs_ordered = [
-        {"run_sequence": r["run_sequence"], "display_name": f"Run #{r['run_sequence']}"}
+        {
+            "run_sequence": r["run_sequence"],
+            "display_name": f"Run #{r['run_sequence']}",
+            "started_at": r["started_at"],
+        }
         for r in sorted(run_rows, key=lambda x: x["run_sequence"])
     ]
 
@@ -298,27 +404,36 @@ def _build_entity_comparison(
     #    and use that assignment as the authoritative owner/suite.
     entities = [e for e in [entity_a, entity_b, entity_c] if e]
     ph_entities = ",".join("?" * len(entities))
+    assignment_project_clause = "AND r.project = ?" if project else ""
+    assignment_params: list[Any] = list(entities)
+    if project:
+        assignment_params.append(project)
     owned_rows = conn.execute(
         f"""
+        WITH latest_assignment AS (
+            SELECT tc.canonical_name, MAX(r.run_sequence) AS run_sequence
+            FROM test_cases tc
+            JOIN runs r ON r.run_id = tc.run_id
+            WHERE tc.{column} IN ({ph_entities})
+              AND tc.{column} IS NOT NULL
+              {assignment_project_clause}
+            GROUP BY tc.canonical_name
+        )
         SELECT tc.canonical_name,
                tc.{column}       AS entity,
                MAX(tc.name)      AS display_name,
                MAX(tc.suite)     AS suite
         FROM test_cases tc
         JOIN runs r ON r.run_id = tc.run_id
+        JOIN latest_assignment la
+          ON la.canonical_name = tc.canonical_name
+         AND la.run_sequence = r.run_sequence
         WHERE tc.{column} IN ({ph_entities})
           AND tc.{column} IS NOT NULL
-          AND r.run_sequence = (
-              SELECT MAX(r2.run_sequence)
-              FROM test_cases tc2
-              JOIN runs r2 ON tc2.run_id = r2.run_id
-              WHERE tc2.canonical_name = tc.canonical_name
-                AND tc2.{column} IS NOT NULL
-          )
         GROUP BY tc.canonical_name
         ORDER BY tc.{column}, tc.canonical_name
         """,
-        entities,
+        assignment_params + entities,
     ).fetchall()
 
     if not owned_rows:
@@ -447,7 +562,11 @@ def _build_entity_comparison(
             "fixed_tests":  m["fixed"],
         }
 
-    time_label = f"Last {run_count} run{'s' if run_count != 1 else ''}"
+    time_label = (
+        f"Custom range · {run_count} run{'s' if run_count != 1 else ''}"
+        if run_ids
+        else f"Last {run_count} run{'s' if run_count != 1 else ''}"
+    )
 
     result: dict[str, Any] = {
         "dimension":    column,

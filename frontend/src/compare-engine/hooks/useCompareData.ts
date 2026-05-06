@@ -57,7 +57,7 @@ export interface ApiEntityCompareResult {
   label_c?:     string;
   time_label:   string;
   run_count:    number;
-  runs_ordered: { run_sequence: number; display_name: string }[];
+  runs_ordered: { run_sequence: number; display_name: string; started_at?: number | null }[];
   metrics_a:    ApiEntityMetrics;
   metrics_b:    ApiEntityMetrics;
   metrics_c?:   ApiEntityMetrics;
@@ -146,14 +146,25 @@ interface ApiAvailableRun {
   skipped_count: number;
 }
 
+interface ApiCompareFacetItem {
+  name:       string;
+  test_count: number;
+}
+
+interface ApiCompareFacetsResponse {
+  owners: ApiCompareFacetItem[];
+  suites: ApiCompareFacetItem[];
+}
+
 // ─────────────────────────────────────────────────────────────
 // Adapter helpers
 // ─────────────────────────────────────────────────────────────
 
 function timeModeToLimit(timeMode: string): number {
-  if (timeMode === 'last10') return 10;
-  if (timeMode === 'last5')  return 5;
-  return 2; // latest_vs_previous
+  if (timeMode === 'last10')             return 10;
+  if (timeMode === 'last5')              return 5;
+  if (timeMode === 'latest_vs_previous') return 2;
+  return 10; // custom without run_ids — default to a reasonable window
 }
 
 function formatCompareDate(timestamp: number | null): string {
@@ -402,16 +413,14 @@ export function useCatalogue() {
         if (!cancelled) setRuns(data.map(apiAvailableRunToRun));
       });
 
-    // Fetch a history window to extract unique owners + suites from facets,
-    // then enrich owners with real counts from /api/owner-stats.
-    const histParams = new URLSearchParams({ limit: '20' });
-    if (currentProject) histParams.set('project', currentProject);
-
     const ownerParams = new URLSearchParams();
     if (currentProject) ownerParams.set('project', currentProject);
 
-    const fetchFacets = fetch(`/api/compare/history?${histParams}`)
-      .then(r => r.ok ? r.json() as Promise<ApiCompareResult> : Promise.reject(r.statusText));
+    const facetParams = new URLSearchParams({ limit: '20' });
+    if (currentProject) facetParams.set('project', currentProject);
+
+    const fetchFacets = fetch(`/api/compare/facets?${facetParams}`)
+      .then(r => r.ok ? r.json() as Promise<ApiCompareFacetsResponse> : Promise.reject(r.statusText));
 
     const fetchOwnerStats = fetch(`/api/owner-stats?${ownerParams}`)
       .then(r => r.ok ? r.json() as Promise<ApiOwnerStatsResponse> : Promise.reject(r.statusText));
@@ -426,43 +435,34 @@ export function useCatalogue() {
         }
       }
 
-      if (facetsResult.status === 'fulfilled') {
-        const data = facetsResult.value;
+      const facetOwners = facetsResult.status === 'fulfilled' ? facetsResult.value.owners : [];
+      const facetSuites = facetsResult.status === 'fulfilled' ? facetsResult.value.suites : [];
 
-        const ownerList: Owner[] = data.facets.owners.map(name => {
+      if (facetOwners.length > 0) {
+        setOwners(facetOwners.map(({ name, test_count }) => {
           const s = statsMap.get(name);
           return {
             id:          name,
             name,
-            testCount:   s?.total_tests   ?? 0,
+            testCount:   s?.total_tests   ?? test_count,
             flakyCount:  0,
             failureRate: s?.failure_rate  ?? 0,
           };
-        });
-
-        // Count tests per suite from the history rows
-        const suiteTestCount = new Map<string, number>();
-        for (const row of data.rows) {
-          if (row.suite) {
-            suiteTestCount.set(row.suite, (suiteTestCount.get(row.suite) ?? 0) + 1);
-          }
-        }
-
-        const suiteList: Suite[] = data.facets.suites.map(name => ({
-          id: name, name, testCount: suiteTestCount.get(name) ?? 0, failureRate: 0, flakyCount: 0,
         }));
-
-        setOwners(ownerList);
-        setSuites(suiteList);
       } else if (ownerStatsResult.status === 'fulfilled') {
-        const ownerList: Owner[] = ownerStatsResult.value.owners.map(s => ({
+        setOwners(ownerStatsResult.value.owners.map(s => ({
           id:          s.owner,
           name:        s.owner,
           testCount:   s.total_tests,
           flakyCount:  0,
           failureRate: s.failure_rate,
-        }));
-        setOwners(ownerList);
+        })));
+      }
+
+      if (facetSuites.length > 0) {
+        setSuites(facetSuites.map(({ name, test_count }) => ({
+          id: name, name, testCount: test_count, failureRate: 0, flakyCount: 0,
+        })));
       }
     });
 
@@ -499,6 +499,7 @@ export function useCompareData(state: CompareState): UseCompareDataReturn {
   const [error,         setError]         = useState<string | null>(null);
 
   const isRunsDimension = state.dimension === 'runs';
+  const isEntityDimension = state.dimension === 'owners' || state.dimension === 'suites';
   const isCustomMode    = state.timeMode === 'custom';
   const isWindowMode    = state.timeMode === 'last5' || state.timeMode === 'last10';
   const isManualPairMode = isCustomMode && state.customRunIds.length === 2;
@@ -507,7 +508,9 @@ export function useCompareData(state: CompareState): UseCompareDataReturn {
 
   const canFetch = isRunsDimension
     ? (isCustomMode ? state.customRunIds.length >= 1 : true)
-    : state.selections.length >= 2;
+    : isEntityDimension
+      ? state.selections.length >= 2   // always fetchable; uses limit or run_ids as available
+      : state.selections.length >= 2;
 
   const cacheKey = [
     state.dimension,
@@ -521,6 +524,8 @@ export function useCompareData(state: CompareState): UseCompareDataReturn {
     if (!canFetch) {
       setResult(null);
       setHistoryResult(null);
+      setEntityResult(null);
+      setLoading(false);
       setError(null);
       return;
     }
@@ -567,19 +572,25 @@ export function useCompareData(state: CompareState): UseCompareDataReturn {
 
         } else if (state.dimension === 'owners' || state.dimension === 'suites') {
           const isOwners = state.dimension === 'owners';
+          // Use run_ids when custom IDs are present (regardless of timeMode),
+          // otherwise fall back to a limit derived from the window mode.
+          const hasCustomRuns = state.customRunIds.length > 0;
+          const runSpec = hasCustomRuns
+            ? { run_ids: state.customRunIds }
+            : { limit: timeModeToLimit(state.timeMode) };
           const body = isOwners
             ? {
                 owner_a: state.selections[0],
                 owner_b: state.selections[1],
                 ...(state.selections[2] ? { owner_c: state.selections[2] } : {}),
-                limit: timeModeToLimit(state.timeMode),
+                ...runSpec,
                 project: currentProject ?? undefined,
               }
             : {
                 suite_a: state.selections[0],
                 suite_b: state.selections[1],
                 ...(state.selections[2] ? { suite_c: state.selections[2] } : {}),
-                limit: timeModeToLimit(state.timeMode),
+                ...runSpec,
                 project: currentProject ?? undefined,
               };
           const res = await fetch(`/api/compare/${state.dimension}`, {

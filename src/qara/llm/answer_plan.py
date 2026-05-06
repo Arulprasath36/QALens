@@ -262,26 +262,89 @@ def _build_answer_plan_core(
         # RISK ranking gets a richer format: tier + pass rate per entry, plus explanation sections
         if metric == RankingMetric.RISK:
             list_format_rule = (
-                "For each entry use the format: NUMBER. TEST_NAME — TIER risk · pass rate: PASS_RATE% "
-                "(e.g. '1. testFoo() — HIGH risk · pass rate: 49%'). "
+                "Format the ranked list as a markdown numbered list. For each entry use this EXACT format:\n"
+                "  `NUMBER. **`TEST_NAME`** — TIER_EMOJI **TIER** risk · PASS_RATE% pass rate`\n"
+                "Where TIER_EMOJI is: 🔴 for CRITICAL, 🟠 for HIGH, 🟡 for MEDIUM, 🟢 for LOW. "
+                "Wrap the test name in backticks AND bold (`**`testFoo()`**`). Bold the TIER label. "
+                "Example: `1. **`testCheckoutCompletes()`** — 🔴 **CRITICAL** risk · 49% pass rate`. "
                 "Use the risk_tier and pass_rate columns from the context table. "
                 "NEVER output a bare percentage without a metric label."
             )
             risk_extra_rules = [
-                "After the list, add a short 'How I ranked them' section: state that tests are "
-                "ranked by QARA next-run risk score, which combines volatility, failure burden, "
-                "recent decline, fail streak, and duration spike — NOT by pass rate.",
-                "Then add a 'What the numbers mean' section with exactly these three bullets:\n"
-                "- Risk tier = ARI's prediction of next-run failure likelihood (CRITICAL > HIGH > MEDIUM > LOW)\n"
-                "- Pass rate = how often the test has passed historically\n"
-                "- A test can rank high-risk even with a high pass rate if recent signals worsened sharply",
-                "Then add a 'Why these rank highly' section with one evidence sentence per top 3–5 entry. "
-                "Explicitly separate the QARA risk basis from the pass rate. "
-                "Example: 'testFoo() ranks HIGH because its recent signals worsened sharply "
+                # Lead headline using a markdown H3 so the answer has visual hierarchy
+                "Begin your ENTIRE answer with this exact line: "
+                "'### 🎯 Tests Most Likely to Fail Next Run', then a blank line, "
+                "then the natural-language summary sentence, then a blank line, then the ranked list.",
+                # Use real markdown headers for each explanation section so they render as headings
+                "After the ranked list (and the total-count sentence), insert exactly these three sections "
+                "in this order, each starting with a markdown H3 heading on its own line:",
+                "  1. `### 📊 How I ranked them` — ONE short paragraph (no bullets) stating that tests are "
+                "ranked by QARA next-run risk score, which combines volatility (flip_score), failure burden, "
+                "recent pass-rate decline, fail streak, and duration spike — NOT by pass rate alone.",
+                "  2. `### 🔢 What the numbers mean` — exactly three bullets:\n"
+                "    - **Risk tier** — QARA's prediction of next-run failure likelihood (CRITICAL > HIGH > MEDIUM > LOW)\n"
+                "    - **Pass rate** — how often the test has passed historically\n"
+                "    - **High risk + high pass rate?** — a test can still rank high-risk if recent signals worsened sharply",
+                "  3. `### 🔬 Why these rank highly` — one bullet per top 3–5 entry. "
+                "Each bullet starts with the bold backticked test name, then an em-dash, "
+                "then ONE sentence of evidence that explicitly separates the QARA risk basis from the pass rate. "
+                "Example: '- **`testFoo()`** — ranks HIGH because its recent signals worsened sharply "
                 "(fail streak + recent decline), even though its historical pass rate is 90%.'",
+                # Visual breathing room
+                "Insert a blank line between every section. Do NOT compress sections together.",
+                # ── WORKED EXAMPLE ──────────────────────────────────────────────
+                # This example is the single most important rule. Smaller models
+                # (Gemma, Llama, etc.) follow concrete examples FAR more reliably
+                # than instructions. Copy the structure exactly — only swap the
+                # test names, tiers, and pass rates with the real values from
+                # the context.
+                "──────────────────────────────────────────────────────────\n"
+                "EXAMPLE OUTPUT — copy this STRUCTURE exactly. Substitute only "
+                "the test names, tier emojis, tier labels, and percentages "
+                "with the real values from the context. Keep ALL markdown "
+                "punctuation (###, **, `, -, blank lines) verbatim:\n"
+                "──────────────────────────────────────────────────────────\n"
+                "### 🎯 Tests Most Likely to Fail Next Run\n"
+                "\n"
+                "Across the last 10 runs, these are the tests with the highest QARA risk score:\n"
+                "\n"
+                "1. **`testCheckoutCompletes()`** — 🔴 **CRITICAL** risk · 32% pass rate\n"
+                "2. **`testDashboardLoadsInUnder3s()`** — 🟠 **HIGH** risk · 43% pass rate\n"
+                "3. **`testCreditCardPayment()`** — 🟠 **HIGH** risk · 90% pass rate\n"
+                "4. **`testEnableEmailNotifications()`** — 🟡 **MEDIUM** risk · 50% pass rate\n"
+                "5. **`testCancelOrder()`** — 🟡 **MEDIUM** risk · 47% pass rate\n"
+                "\n"
+                "There are a total of 10 eligible tests.\n"
+                "\n"
+                "### 📊 How I ranked them\n"
+                "\n"
+                "Tests are ranked by QARA next-run risk score, which combines volatility "
+                "(flip_score), failure burden, recent pass-rate decline, fail streak, and "
+                "duration spike — NOT by pass rate alone.\n"
+                "\n"
+                "### 🔢 What the numbers mean\n"
+                "\n"
+                "- **Risk tier** — QARA's prediction of next-run failure likelihood (CRITICAL > HIGH > MEDIUM > LOW)\n"
+                "- **Pass rate** — how often the test has passed historically\n"
+                "- **High risk + high pass rate?** — a test can still rank high-risk if recent signals worsened sharply\n"
+                "\n"
+                "### 🔬 Why these rank highly\n"
+                "\n"
+                "- **`testCheckoutCompletes()`** — ranks CRITICAL because of a 4-run fail streak combined with sharp recent decline.\n"
+                "- **`testDashboardLoadsInUnder3s()`** — ranks HIGH due to high volatility (frequent pass↔fail switches) over the window.\n"
+                "- **`testCreditCardPayment()`** — ranks HIGH because recent signals worsened sharply, even though its historical pass rate is 90%.\n"
+                "──────────────────────────────────────────────────────────\n"
+                "END EXAMPLE. Now produce YOUR answer in this exact structure "
+                "using the real test data from the [CONTEXT] above. Do NOT "
+                "skip any section. Do NOT change the markdown punctuation. "
+                "Do NOT collapse sections into prose.",
             ]
         else:
-            list_format_rule = "Then present a simple numbered list — one test name per line, no metric columns."
+            list_format_rule = (
+                "Then present a markdown numbered list — one test name per line. "
+                "Wrap the test name in backticks AND bold (e.g. `1. **`testFoo()`**`). "
+                "Do NOT add metric columns."
+            )
             risk_extra_rules = []
         _max_results = 10
         return AnswerPlan(
@@ -297,17 +360,29 @@ def _build_answer_plan_core(
             max_results=_max_results,
             needs_exact_records=False,
             confidence_style="none",
-            answer_rules=[
-                f"Ranking metric: {basis}.",
-                "Begin with one natural-language summary sentence that directly answers the question "
-                "(e.g. 'The tests most likely to fail next run are:').",
-                list_format_rule,
-                "DO NOT output a table. DO NOT use column headers such as 'Rank', 'flip_score', "
-                "'pass_rate', 'runs', or 'classification'.",
-                f"List at most {_max_results} entries; after the list add a single plain sentence with the total eligible count.",
-                "You MUST NOT add a root-cause section unless this instruction set includes one.",
-                "You MUST NOT add recommendations unless this instruction set includes one.",
-            ] + risk_extra_rules + extra_rules,
+            answer_rules=(
+                [f"Ranking metric: {basis}."]
+                # Non-RISK metrics use the legacy intro line. RISK has its own headline
+                # rule injected via risk_extra_rules below.
+                + (
+                    []
+                    if metric == RankingMetric.RISK
+                    else [
+                        "Begin with one natural-language summary sentence that directly answers the question "
+                        "(e.g. 'The tests most likely to fail next run are:').",
+                    ]
+                )
+                + [
+                    list_format_rule,
+                    "DO NOT output an HTML/markdown comparison table with column headers such as 'Rank', "
+                    "'flip_score', 'pass_rate', 'runs', or 'classification'. The numbered list IS the table.",
+                    f"List at most {_max_results} entries; after the list add a single plain sentence with the total eligible count.",
+                    "You MUST NOT add a root-cause section unless this instruction set includes one.",
+                    "You MUST NOT add recommendations unless this instruction set includes one.",
+                ]
+                + risk_extra_rules
+                + extra_rules
+            ),
         )
 
     if intent == AnswerIntent.DIAGNOSTIC_ROOT_CAUSE:

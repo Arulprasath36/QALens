@@ -123,7 +123,10 @@ class QARAClient:
             ReportMalformedError: If the report is structurally invalid.
 
         """
+        from qara.security import validate_report_input_path
+
         path = Path(report_path)
+        validate_report_input_path(path)
         if attachments_dir is not None:
             # Build a one-shot detector with the requested attachments_dir so
             # that ExtentHtmlParser can extract embedded screenshots.

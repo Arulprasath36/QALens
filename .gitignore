@@ -95,6 +95,10 @@ site/
 tmp_test_data/
 ExtentReport.html
 
+# Design handoff / prototype references (local only, not production code)
+Failure_Pattern_Calude_Design/
+design_handoff_regressions_view/
+
 # Temporary
 tmp/
 temp/

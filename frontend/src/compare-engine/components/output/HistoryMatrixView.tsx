@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Dropdown } from '../../../components/Dropdown';
+import { Tooltip } from '../../../components/Tooltip';
 import type { HistoryResult, HistoryRow, HistoryRunMeta, HistorySummary } from '../../types';
 
 // ─────────────────────────────────────────────────────────────
@@ -116,9 +117,9 @@ function passRateColor(rate: number): string {
 
 function SuiteChip({ suite }: { suite: string }) {
   return (
-    <span className="qara-suite-label" title={suite}>
-      {suite}
-    </span>
+    <Tooltip content={suite} className="inline-flex max-w-full">
+      <span className="qara-suite-label">{suite}</span>
+    </Tooltip>
   );
 }
 
@@ -166,44 +167,49 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
 
   const { runs, rows, summary } = data;
 
-  // Compute per-row derived data
-  const rowsMeta = rows.map(row => ({
-    row,
-    failures:     failureCount(row),
-    isNewFailure: isNewFailure(row, runs),
-    isFixed:      isFixed(row, runs),
-  }));
+  const rowsMeta = useMemo(() => rows.map(row => {
+    const cellsByRunId = new Map(row.cells.map(cell => [cell.runId, cell]));
+    return {
+      row,
+      cellsByRunId,
+      failures:     failureCount(row),
+      isNewFailure: isNewFailure(row, runs),
+      isFixed:      isFixed(row, runs),
+    };
+  }), [rows, runs]);
 
   // Filter
-  const filtered = rowsMeta.filter(({ row, isNewFailure: nf, isFixed: fx }) => {
-    if (filterCls === 'stable'       && row.classification !== 'stable') return false;
-    if (filterCls === 'flaky'        && row.classification !== 'flaky') return false;
-    if (filterCls === 'broken'       && row.classification !== 'broken' && row.classification !== 'consistently_broken') return false;
-    if (filterCls === 'new_failures' && !nf) return false;
-    if (filterCls === 'fixed'        && !fx) return false;
-    if (search !== '' && !row.displayName.toLowerCase().includes(search.toLowerCase()) &&
-        !row.suite.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const sorted = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    const filtered = rowsMeta.filter(({ row, isNewFailure: nf, isFixed: fx }) => {
+      if (filterCls === 'stable'       && row.classification !== 'stable') return false;
+      if (filterCls === 'flaky'        && row.classification !== 'flaky') return false;
+      if (filterCls === 'broken'       && row.classification !== 'broken' && row.classification !== 'consistently_broken') return false;
+      if (filterCls === 'new_failures' && !nf) return false;
+      if (filterCls === 'fixed'        && !fx) return false;
+      if (needle !== '' && !row.displayName.toLowerCase().includes(needle) &&
+          !row.suite.toLowerCase().includes(needle)) return false;
+      return true;
+    });
 
-  // Sort
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortKey === 'failures')  return b.failures - a.failures;
-    if (sortKey === 'pass_rate') return a.row.passRate - b.row.passRate;
-    if (sortKey === 'flip_score')return b.row.flipScore - a.row.flipScore;
-    if (sortKey === 'suite')     return a.row.suite.localeCompare(b.row.suite);
-    return a.row.displayName.localeCompare(b.row.displayName);
-  });
+    return [...filtered].sort((a, b) => {
+      if (sortKey === 'failures')  return b.failures - a.failures;
+      if (sortKey === 'pass_rate') return a.row.passRate - b.row.passRate;
+      if (sortKey === 'flip_score')return b.row.flipScore - a.row.flipScore;
+      if (sortKey === 'suite')     return a.row.suite.localeCompare(b.row.suite);
+      return a.row.displayName.localeCompare(b.row.displayName);
+    });
+  }, [filterCls, rowsMeta, search, sortKey]);
 
   // Filter pill counts
-  const counts = {
+  const counts = useMemo(() => ({
     all:          rows.length,
     stable:       rows.filter(r => r.classification === 'stable').length,
     flaky:        rows.filter(r => r.classification === 'flaky').length,
     broken:       rows.filter(r => r.classification === 'broken' || r.classification === 'consistently_broken').length,
     new_failures: rowsMeta.filter(r => r.isNewFailure).length,
     fixed:        rowsMeta.filter(r => r.isFixed).length,
-  };
+  }), [rows, rowsMeta]);
 
   const filterPills: { key: FilterCls; label: string; count: number }[] = [
     { key: 'all',          label: 'All',          count: counts.all },
@@ -357,7 +363,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
                   </td>
                 </tr>
               ) : (
-                sorted.map(({ row }) => (
+                sorted.map(({ row, cellsByRunId, failures }) => (
                   <tr key={row.testName} className="qara-table-row">
 
                     {/* Sticky left: Test name */}
@@ -389,13 +395,13 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
 
                     {/* Run result glyphs */}
                     {runs.map(run => {
-                      const cell = row.cells.find(c => c.runId === run.runId);
+                      const cell = cellsByRunId.get(run.runId);
                       const state = cell?.state ?? 'absent';
                       return (
                         <td key={run.runId} className="qara-table-cell text-center px-2 py-3">
-                          <span title={cellTitle(state, run.label)} className="inline-flex">
+                          <Tooltip content={cellTitle(state, run.label)} className="inline-flex">
                             <RunStateGlyph state={state} />
-                          </span>
+                          </Tooltip>
                         </td>
                       );
                     })}
@@ -413,8 +419,8 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
                       className="qara-table-cell text-center px-4 py-3 bg-surface"
                       style={{ position: 'sticky', right: 0, zIndex: 1 }}
                     >
-                      <span className={`text-sm font-semibold tabular-nums ${failureCount(row) > 0 ? 'text-danger' : 'text-muted'}`}>
-                        {failureCount(row)}
+                      <span className={`text-sm font-semibold tabular-nums ${failures > 0 ? 'text-danger' : 'text-muted'}`}>
+                        {failures}
                       </span>
                     </td>
 

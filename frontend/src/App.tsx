@@ -1,12 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense, type MouseEvent } from 'react';
 import { ProjectProvider, useProject } from './hooks/useProject';
-import { CompareEngine } from './compare-engine';
 import { Dropdown } from './components/Dropdown';
-import { IncidentsPanel } from './panels/IncidentsPanel';
-import { RiskPanel }      from './panels/RiskPanel';
-import { AnalysisPanel }  from './panels/AnalysisPanel';
-import { RunsPanel }      from './panels/RunsPanel';
-import { ChatPanel }      from './panels/ChatPanel';
+import { Tooltip } from './components/Tooltip';
+import {
+  Activity, AlertTriangle, BarChart3, ShieldAlert, GitCompare,
+  MessageSquare, Moon, Sun, ChevronLeft, ChevronRight, type LucideIcon,
+} from 'lucide-react';
+
+const CompareEngine  = lazy(() => import('./compare-engine').then(m => ({ default: m.CompareEngine })));
+const IncidentsPanel = lazy(() => import('./panels/IncidentsPanel').then(m => ({ default: m.IncidentsPanel })));
+const RiskPanel      = lazy(() => import('./panels/RiskPanel').then(m => ({ default: m.RiskPanel })));
+const AnalysisPanel  = lazy(() => import('./panels/AnalysisPanel').then(m => ({ default: m.AnalysisPanel })));
+const RunsPanel      = lazy(() => import('./panels/RunsPanel').then(m => ({ default: m.RunsPanel })));
+const ChatPanel      = lazy(() => import('./panels/ChatPanel').then(m => ({ default: m.ChatPanel })));
 
 // ─────────────────────────────────────────────────────────────
 // Tab definitions
@@ -17,17 +23,17 @@ type TabId = 'compare' | 'incidents' | 'risk' | 'analysis' | 'runs' | 'chat';
 interface Tab {
   id:    TabId;
   label: string;
-  icon:  string;
+  icon:  LucideIcon;
   ready: boolean;
 }
 
 const TABS: Tab[] = [
-  { id: 'runs',      label: 'Runs',      icon: '▶',   ready: true },
-  { id: 'incidents', label: 'Incidents', icon: '🚨',  ready: true },
-  { id: 'analysis',  label: 'Analysis',  icon: '📊',  ready: true },
-  { id: 'risk',      label: 'Risk',      icon: '🎯',  ready: true },
-  { id: 'compare',   label: 'Compare',   icon: '⚖',  ready: true },
-  { id: 'chat',      label: 'Chat',      icon: '💬',  ready: true },
+  { id: 'runs',      label: 'Runs',      icon: Activity,      ready: true },
+  { id: 'incidents', label: 'Incidents', icon: AlertTriangle, ready: true },
+  { id: 'analysis',  label: 'Analysis',  icon: BarChart3,     ready: true },
+  { id: 'risk',      label: 'Risk',      icon: ShieldAlert,   ready: true },
+  { id: 'compare',   label: 'Compare',   icon: GitCompare,    ready: true },
+  { id: 'chat',      label: 'Chat',      icon: MessageSquare, ready: true },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -54,10 +60,12 @@ function ProjectSelector() {
       value={currentProject}
       onChange={setProject}
       ariaLabel="Select project"
-      placeholder="Select project..."
       fullWidth
       triggerClassName="px-3.5 text-sm"
-      options={projects.map(project => ({ value: project, label: project }))}
+      options={[
+        { value: '', label: 'All projects' },
+        ...projects.map(project => ({ value: project, label: project })),
+      ]}
     />
   );
 }
@@ -96,10 +104,32 @@ interface SidebarProps {
   onTabChange: (id: TabId) => void;
   open:        boolean;
   onClose:     () => void;
+  collapsed:   boolean;
+  onToggleCollapsed: () => void;
 }
 
-function Sidebar({ activeTab, onTabChange, open, onClose }: SidebarProps) {
+function tabHref(tab: TabId, currentProject: string) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('tab', tab);
+  if (currentProject) url.searchParams.set('project', currentProject);
+  else url.searchParams.delete('project');
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+function shouldHandleClientSideNav(e: MouseEvent<HTMLAnchorElement>) {
+  return e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
+}
+
+function Sidebar({
+  activeTab,
+  onTabChange,
+  open,
+  onClose,
+  collapsed,
+  onToggleCollapsed,
+}: SidebarProps) {
   const { dark, toggle } = useTheme();
+  const { currentProject } = useProject();
 
   return (
     <>
@@ -114,90 +144,160 @@ function Sidebar({ activeTab, onTabChange, open, onClose }: SidebarProps) {
 
       <aside
         className={[
-          'fixed top-0 left-0 h-full w-[220px] z-30 flex flex-col',
-          'bg-surface border-r border-border-subtle',
-          'shadow-[0_16px_40px_rgba(15,23,42,0.04)] lg:shadow-none',
-          'transition-transform duration-200 ease-out',
+          'fixed top-0 left-0 h-full z-30 flex flex-col',
+          'bg-white dark:bg-slate-950',
+          'border-r border-slate-200 dark:border-slate-800',
+          'shadow-[1px_0_0_0_rgba(15,23,42,0.06)] lg:shadow-none',
+          'transition-[transform,width] duration-200 ease-out',
           open ? 'translate-x-0' : '-translate-x-full',
           'lg:translate-x-0 lg:static lg:z-auto',
+          collapsed ? 'w-[220px] lg:w-[72px]' : 'w-[220px]',
         ].join(' ')}
         aria-label="Main navigation"
       >
 
-        {/* ── Logo / wordmark ── */}
-        <div className="flex items-center gap-3 px-4 py-[18px] border-b border-border-subtle">
-          {/* App icon */}
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[0.9rem] bg-selected border border-border-default shadow-sm">
-            <svg viewBox="0 0 16 16" className="w-4 h-4 fill-current text-info" aria-hidden="true">
-              <path d="M8 1a7 7 0 100 14A7 7 0 008 1zM3 8a5 5 0 1110 0 5 5 0 01-10 0z"/>
-              <circle cx="11.5" cy="11.5" r="2.5" className="fill-current text-success" />
-            </svg>
-          </div>
-          {/* Wordmark */}
-          <div className="min-w-0">
-            <div className="font-semibold text-primary text-sm tracking-tight leading-tight">
-              QARA
+        {/* ── Logo / header ── */}
+        {collapsed ? (
+          /* Collapsed: icon only, centered */
+          <div className="flex flex-col items-center gap-2 py-3 px-2 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <img src={`${import.meta.env.BASE_URL}qara-logo.svg`}      alt="QARA" className="h-6 w-6 object-contain dark:hidden" />
+              <img src={`${import.meta.env.BASE_URL}qara-logo-dark.svg`} alt="QARA" className="h-6 w-6 object-contain hidden dark:block" />
             </div>
-            <div className="text-[10px] font-medium uppercase tracking-[0.16em] text-faint
-                            leading-tight mt-px">
-              Test Intelligence
+            <button
+              onClick={onToggleCollapsed}
+              className="hidden lg:inline-flex h-6 w-6 items-center justify-center rounded-lg
+                         text-slate-400 hover:text-slate-700 hover:bg-slate-100
+                         dark:text-slate-500 dark:hover:text-slate-200 dark:hover:bg-slate-800
+                         transition-colors duration-150"
+              aria-label="Expand sidebar"
+            >
+              <ChevronRight aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
+            </button>
+          </div>
+        ) : (
+          /* Expanded: compact logo icon + wordmark + collapse button */
+          <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <img src={`${import.meta.env.BASE_URL}qara-logo.svg`}      alt="QARA" className="dark:hidden" style={{ width: 130, height: 'auto' }} />
+                <img src={`${import.meta.env.BASE_URL}qara-logo-dark.svg`} alt="QARA" className="hidden dark:block" style={{ width: 130, height: 'auto' }} />
+                <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mt-1.5 px-0.5">Test Intelligence</p>
+              </div>
+              <button
+                onClick={onToggleCollapsed}
+                className="hidden lg:inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg
+                           text-slate-400 hover:text-slate-700 hover:bg-slate-100
+                           dark:text-slate-500 dark:hover:text-slate-200 dark:hover:bg-slate-800
+                           transition-colors duration-150 mt-0.5"
+                aria-label="Collapse sidebar"
+              >
+                <ChevronLeft aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+              </button>
             </div>
           </div>
-        </div>
+        )}
 
         {/* ── Project selector ── */}
-        <div className="px-3 pt-4 pb-2">
-          <label className="block text-[10px] font-semibold uppercase tracking-[0.16em]
-                            text-faint mb-1.5 px-0.5">
-            Project
-          </label>
-          <ProjectSelector />
-        </div>
+        {!collapsed && (
+          <div className="px-3 pt-4 pb-2">
+            <label className="block text-[10px] font-semibold uppercase tracking-[0.22em]
+                              text-slate-400 dark:text-slate-500 mb-1.5 px-0.5">
+              Project
+            </label>
+            <ProjectSelector />
+          </div>
+        )}
 
         {/* ── Navigation ── */}
-        <nav className="flex-1 px-2 pt-1 pb-2 overflow-y-auto space-y-px" aria-label="Panels">
+        <nav className="flex-1 px-2 pt-2 pb-2 overflow-y-auto space-y-0.5" aria-label="Panels">
           {TABS.map(tab => {
             const isActive = activeTab === tab.id;
-            return (
-              <button
+            const navItem = (
+              <a
                 key={tab.id}
-                onClick={() => { onTabChange(tab.id); onClose(); }}
+                href={tabHref(tab.id, currentProject)}
+                onClick={e => {
+                  if (!shouldHandleClientSideNav(e)) return;
+                  e.preventDefault();
+                  onTabChange(tab.id);
+                  onClose();
+                }}
                 className={[
-                  'qara-nav-item text-sm text-left select-none',
+                  'group flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium select-none',
+                  'transition-colors duration-150',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40',
+                  collapsed ? 'lg:justify-center lg:px-0' : '',
                   isActive
-                    ? 'qara-nav-item-active font-medium'
-                    : 'text-muted',
-                  !tab.ready && !isActive ? 'opacity-50' : '',
+                    ? 'bg-indigo-50 text-indigo-700 border border-indigo-100 dark:bg-indigo-500/15 dark:text-indigo-300 dark:border-indigo-400/20'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950 border border-transparent dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-white',
+                  !tab.ready && !isActive ? 'opacity-40' : '',
                 ].join(' ')}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <span className="text-base leading-none" aria-hidden="true">
-                  {tab.icon}
-                </span>
-                <span className="truncate">{tab.label}</span>
-                {!tab.ready && (
-                  <span className="ml-auto text-[10px] text-faint font-mono
-                                   bg-surface-subtle px-1.5 py-0.5 rounded-full border border-border-subtle">
+                <tab.icon
+                  aria-hidden="true"
+                  className={[
+                    'h-[18px] w-[18px] shrink-0 transition-colors duration-150',
+                    isActive
+                      ? 'text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white',
+                  ].join(' ')}
+                  strokeWidth={2}
+                />
+                {!collapsed && <span className="truncate">{tab.label}</span>}
+                {!collapsed && !tab.ready && (
+                  <span className="ml-auto text-[10px] font-mono text-slate-400
+                                   bg-slate-100 dark:bg-slate-800 dark:text-slate-500
+                                   px-1.5 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">
                     soon
                   </span>
                 )}
-              </button>
+              </a>
             );
+
+            return collapsed ? (
+              <Tooltip key={tab.id} content={tab.label} placement="right">
+                {navItem}
+              </Tooltip>
+            ) : navItem;
           })}
         </nav>
 
         {/* ── Footer: theme toggle ── */}
-        <div className="px-2 pb-3 pt-2 border-t border-border-subtle">
-          <button
-            onClick={toggle}
-            className="qara-nav-item w-full text-sm"
-            aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            <span className="text-base leading-none" aria-hidden="true">
-              {dark ? '☀' : '🌙'}
-            </span>
-            <span>{dark ? 'Light mode' : 'Dark mode'}</span>
-          </button>
+        <div className="px-2 pb-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+          {collapsed ? (
+            <Tooltip content={dark ? 'Light mode' : 'Dark mode'} placement="right">
+              <button
+                onClick={toggle}
+                className="group flex w-full items-center justify-center rounded-xl px-0 py-2.5
+                           text-slate-500 hover:bg-slate-100 hover:text-slate-950
+                           dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-white
+                           transition-colors duration-150"
+                aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {dark
+                  ? <Sun  aria-hidden="true" className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+                  : <Moon aria-hidden="true" className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
+                }
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              onClick={toggle}
+              className="group flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium
+                         text-slate-600 hover:bg-slate-100 hover:text-slate-950
+                         dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-white
+                         transition-colors duration-150"
+              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {dark
+                ? <Sun  aria-hidden="true" className="h-[18px] w-[18px] shrink-0 text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white" strokeWidth={2} />
+                : <Moon aria-hidden="true" className="h-[18px] w-[18px] shrink-0 text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white" strokeWidth={2} />
+              }
+              <span>{dark ? 'Light mode' : 'Dark mode'}</span>
+            </button>
+          )}
         </div>
 
       </aside>
@@ -227,6 +327,21 @@ function setTabInUrl(tab: TabId) {
 function Shell() {
   const [activeTab, setActiveTab]     = useState<TabId>(getTabFromUrl);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('qara-sidebar-collapsed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('qara-sidebar-collapsed', sidebarCollapsed ? 'true' : 'false');
+    } catch {
+      // ignore storage failures
+    }
+  }, [sidebarCollapsed]);
 
   function handleTabChange(id: TabId) {
     setActiveTab(id);
@@ -242,6 +357,8 @@ function Shell() {
         onTabChange={handleTabChange}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => setSidebarCollapsed(c => !c)}
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -259,7 +376,7 @@ function Shell() {
             </svg>
           </button>
           <div className="flex items-center gap-2 min-w-0">
-            <span className="text-base leading-none" aria-hidden="true">{currentTab.icon}</span>
+            <currentTab.icon aria-hidden="true" className="h-[18px] w-[18px] shrink-0 text-info" strokeWidth={2} />
             <span className="font-semibold text-primary text-sm truncate">
               {currentTab.label}
             </span>
@@ -267,13 +384,26 @@ function Shell() {
         </header>
 
         {/* Main content */}
-        <main className="flex-1 overflow-auto p-5 lg:p-7">
-          {activeTab === 'compare'   && <CompareEngine />}
-          {activeTab === 'incidents' && <IncidentsPanel />}
-          {activeTab === 'risk'      && <RiskPanel />}
-          {activeTab === 'analysis'  && <AnalysisPanel />}
-          {activeTab === 'runs'      && <RunsPanel />}
-          {activeTab === 'chat'      && <ChatPanel />}
+        <main
+          className={[
+            'flex-1 min-h-0 p-5 lg:p-7',
+            activeTab === 'chat'
+              ? 'flex flex-col overflow-hidden'
+              : 'overflow-auto',
+          ].join(' ')}
+        >
+          <Suspense fallback={
+            <div className="space-y-3 animate-pulse">
+              {[1, 2, 3].map(i => <div key={i} className="h-16 rounded-2xl bg-surface-subtle" />)}
+            </div>
+          }>
+            {activeTab === 'compare'   && <CompareEngine />}
+            {activeTab === 'incidents' && <IncidentsPanel />}
+            {activeTab === 'risk'      && <RiskPanel />}
+            {activeTab === 'analysis'  && <AnalysisPanel />}
+            {activeTab === 'runs'      && <RunsPanel />}
+            {activeTab === 'chat'      && <ChatPanel />}
+          </Suspense>
         </main>
       </div>
     </div>

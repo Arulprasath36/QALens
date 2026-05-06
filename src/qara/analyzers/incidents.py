@@ -265,7 +265,7 @@ def _build_incident(
         confidence=_confidence(len(tests), has_signature=has_signature),
         evidence=_build_evidence(tests, category, has_signature=has_signature),
         recommended_action=_ACTION[category.value],
-        signature=rep.fingerprint if has_signature else None,
+        signature=rep.fingerprint if has_signature else group_key,
         error_type=rep.error_type,
         representative_message=rep_message,
         representative_stack_trace=rep.stack_trace or None,

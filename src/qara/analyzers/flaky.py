@@ -33,13 +33,16 @@ class FlakyClassification(str, Enum):
     Attributes:
         FLAKY: The test alternates between passing and failing — unreliable.
         CONSISTENTLY_BROKEN: The test has never passed in the observed window.
-        STABLE: The test has a low flip score and acceptable pass rate.
+        STABLE: The test is highly reliable with strong pass rate and low flip activity.
+        CONSISTENT: The test has low recent flip activity but is not yet reliable enough
+            to be considered truly stable.
         INSUFFICIENT_DATA: Fewer than 2 runs — cannot classify yet.
     """
 
     FLAKY = "flaky"
     CONSISTENTLY_BROKEN = "consistently_broken"
     STABLE = "stable"
+    CONSISTENT = "consistent"
     INSUFFICIENT_DATA = "insufficient_data"
 
     @property
@@ -122,6 +125,8 @@ def _classify(
     *,
     flaky_threshold: float = 0.35,
     broken_threshold: float = 0.20,
+    stable_pass_threshold: float = 0.90,
+    stable_flip_threshold: float = 0.10,
 ) -> FlakyClassification:
     """Apply classification rules to computed metrics.
 
@@ -134,6 +139,10 @@ def _classify(
         broken_threshold: Maximum ``pass_rate`` below which a test is
             classified as consistently broken even if it occasionally passes.
             Default 0.20 (fails 80 %+ of the time → broken, not stable).
+        stable_pass_threshold: Minimum ``pass_rate`` required to classify a
+            low-volatility test as truly stable. Default 0.90.
+        stable_flip_threshold: Maximum ``flip_score`` allowed for the stable
+            bucket. Default 0.10.
 
     Returns:
         A :class:`FlakyClassification` value.
@@ -144,7 +153,9 @@ def _classify(
         return FlakyClassification.FLAKY
     if pass_rate <= broken_threshold:
         return FlakyClassification.CONSISTENTLY_BROKEN
-    return FlakyClassification.STABLE
+    if pass_rate >= stable_pass_threshold and flip_score <= stable_flip_threshold:
+        return FlakyClassification.STABLE
+    return FlakyClassification.CONSISTENT
 
 
 def _compute_flip_score(history: list[str]) -> float:
@@ -220,10 +231,14 @@ class FlakyScorer:
         *,
         flaky_threshold: float = 0.35,
         broken_threshold: float = 0.20,
+        stable_pass_threshold: float = 0.90,
+        stable_flip_threshold: float = 0.10,
     ) -> None:
         self._conn = conn
         self._threshold = flaky_threshold
         self._broken_threshold = broken_threshold
+        self._stable_pass_threshold = stable_pass_threshold
+        self._stable_flip_threshold = stable_flip_threshold
 
     def score(
         self,
@@ -275,6 +290,8 @@ class FlakyScorer:
             run_count, pass_rate, flip_score,
             flaky_threshold=self._threshold,
             broken_threshold=self._broken_threshold,
+            stable_pass_threshold=self._stable_pass_threshold,
+            stable_flip_threshold=self._stable_flip_threshold,
         )
         streak = _compute_streak(history)
 

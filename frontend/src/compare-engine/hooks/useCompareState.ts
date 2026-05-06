@@ -57,8 +57,8 @@ function reducer(state: CompareState, action: Action): CompareState {
         return { ...state, selections: state.selections.filter(s => s !== id) };
       }
       if (state.selections.length >= max) {
-        // Rotate: drop oldest, add newest
-        return { ...state, selections: [...state.selections.slice(1), id] };
+        // Hard limit — do not auto-deselect. UI layer shows the constraint.
+        return state;
       }
       return { ...state, selections: [...state.selections, id] };
     }
@@ -83,7 +83,11 @@ function reducer(state: CompareState, action: Action): CompareState {
     }
 
     case 'RESET':
-      return INITIAL_STATE;
+      return {
+        ...state,
+        selections: [],
+        customRunIds: [],
+      };
 
     default:
       return state;
@@ -127,7 +131,7 @@ export function useCompareState(): UseCompareStateReturn {
   const isRunsDimension = state.dimension === 'runs';
   const canCompare = isRunsDimension
     ? (state.timeMode === 'custom' ? state.customRunIds.length >= 1 : true)
-    : state.selections.length >= 2;
+    : (state.selections.length >= 2 && (state.timeMode !== 'custom' || state.customRunIds.length >= 1));
 
   return {
     state,

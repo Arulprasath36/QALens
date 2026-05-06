@@ -52,6 +52,9 @@ class ArtifactConfig:
         dedupe_images: Skip writing bytes when an artifact with the same
             SHA-256 already exists in the store.  A DB record still points to
             the existing stored file.
+        max_screenshot_bytes: Maximum bytes allowed for one screenshot.
+        max_total_screenshot_bytes_per_run: Maximum screenshot bytes decoded
+            for a single run.
         storage_dir: Root directory for the
             :class:`~ari.artifacts.storage.LocalFilesystemStore`.  Required
             when ``mode == FULL``.  Defaults to ``~/.qara/artifacts/`` in
@@ -65,4 +68,6 @@ class ArtifactConfig:
     jpeg_quality: int = 80
     generate_thumbnails: bool = False
     dedupe_images: bool = True
+    max_screenshot_bytes: int = 5 * 1024 * 1024
+    max_total_screenshot_bytes_per_run: int = 50 * 1024 * 1024
     storage_dir: Path | None = field(default=None)

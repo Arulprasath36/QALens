@@ -124,6 +124,15 @@ def test_health_returns_ok(client: TestClient) -> None:
     assert "version" in data
 
 
+def test_security_headers_present(client: TestClient) -> None:
+    res = client.get("/api/health")
+    assert res.headers["x-content-type-options"] == "nosniff"
+    assert res.headers["referrer-policy"] == "no-referrer"
+    assert res.headers["x-frame-options"] == "DENY"
+    assert "frame-ancestors 'none'" in res.headers["content-security-policy"]
+    assert "camera=()" in res.headers["permissions-policy"]
+
+
 # ---------------------------------------------------------------------------
 # SPA index
 # ---------------------------------------------------------------------------
@@ -279,6 +288,13 @@ def test_get_run_tests_status_filter(client: TestClient) -> None:
     assert all(t["status"] == "failed" for t in tests)
 
 
+def test_get_run_tests_invalid_status_rejected(client: TestClient) -> None:
+    runs = client.get("/api/runs").json()
+    run_id = runs[0]["run_id"]
+    res = client.get(f"/api/runs/{run_id}/tests?status=failed' OR 1=1 --")
+    assert res.status_code == 422
+
+
 def test_get_run_tests_not_found(client: TestClient) -> None:
     res = client.get("/api/runs/no-such/tests")
     assert res.status_code == 404
@@ -344,6 +360,17 @@ def test_failure_groups_limit(client: TestClient) -> None:
     assert len(groups) <= 1
 
 
+def test_failure_groups_rejects_too_many_run_ids(client: TestClient) -> None:
+    run_ids = ",".join(f"run-{i}" for i in range(51))
+    res = client.get(f"/api/failure-groups?run_ids={run_ids}")
+    assert res.status_code == 422
+
+
+def test_risk_rejects_invalid_tier(client: TestClient) -> None:
+    res = client.get("/api/risk?tier=HIGH' OR 1=1 --")
+    assert res.status_code == 422
+
+
 # ---------------------------------------------------------------------------
 # Digest
 # ---------------------------------------------------------------------------
@@ -358,6 +385,11 @@ def test_failure_groups_limit(client: TestClient) -> None:
 def test_ask_empty_question(client: TestClient) -> None:
     res = client.post("/api/ask", json={"question": "   ", "project": "ServerProject"})
     assert res.status_code == 400
+
+
+def test_ask_rejects_oversized_question(client: TestClient) -> None:
+    res = client.post("/api/ask", json={"question": "x" * 4001, "project": "ServerProject"})
+    assert res.status_code == 422
 
 
 def test_ask_llm_error_returns_503(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:

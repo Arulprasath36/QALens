@@ -10,7 +10,12 @@ import dataclasses
 import enum
 from typing import Any
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
+
+
+MAX_ASK_QUESTION_CHARS = 4_000
+MAX_ASK_HISTORY_ITEMS = 12
+MAX_COMPARE_RUN_IDS = 50
 
 
 # ---------------------------------------------------------------------------
@@ -49,9 +54,9 @@ def _clean_obj(obj: Any) -> Any:
 class AskRequest(BaseModel):
     """Request body for the /api/ask endpoint."""
 
-    question: str
-    project: str | None = None
-    history: list[dict[str, str]] = []
+    question: str = Field(..., min_length=1, max_length=MAX_ASK_QUESTION_CHARS)
+    project: str | None = Field(default=None, max_length=200)
+    history: list[dict[str, str]] = Field(default_factory=list, max_length=MAX_ASK_HISTORY_ITEMS)
 
 
 class AskResponse(BaseModel):
@@ -62,6 +67,8 @@ class AskResponse(BaseModel):
     sources: list[dict] = []
     intent: str = ""
     follow_ups: list[str] = []
+    result: dict[str, Any] | None = None
+    uiHints: dict[str, Any] | None = None
 
     @field_validator("answer", mode="before")
     @classmethod
@@ -81,12 +88,18 @@ class AskResponse(BaseModel):
         """
         return _clean_obj(v)
 
+    @field_validator("result", "uiHints", mode="before")
+    @classmethod
+    def _sanitize_optional_objects(cls, v: Any) -> Any:
+        """Drop lone Unicode surrogates from structured payloads."""
+        return _clean_obj(v)
+
 
 class CompareRequest(BaseModel):
     """Request body for POST /api/compare/custom."""
 
-    run_ids: list[str]
-    filters: dict[str, Any] = {}
+    run_ids: list[str] = Field(..., min_length=1, max_length=MAX_COMPARE_RUN_IDS)
+    filters: dict[str, Any] = Field(default_factory=dict)
 
 
 class HomepageCard(BaseModel):

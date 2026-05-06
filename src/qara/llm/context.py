@@ -203,6 +203,7 @@ def gather_project_context(
     flaky = [r for r in all_results if r.classification == FlakyClassification.FLAKY]
     broken = [r for r in all_results if r.classification == FlakyClassification.CONSISTENTLY_BROKEN]
     stable = [r for r in all_results if r.classification == FlakyClassification.STABLE]
+    consistent = [r for r in all_results if r.classification == FlakyClassification.CONSISTENT]
 
     parts: list[str] = []
     sources: list[dict] = []

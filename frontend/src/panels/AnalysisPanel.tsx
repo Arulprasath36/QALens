@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo, useRef, Fragment } from 'react';
 import { Dropdown } from '../components/Dropdown';
 import { PageHeader } from '../components/PageHeader';
+import { Tooltip } from '../components/Tooltip';
 import { useProject } from '../hooks/useProject';
 
 // ─────────────────────────────────────────────────────────────
 // API types
 // ─────────────────────────────────────────────────────────────
 
-type Classification = 'FLAKY' | 'CONSISTENTLY_BROKEN' | 'STABLE' | 'INSUFFICIENT_DATA';
+type Classification = 'FLAKY' | 'CONSISTENTLY_BROKEN' | 'STABLE' | 'CONSISTENT' | 'INSUFFICIENT_DATA';
 
 interface ApiStabilityEntry {
   canonical_name:    string;
@@ -58,17 +59,29 @@ interface ApiFailureGroup {
   category:                 string;
 }
 
+const STABLE_PASS_THRESHOLD = 0.90;
+const STABLE_FLIP_THRESHOLD = 0.10;
+
 // ─────────────────────────────────────────────────────────────
 // Config
 // ─────────────────────────────────────────────────────────────
 
-const RUNS_WINDOW_OPTIONS = [10, 20, 30, 50];
+const RUNS_WINDOW_OPTIONS = [5, 10, 20, 30, 50];
 
 const CLASS_CONFIG: Record<Classification, { label: string; text: string; bg: string; border: string }> = {
-  FLAKY:                { label: 'Flaky',       text: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/30'  },
-  CONSISTENTLY_BROKEN:  { label: 'Broken',      text: 'text-red-400',    bg: 'bg-red-500/10',    border: 'border-red-500/30'    },
-  STABLE:               { label: 'Stable',      text: 'text-green-400',  bg: 'bg-green-500/10',  border: 'border-green-500/30'  },
-  INSUFFICIENT_DATA:    { label: 'Insufficient', text: 'text-zinc-400',  bg: 'bg-zinc-500/10',   border: 'border-zinc-700'      },
+  FLAKY:                { label: 'Flaky',        text: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/30'  },
+  CONSISTENTLY_BROKEN:  { label: 'Broken',       text: 'text-red-400',    bg: 'bg-red-500/10',    border: 'border-red-500/30'    },
+  STABLE:               { label: 'Stable',       text: 'text-green-700',  bg: 'bg-green-100',     border: 'border-green-400'     },
+  CONSISTENT:           { label: 'Consistent',   text: 'text-green-600',  bg: 'bg-green-50',      border: 'border-green-300'     },
+  INSUFFICIENT_DATA:    { label: 'Insufficient', text: 'text-zinc-400',   bg: 'bg-zinc-500/10',   border: 'border-zinc-700'      },
+};
+
+const CLASS_TOOLTIP: Record<Classification, string> = {
+  FLAKY: 'Flaky means the test is changing state often across the selected runs.',
+  CONSISTENTLY_BROKEN: 'Broken means the test is failing most of the time across the selected runs.',
+  STABLE: 'Stable means the test has a high pass rate and low recent flip activity across the selected runs.',
+  CONSISTENT: 'Consistent means the test has low recent flip activity in the selected runs, but it is not yet reliable enough to be considered truly stable.',
+  INSUFFICIENT_DATA: 'Insufficient means there are not enough runs in the selected window to classify this test confidently.',
 };
 
 const TREND_CONFIG = {
@@ -77,6 +90,16 @@ const TREND_CONFIG = {
   stable:     { icon: '→', text: 'text-zinc-500',  label: 'Stable'    },
 };
 
+function normalizeClassification(entry: ApiStabilityEntry): ApiStabilityEntry {
+  if (
+    entry.classification === 'STABLE'
+    && (entry.pass_rate < STABLE_PASS_THRESHOLD || entry.flip_score > STABLE_FLIP_THRESHOLD)
+  ) {
+    return { ...entry, classification: 'CONSISTENT' };
+  }
+  return entry;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Helpers / small components
 // ─────────────────────────────────────────────────────────────
@@ -84,10 +107,12 @@ const TREND_CONFIG = {
 function ClassBadge({ cls }: { cls: Classification }) {
   const cfg = CLASS_CONFIG[cls] ?? CLASS_CONFIG.INSUFFICIENT_DATA;
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs
-                      font-semibold border ${cfg.text} ${cfg.bg} ${cfg.border}`}>
-      {cfg.label}
-    </span>
+    <Tooltip content={CLASS_TOOLTIP[cls] ?? CLASS_TOOLTIP.INSUFFICIENT_DATA} className="inline-flex">
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs
+                        font-semibold border ${cfg.text} ${cfg.bg} ${cfg.border}`}>
+        {cfg.label}
+      </span>
+    </Tooltip>
   );
 }
 
@@ -179,9 +204,11 @@ function TrendCell({ entry }: { entry: ApiTrendEntry | undefined }) {
   if (!entry || entry.direction === 'stable') return <span className="text-zinc-600">—</span>;
   const cfg = TREND_CONFIG[entry.direction];
   return (
-    <span className={`text-xs font-semibold ${cfg.text}`} title={cfg.label}>
-      {cfg.icon} {Math.abs(entry.delta_pct).toFixed(0)}%
-    </span>
+    <Tooltip content={cfg.label} className="inline-flex">
+      <span className={`text-xs font-semibold ${cfg.text}`}>
+        {cfg.icon} {Math.abs(entry.delta_pct).toFixed(0)}%
+      </span>
+    </Tooltip>
   );
 }
 
@@ -189,24 +216,49 @@ function TrendCell({ entry }: { entry: ApiTrendEntry | undefined }) {
 // Streak alert
 // ─────────────────────────────────────────────────────────────
 
-function StreakAlert({ data }: { data: ApiStabilityEntry[] }) {
-  const [open, setOpen] = useState(true);
+function StreakAlert({ data, runsWindow }: { data: ApiStabilityEntry[]; runsWindow: number }) {
+  const [open, setOpen] = useState(false);
   const streakers = data
     .filter(r => r.current_streak <= -2)
     .sort((a, b) => a.current_streak - b.current_streak);
 
   if (streakers.length === 0) return null;
 
+  const longestStreak = Math.abs(streakers[0]?.current_streak ?? 0);
+  const avgPassRate = Math.round(
+    streakers.reduce((sum, row) => sum + row.pass_rate, 0) / Math.max(streakers.length, 1) * 100,
+  );
+  const topOwner = (() => {
+    const counts = new Map<string, number>();
+    for (const row of streakers) {
+      const owner = row.owner || 'Unassigned';
+      counts.set(owner, (counts.get(owner) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? null;
+  })();
+
   return (
     <div className="rounded-xl border border-red-500/30 bg-red-500/5">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left"
+        className="w-full flex items-start justify-between gap-4 px-4 py-3 text-left"
       >
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-red-400">
-            🔴 {streakers.length} test{streakers.length !== 1 ? 's' : ''} on active fail streak
-          </span>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-red-400">
+            🔴 {streakers.length} test{streakers.length !== 1 ? 's are' : ' is'} on an active fail streak
+          </p>
+          <p className="mt-1 text-sm text-zinc-300">
+            Consecutive failures are persisting across recent runs, led by a {longestStreak}-run streak
+            {topOwner ? ` and concentrated around ${topOwner[0]}.` : '.'}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2 text-xs text-zinc-400">
+            <span className="rounded-full border border-red-500/20 bg-zinc-900/80 px-2.5 py-1">
+              Longest streak: <span className="font-semibold text-red-400">{longestStreak} runs</span>
+            </span>
+            <span className="rounded-full border border-zinc-700 bg-zinc-900/80 px-2.5 py-1">
+              Avg pass rate: <span className="font-semibold text-zinc-200">{avgPassRate}%</span>
+            </span>
+          </div>
         </div>
         <svg className={`w-4 h-4 text-zinc-500 transition-transform ${open ? 'rotate-90' : ''}`}
              viewBox="0 0 16 16" fill="none">
@@ -215,17 +267,54 @@ function StreakAlert({ data }: { data: ApiStabilityEntry[] }) {
         </svg>
       </button>
       {open && (
-        <div className="px-4 pb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="px-4 pb-4 grid grid-cols-1 xl:grid-cols-2 gap-3">
           {streakers.map(r => (
             <div key={r.canonical_name}
-                 className="flex items-center justify-between px-3 py-2 rounded-lg
-                            bg-zinc-900 border border-zinc-800">
-              <span className="text-sm text-zinc-200 truncate" title={r.display_name}>
-                {r.display_name}
-              </span>
-              <span className="ml-2 shrink-0 text-xs text-red-400 font-semibold tabular-nums">
-                {Math.abs(r.current_streak)} fails
-              </span>
+                 className="rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Tooltip content={r.display_name} className="block min-w-0">
+                      <span className="block truncate text-sm font-medium text-zinc-100">
+                        {r.display_name}
+                      </span>
+                    </Tooltip>
+                    <span className="shrink-0 rounded-full border border-red-500/25 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-400">
+                      {Math.abs(r.current_streak)} straight fails
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-400">
+                    {(r.owner || 'Unassigned')} · {(r.suite || 'Unknown suite')}
+                  </p>
+                </div>
+                <ClassBadge cls={r.classification} />
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+                <span className="text-zinc-400">
+                  Pass rate: <span className="font-semibold text-zinc-200">{Math.round(r.pass_rate * 100)}%</span>
+                </span>
+                <span className="text-zinc-400">
+                  Fails: <span className="font-semibold text-red-400">{r.fail_count}</span>
+                </span>
+                <span className="text-zinc-400">
+                  Last failed: <span className="font-semibold text-zinc-200">{r.last_failed_seq != null ? `Run #${r.last_failed_seq}` : 'Unknown'}</span>
+                </span>
+              </div>
+
+              <div className="mt-3 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                    Recent history
+                  </p>
+                  <div className="mt-2">
+                    <SparklineHeatmap sparkline={r.sparkline} runsWindow={runsWindow} />
+                  </div>
+                </div>
+                <div className="text-right text-[11px] text-zinc-500">
+                  <p>{Math.min(runsWindow, r.run_count)} of {r.run_count} runs shown</p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -242,10 +331,12 @@ function StabilityTable({
   entries,
   trendMap,
   runsWindow,
+  nested = false,
 }: {
   entries:    ApiStabilityEntry[];
   trendMap:   Map<string, ApiTrendEntry>;
   runsWindow: number;
+  nested?:    boolean;
 }) {
   if (entries.length === 0) {
     return (
@@ -255,10 +346,9 @@ function StabilityTable({
     );
   }
 
-  return (
-    <div className="rounded-xl border border-zinc-800 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
+  const inner = (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-max">
           <thead>
             <tr className="border-b border-zinc-800 bg-zinc-900/80">
               {(['Test', 'Owner', 'Classification', 'Pass Rate', 'Flip', 'Trend', 'History', 'Runs'] as const).map(h => (
@@ -274,10 +364,11 @@ function StabilityTable({
               <tr key={row.canonical_name}
                   className="border-b border-zinc-800/60 hover:bg-zinc-800/30 transition-colors">
                 <td className="px-4 py-3">
-                  <div className="text-sm font-medium text-zinc-200 truncate max-w-[240px]"
-                       title={row.display_name}>
-                    {row.display_name}
-                  </div>
+                  <Tooltip content={row.display_name} className="block max-w-[240px]">
+                    <div className="text-sm font-medium text-zinc-200 truncate">
+                      {row.display_name}
+                    </div>
+                  </Tooltip>
                   {row.suite && (
                     <div className="text-xs text-zinc-600 truncate">{row.suite}</div>
                   )}
@@ -308,6 +399,13 @@ function StabilityTable({
           </tbody>
         </table>
       </div>
+  );
+
+  if (nested) return inner;
+
+  return (
+    <div className="rounded-xl border border-zinc-800 overflow-hidden">
+      {inner}
     </div>
   );
 }
@@ -528,6 +626,8 @@ function OwnerSection({
   const [open, setOpen] = useState(false);
   const flaky   = entries.filter(e => e.classification === 'FLAKY').length;
   const broken  = entries.filter(e => e.classification === 'CONSISTENTLY_BROKEN').length;
+  const stable  = entries.filter(e => e.classification === 'STABLE').length;
+  const consistent = entries.filter(e => e.classification === 'CONSISTENT').length;
   const avgPass = entries.reduce((s, e) => s + e.pass_rate, 0) / entries.length;
 
   return (
@@ -537,12 +637,14 @@ function OwnerSection({
         className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
       >
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-zinc-200">{owner}</span>
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-zinc-500">{entries.length} tests</span>
-            {flaky   > 0 && <span className="text-amber-400">{flaky} flaky</span>}
-            {broken  > 0 && <span className="text-red-400">{broken} broken</span>}
-          </div>
+            <span className="text-sm font-semibold text-zinc-200">{owner}</span>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-zinc-500">{entries.length} tests</span>
+              {stable  > 0 && <span className="text-green-400">{stable} stable</span>}
+              {consistent > 0 && <span className="text-emerald-300">{consistent} consistent</span>}
+              {flaky   > 0 && <span className="text-amber-400">{flaky} flaky</span>}
+              {broken  > 0 && <span className="text-red-400">{broken} broken</span>}
+            </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-xs text-zinc-500">{(avgPass * 100).toFixed(0)}% avg pass</span>
@@ -554,8 +656,8 @@ function OwnerSection({
         </div>
       </button>
       {open && (
-        <div className="border-t border-zinc-800">
-          <StabilityTable entries={entries} trendMap={trendMap} runsWindow={runsWindow} />
+        <div className="border-t border-zinc-800 overflow-x-auto">
+          <StabilityTable nested entries={entries} trendMap={trendMap} runsWindow={runsWindow} />
         </div>
       )}
     </div>
@@ -566,28 +668,62 @@ function OwnerSection({
 // Stat cards
 // ─────────────────────────────────────────────────────────────
 
-function AnalysisStatCards({ data }: { data: ApiStabilityEntry[] }) {
+function AnalysisStatCards({
+  data,
+  activeFilter,
+  onSelectFilter,
+  onOpenFilteredResults,
+}: {
+  data: ApiStabilityEntry[];
+  activeFilter: Classification | '';
+  onSelectFilter: (cls: Classification) => void;
+  onOpenFilteredResults: () => void;
+}) {
   const counts: Record<Classification, number> = {
-    FLAKY: 0, CONSISTENTLY_BROKEN: 0, STABLE: 0, INSUFFICIENT_DATA: 0,
+    FLAKY: 0, CONSISTENTLY_BROKEN: 0, STABLE: 0, CONSISTENT: 0, INSUFFICIENT_DATA: 0,
   };
   for (const d of data) counts[d.classification] = (counts[d.classification] ?? 0) + 1;
 
   const cards: { key: Classification; label: string; valueClass: string }[] = [
-    { key: 'FLAKY',               label: 'Flaky',       valueClass: 'text-amber-400' },
-    { key: 'CONSISTENTLY_BROKEN', label: 'Broken',      valueClass: 'text-red-400' },
-    { key: 'STABLE',              label: 'Stable',      valueClass: 'text-green-400' },
-    { key: 'INSUFFICIENT_DATA',   label: 'Insufficient', valueClass: 'text-zinc-400' },
+    { key: 'FLAKY',               label: CLASS_CONFIG.FLAKY.label,               valueClass: 'text-amber-400' },
+    { key: 'CONSISTENTLY_BROKEN', label: CLASS_CONFIG.CONSISTENTLY_BROKEN.label, valueClass: 'text-red-400' },
+    { key: 'STABLE',              label: CLASS_CONFIG.STABLE.label,              valueClass: 'text-green-400' },
+    { key: 'CONSISTENT',          label: CLASS_CONFIG.CONSISTENT.label,          valueClass: 'text-emerald-300' },
+    { key: 'INSUFFICIENT_DATA',   label: CLASS_CONFIG.INSUFFICIENT_DATA.label,   valueClass: 'text-zinc-400' },
   ];
 
   return (
     <div className="qara-stat-grid">
       {cards.map(c => (
-        <div key={c.key} className={`qara-stat-card ${CLASS_CONFIG[c.key].border}`}>
-          <span className="type-metric-label">{c.label}</span>
+        <button
+          key={c.key}
+          type="button"
+          onClick={() => onSelectFilter(c.key)}
+          className={[
+            `qara-stat-card ${CLASS_CONFIG[c.key].border}`,
+            'text-left transition-colors hover:bg-surface-subtle/70',
+            activeFilter === c.key ? 'ring-1 ring-border-strong' : '',
+          ].join(' ')}
+        >
+          <Tooltip content={CLASS_TOOLTIP[c.key]} className="inline-flex self-start">
+            <span className="type-metric-label">{c.label}</span>
+          </Tooltip>
           <span className={`type-metric-value ${c.valueClass}`}>
             {counts[c.key]}
           </span>
-        </div>
+          {activeFilter === c.key && (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpenFilteredResults();
+              }}
+              className="mt-2 inline-flex text-xs font-medium text-info hover:text-primary"
+            >
+              Show {counts[c.key]} {c.label.toLowerCase()} test{counts[c.key] !== 1 ? 's' : ''} below
+            </button>
+          )}
+        </button>
       ))}
     </div>
   );
@@ -599,6 +735,7 @@ function AnalysisStatCards({ data }: { data: ApiStabilityEntry[] }) {
 
 export function AnalysisPanel() {
   const { currentProject } = useProject();
+  const stabilityFiltersRef = useRef<HTMLDivElement>(null);
 
   const [stability,    setStability]    = useState<ApiStabilityEntry[]>([]);
   const [trends,       setTrends]       = useState<ApiTrendEntry[]>([]);
@@ -630,7 +767,7 @@ export function AnalysisPanel() {
     ])
       .then(([stab, tr, grp]) => {
         if (cancelled) return;
-        setStability(stab);
+        setStability(stab.map(normalizeClassification));
         setTrends(tr);
         setGroups(grp);
       })
@@ -674,6 +811,15 @@ export function AnalysisPanel() {
     return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [filtered]);
 
+  function selectClassification(cls: Classification) {
+    setActiveSection('stability');
+    setClassFilter(cls);
+  }
+
+  function openFilteredResults() {
+    stabilityFiltersRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   return (
     <div className="qara-page">
 
@@ -682,7 +828,7 @@ export function AnalysisPanel() {
         tier="full"
         kicker="Health Overview"
         title="Analysis"
-        description="Review stability classifications, clustered failures, and owner-level health trends."
+        description="Review stability classifications, a library of recurring failure signatures, and owner-level health trends."
         icon="📊"
       />
 
@@ -703,37 +849,15 @@ export function AnalysisPanel() {
 
       {!loading && !error && (
         <Fragment>
-          {/* Stat cards */}
-          {stability.length > 0 && <AnalysisStatCards data={stability} />}
-
-          {/* Streak alert */}
-          <StreakAlert data={stability} />
-
-          {/* Section nav + filters */}
-          <div className="qara-toolbar">
-            {/* Section tabs */}
-            <div className="qara-toolbar-segment">
-              {([
-                { id: 'stability', label: 'Stability' },
-                { id: 'groups',   label: `Failure Groups (${groups.length})` },
-                { id: 'owners',   label: 'By Owner' },
-              ] as const).map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => setActiveSection(s.id)}
-                  className={[
-                    'qara-segment-button',
-                    activeSection === s.id
-                      ? 'qara-segment-button-active'
-                      : '',
-                  ].join(' ')}
-                >
-                  {s.label}
-                </button>
-              ))}
+          <div className="flex flex-col gap-3 rounded-xl border border-border-subtle bg-surface px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                Analysis Scope
+              </p>
+              <p className="mt-1 text-sm text-secondary">
+                Stability, active fail streaks, and recent history below are based on the selected run window.
+              </p>
             </div>
-
-            {/* Runs window */}
             <Dropdown
               value={String(runsWindow)}
               onChange={value => setRunsWindow(Number(value))}
@@ -745,68 +869,133 @@ export function AnalysisPanel() {
             />
           </div>
 
-          {/* Stability + Owner filtering */}
-          {(activeSection === 'stability' || activeSection === 'owners') && (
-            <div className="qara-toolbar">
-              {/* Search */}
-              <div className="relative flex-1 min-w-[200px] max-w-xs">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
-                     viewBox="0 0 16 16" fill="none">
-                  <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search tests…"
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  className="qara-control qara-input type-input w-full pl-9 pr-3"
-                />
+          {/* Stat cards */}
+          {stability.length > 0 && (
+            <AnalysisStatCards
+              data={stability}
+              activeFilter={activeSection === 'stability' ? (classFilter as Classification | '') : ''}
+              onSelectFilter={selectClassification}
+              onOpenFilteredResults={openFilteredResults}
+            />
+          )}
+
+          {/* Streak alert */}
+          <StreakAlert data={stability} runsWindow={runsWindow} />
+
+          {/* Analysis controls */}
+          <div ref={stabilityFiltersRef} className="rounded-xl border border-border-subtle bg-surface px-4 py-3 space-y-3">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  Analyze By
+                </p>
+                <p className="mt-1 text-sm text-secondary">
+                  {activeSection === 'stability'
+                    ? 'Test-level stability and trend history across the selected runs.'
+                    : activeSection === 'groups'
+                      ? 'Recurring failure signatures across recent analysis history.'
+                      : 'Ownership-level concentration and health across the selected runs.'}
+                </p>
               </div>
 
-              {/* Classification filter */}
-              <Dropdown
-                value={classFilter}
-                onChange={setClassFilter}
-                triggerClassName="px-3.5 text-sm"
-                options={[
-                  { value: '', label: 'All statuses' },
-                  { value: 'FLAKY', label: 'Flaky' },
-                  { value: 'CONSISTENTLY_BROKEN', label: 'Broken' },
-                  { value: 'STABLE', label: 'Stable' },
-                  { value: 'INSUFFICIENT_DATA', label: 'Insufficient' },
-                ]}
-              />
-
-              {/* Owner filter */}
-              {owners.length > 0 && (
-                <Dropdown
-                  value={ownerFilter}
-                  onChange={setOwnerFilter}
-                  triggerClassName="px-3.5 text-sm"
-                  options={[
-                    { value: '', label: 'All owners' },
-                    ...owners.map(owner => ({ value: owner, label: owner })),
-                  ]}
-                />
-              )}
-
-              {(search || classFilter || ownerFilter) && (
-                <button
-                  onClick={() => { setSearch(''); setClassFilter(''); setOwnerFilter(''); }}
-                  className="qara-chip type-chip"
-                >
-                  Clear
-                </button>
-              )}
-
-              <span className="qara-inline-note">
-                {filtered.length === stability.length
-                  ? `${stability.length} tests`
-                  : `${filtered.length} of ${stability.length}`}
-              </span>
+              <div className="qara-toolbar-segment self-start">
+                {([
+                  { id: 'stability', label: 'Tests' },
+                  { id: 'owners',   label: 'Owners' },
+                  { id: 'groups',   label: `Patterns (${groups.length})` },
+                ] as const).map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setActiveSection(s.id)}
+                    className={[
+                      'qara-segment-button',
+                      activeSection === s.id
+                        ? 'qara-segment-button-active'
+                        : '',
+                    ].join(' ')}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
+
+            {(activeSection === 'stability' || activeSection === 'owners') ? (
+              <div>
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
+                  {activeSection === 'owners' ? 'Filter owner tests' : 'Filter tests'}
+                </p>
+
+                <div className="qara-toolbar border-0 bg-transparent px-0 py-0 shadow-none">
+                  {/* Search */}
+                  <div className="relative flex-1 min-w-[200px] max-w-xs">
+                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
+                         viewBox="0 0 16 16" fill="none">
+                      <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search tests…"
+                      value={search}
+                      onChange={e => setSearch(e.target.value)}
+                      className="qara-control qara-input type-input w-full pl-9 pr-3"
+                    />
+                  </div>
+
+                  {/* Classification filter */}
+                  <Dropdown
+                    value={classFilter}
+                    onChange={setClassFilter}
+                    triggerClassName="px-3.5 text-sm"
+                    options={[
+                      { value: '', label: 'All statuses' },
+                      { value: 'FLAKY', label: CLASS_CONFIG.FLAKY.label },
+                      { value: 'CONSISTENTLY_BROKEN', label: CLASS_CONFIG.CONSISTENTLY_BROKEN.label },
+                      { value: 'STABLE', label: CLASS_CONFIG.STABLE.label },
+                      { value: 'CONSISTENT', label: CLASS_CONFIG.CONSISTENT.label },
+                      { value: 'INSUFFICIENT_DATA', label: CLASS_CONFIG.INSUFFICIENT_DATA.label },
+                    ]}
+                  />
+
+                  {/* Owner filter */}
+                  {owners.length > 0 && (
+                    <Dropdown
+                      value={ownerFilter}
+                      onChange={setOwnerFilter}
+                      triggerClassName="px-3.5 text-sm"
+                      options={[
+                        { value: '', label: 'All owners' },
+                        ...owners.map(owner => ({ value: owner, label: owner })),
+                      ]}
+                    />
+                  )}
+
+                  {(search || classFilter || ownerFilter) && (
+                    <button
+                      onClick={() => { setSearch(''); setClassFilter(''); setOwnerFilter(''); }}
+                      className="qara-chip type-chip"
+                    >
+                      Clear
+                    </button>
+                  )}
+
+                  <span className="qara-inline-note">
+                    Showing {filtered.length} of {stability.length} test{stability.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-3">
+                <p className="text-sm text-secondary">
+                  Browse known recurring signatures and expand a pattern to inspect affected tests and linked bugs.
+                </p>
+                <span className="qara-inline-note">
+                  {groups.length} recurring signature{groups.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+            )}
+          </div>
 
           {/* ── Stability section ─────────────────── */}
           {activeSection === 'stability' && (
@@ -823,13 +1012,16 @@ export function AnalysisPanel() {
               : <StabilityTable entries={filtered} trendMap={trendMap} runsWindow={runsWindow} />
           )}
 
-          {/* ── Failure groups section ────────────── */}
+          {/* ── Pattern library section ───────────── */}
           {activeSection === 'groups' && (
             <div className="space-y-3">
               {groups.length === 0 ? (
                 <div className="qara-empty-state">
                   <div className="qara-empty-icon">✅</div>
-                  <p className="type-empty-title">No failure groups found</p>
+                  <p className="type-empty-title">No recurring signatures found</p>
+                  <p className="type-empty-subtitle max-w-sm">
+                    Known failure patterns will appear here once repeated signatures emerge across analyzed runs.
+                  </p>
                 </div>
               ) : (
                 groups.map(g => <FailureGroupCard key={g.fingerprint} group={g} />)

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useCompareState } from './hooks/useCompareState';
 import { useCompareData, useCatalogue } from './hooks/useCompareData';
 import { PageHeader } from '../components/PageHeader';
@@ -178,7 +178,7 @@ function PairwiseHero({ result, onDriverClick }: {
   return (
     <section className="border-b border-border-subtle pb-6 md:pb-7">
       <div className={`rounded-2xl border ${dividerColor} ${surfaceTint} overflow-hidden`}>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px]">
+        <div className="grid grid-cols-1 lg:w-fit lg:grid-cols-[560px_320px]">
 
           {/* ── LEFT: comparison ──────────────────────────────── */}
           <div className="p-6 lg:p-7">
@@ -298,7 +298,24 @@ export function CompareEngine() {
   const { owners, runs, suites } = useCatalogue();
   const { result, historyResult, entityResult, loading, error } = useCompareData(compareState.state);
   const [tableFilter, setTableFilter] = useState<DeltaDirection | 'all'>('all');
-  const tableRef = useRef<HTMLDivElement>(null);
+  const tableRef   = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const hydratedRunIdsRef = useRef(false);
+
+  useEffect(() => {
+    if (hydratedRunIdsRef.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const runIds = (params.get('run_ids') ?? '')
+      .split(',')
+      .map(id => id.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+
+    hydratedRunIdsRef.current = true;
+    if (runIds.length === 0) return;
+    compareState.setDimension('runs');
+    compareState.setCustomRuns(runIds);
+  }, [compareState]);
 
   function handleDriverClick(filter: string) {
     setTableFilter(filter as DeltaDirection | 'all');
@@ -319,6 +336,20 @@ export function CompareEngine() {
 
 
   const timeLabel = (() => {
+    // Custom mode: derive reactively from current selection so label
+    // updates immediately when runs are added/removed (avoids stale
+    // range label when only middle runs change).
+    if (state.timeMode === 'custom' && state.customRunIds.length > 0) {
+      const selectedRuns = runs.filter(r => state.customRunIds.includes(r.id));
+      if (selectedRuns.length === 1) return selectedRuns[0].label;
+      if (selectedRuns.length === 2) {
+        const sorted = [...selectedRuns].sort((a, b) => a.sequence - b.sequence);
+        return `${sorted[0].label} – ${sorted[1].label}`;
+      }
+      // 3+ runs: range label is misleading for non-contiguous selections,
+      // show count instead so removing any run immediately reflects.
+      return `${selectedRuns.length} runs`;
+    }
     if (historyResult && historyResult.runs.length > 0) {
       const first = historyResult.runs[0];
       const last  = historyResult.runs[historyResult.runs.length - 1];
@@ -371,8 +402,41 @@ export function CompareEngine() {
         )}
       </div>
 
+      {/* ── Sticky comparison summary bar (entity dimensions) ── */}
+      {isEntityDimension && compareState.canCompare && (
+        <div className="flex items-center justify-between gap-4 py-1 qara-fade-up">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted flex-shrink-0">
+              Comparing
+            </span>
+            <div className="flex items-center gap-1 flex-wrap">
+              {state.selections.map((id, i) => {
+                const name = state.dimension === 'suites'
+                  ? (suites.find(s => s.id === id)?.name ?? id)
+                  : id;
+                return (
+                  <span key={id} className="flex items-center gap-1">
+                    {i > 0 && <span className="text-faint text-[11px] mx-0.5">·</span>}
+                    <span className="text-xs font-medium text-primary">{name}</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+          <button
+            onClick={() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            className="flex-shrink-0 flex items-center gap-1.5 text-xs font-medium text-info hover:text-primary transition-colors"
+          >
+            <span>Jump to results</span>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M6 2v8M2 7l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* ── Output area ─────────────────────────────────────── */}
-      <div id="compare-results" className="space-y-5">
+      <div id="compare-results" ref={resultsRef} className="space-y-5">
 
         {/* Loading */}
         {loading && <Skeleton />}
@@ -417,10 +481,7 @@ export function CompareEngine() {
             ) : (
               <div className="flex items-center gap-2 text-sm">
                 <span className="qara-pill">{timeLabel}</span>
-                <span className="text-muted">
-                  {historyResult.runs.length} run{historyResult.runs.length !== 1 ? 's' : ''}
-                  {' '}· {historyResult.summary.uniqueTests} tests
-                </span>
+                <span className="qara-pill">{historyResult.summary.uniqueTests} tests</span>
               </div>
             )}
             <h2 className="text-xs font-semibold text-muted uppercase tracking-[0.18em]">
@@ -432,7 +493,7 @@ export function CompareEngine() {
 
         {/* ── Entity view (owners / suites) ── */}
         {entityResult && isEntityDimension && !loading && !error && (
-          <>
+          <div key={state.selections.slice().sort().join(',')} className="qara-fade-up space-y-5">
             <div className="flex items-center gap-2 text-sm flex-wrap">
               <span className="qara-pill">{entityResult.time_label}</span>
               <span className="text-muted">
@@ -447,7 +508,7 @@ export function CompareEngine() {
               </span>
             </div>
             <EntityComparisonView data={entityResult} />
-          </>
+          </div>
         )}
 
       </div>

@@ -6,7 +6,6 @@ import { Dropdown } from '../../components/Dropdown';
 import { OwnerPicker }       from './pickers/OwnerPicker';
 import { RunPicker }         from './pickers/RunPicker';
 import { SuitePicker }       from './pickers/SuitePicker';
-import { StatusToggleGroup } from './pickers/StatusToggleGroup';
 
 // ─────────────────────────────────────────────────────────────
 // Dimension tab strip
@@ -16,7 +15,6 @@ const DIMENSION_OPTIONS: { value: CompareDimension; label: string; icon: string 
   { value: 'runs',   label: 'Runs',   icon: '⚡' },
   { value: 'owners', label: 'Owners', icon: '👤' },
   { value: 'suites', label: 'Suites', icon: '📦' },
-  { value: 'status', label: 'Status', icon: '🏷️' },
 ];
 
 const TIME_OPTIONS: { value: TimeMode; label: string }[] = [
@@ -90,7 +88,7 @@ interface CompareControlBarProps extends UseCompareStateReturn {
   runs:       Run[];
   suites:     Suite[];
   timeLabel?: string;
-  onReset?: () => void;
+  onReset?:   () => void;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -155,14 +153,16 @@ export function CompareControlBar({
       {/* ── Bottom row: entity / run picker ─────────────────── */}
       {!hideSecondarySelector && (
       <div className="space-y-2 border-t border-border-subtle pt-4">
-        {/* Section label */}
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted mb-2">
-          {state.dimension === 'runs' && (
-            state.timeMode === 'last5' || state.timeMode === 'last10' || state.timeMode === 'latest_vs_previous'
-          )
-            ? 'Run window'
-            : `Select ${cfg.label}`}
-        </p>
+        {/* Section label — suppressed for suites (SuitePicker has its own guided header) */}
+        {state.dimension !== 'suites' && (
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted mb-2">
+            {state.dimension === 'runs' && (
+              state.timeMode === 'last5' || state.timeMode === 'last10' || state.timeMode === 'latest_vs_previous'
+            )
+              ? 'Run window'
+              : `Select ${cfg.label}`}
+          </p>
+        )}
 
         <DynamicSelector
           state={state}
@@ -172,16 +172,12 @@ export function CompareControlBar({
           owners={owners}
           runs={runs}
           suites={suites}
+          timeLabel={timeLabel}
+          canCompare={canCompare}
         />
       </div>
       )}
 
-      {/* ── Context label ─────────────────────────────────────── */}
-      {timeLabel && !hideSecondarySelector && (
-        <p className="text-xs text-muted">
-          {timeLabel}
-        </p>
-      )}
     </div>
   );
 }
@@ -197,10 +193,12 @@ interface DynamicSelectorProps {
   setCustomRuns:   CompareControlBarProps['setCustomRuns'];
   owners:          Owner[];
   runs:            Run[];
-  suites:          Suite[];
+  suites:     Suite[];
+  timeLabel?: string;
+  canCompare: boolean;
 }
 
-function DynamicSelector({ state, toggleSelection, toggleCustomRun, setCustomRuns, owners, runs, suites }: DynamicSelectorProps) {
+function DynamicSelector({ state, toggleSelection, toggleCustomRun, setCustomRuns, owners, runs, suites, timeLabel, canCompare }: DynamicSelectorProps) {
   switch (state.dimension) {
     case 'runs':
       return (
@@ -214,28 +212,55 @@ function DynamicSelector({ state, toggleSelection, toggleCustomRun, setCustomRun
       );
     case 'owners':
       return (
-        <OwnerPicker
-          owners={owners}
-          selected={state.selections}
-          onToggle={toggleSelection}
-          maxSelections={DIMENSION_CONFIG.owners.maxSelections}
-        />
+        <div className="space-y-4">
+          <OwnerPicker
+            owners={owners}
+            selected={state.selections}
+            onToggle={toggleSelection}
+            maxSelections={DIMENSION_CONFIG.owners.maxSelections}
+          />
+          {state.timeMode === 'custom' && (
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+                Select runs
+              </p>
+              <RunPicker
+                runs={runs}
+                selected={state.customRunIds}
+                timeMode="custom"
+                onCustomToggle={toggleCustomRun}
+                onCustomSet={setCustomRuns}
+              />
+            </div>
+          )}
+        </div>
       );
     case 'suites':
       return (
-        <SuitePicker
-          suites={suites}
-          selected={state.selections}
-          onToggle={toggleSelection}
-          maxSelections={DIMENSION_CONFIG.suites.maxSelections}
-        />
-      );
-    case 'status':
-      return (
-        <StatusToggleGroup
-          selected={state.selections}
-          onToggle={toggleSelection}
-        />
+        <div className="space-y-4">
+          <SuitePicker
+            suites={suites}
+            selected={state.selections}
+            onToggle={toggleSelection}
+            maxSelections={DIMENSION_CONFIG.suites.maxSelections}
+            timeLabel={timeLabel}
+            canCompare={canCompare}
+          />
+          {state.timeMode === 'custom' && (
+            <div className="space-y-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
+                Select runs
+              </p>
+              <RunPicker
+                runs={runs}
+                selected={state.customRunIds}
+                timeMode="custom"
+                onCustomToggle={toggleCustomRun}
+                onCustomSet={setCustomRuns}
+              />
+            </div>
+          )}
+        </div>
       );
   }
 }

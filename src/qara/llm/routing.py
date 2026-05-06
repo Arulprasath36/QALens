@@ -1215,7 +1215,7 @@ def _rank_by_duration(
     import sqlite3 as _sqlite3
 
     # Build a map canonical_name → avg duration from the raw test_cases table
-    project_filter = "AND LOWER(tc.project) = LOWER(?)" if project else ""
+    project_filter = "AND LOWER(r.project) = LOWER(?)" if project else ""
     params: list = [project] if project else []
 
     sql = f"""
@@ -1223,6 +1223,7 @@ def _rank_by_duration(
             tc.name,
             AVG(tc.duration_ms) AS avg_ms
         FROM test_cases tc
+        JOIN runs r ON r.run_id = tc.run_id
         WHERE tc.duration_ms IS NOT NULL
         {project_filter}
         GROUP BY tc.name
@@ -1270,23 +1271,27 @@ def _gather_risk_ranking_context(
     from qara.analyzers.predictor import RiskPredictor, RiskTier
     from qara.db.schema import get_connection
 
-    conn = get_connection(db_path)
-    try:
-        predictor = RiskPredictor(conn)
-        predictions = predictor.predict_all(project=project, min_runs=min_runs)
-    finally:
-        conn.close()
+    def _load_ranked_predictions() -> tuple[list, int]:
+        conn = get_connection(db_path)
+        try:
+            predictor = RiskPredictor(conn)
+            predictions = predictor.predict_all(project=project, min_runs=min_runs)
+        finally:
+            conn.close()
 
-    _TIER_ORDER = {
-        RiskTier.CRITICAL: 0,
-        RiskTier.HIGH: 1,
-        RiskTier.MEDIUM: 2,
-        RiskTier.LOW: 3,
-    }
-    ranked = sorted(
-        predictions,
-        key=lambda p: (_TIER_ORDER.get(p.tier, 9), -p.risk_pct),
-    )[:top_n]
+        _TIER_ORDER = {
+            RiskTier.CRITICAL: 0,
+            RiskTier.HIGH: 1,
+            RiskTier.MEDIUM: 2,
+            RiskTier.LOW: 3,
+        }
+        ranked_predictions = sorted(
+            predictions,
+            key=lambda p: (_TIER_ORDER.get(p.tier, 9), -p.risk_pct),
+        )[:top_n]
+        return ranked_predictions, len(predictions)
+
+    ranked, total_predictions = _load_ranked_predictions()
 
     proj_label = project or "(all projects)"
     parts: list[str] = []
@@ -1295,7 +1300,7 @@ def _gather_risk_ranking_context(
 
     parts.append(f"=== Test Ranking (risk_tier): {proj_label} ===")
     parts.append(
-        f"Top {len(ranked)} of {len(predictions)} tests "
+        f"Top {len(ranked)} of {total_predictions} tests "
         f"(ranked by predicted failure risk: CRITICAL > HIGH > MEDIUM > LOW)."
     )
     hdr = f"{'Rank':>4}  {'Test Name':<42}  {'risk_pct':>9}  {'tier':<10}  {'pass_rate':>9}"
@@ -1329,6 +1334,77 @@ def _gather_risk_ranking_context(
         facts_rows.append(no_data)
 
     return "\n".join(parts).strip(), "\n".join(facts_rows), sources
+
+
+def _risk_driver_summary(prediction: object) -> str:
+    """Return a compact human-readable risk-driver summary for narration."""
+    signal_labels = [
+        (getattr(prediction.signals, "volatility", 0.0), "high volatility"),
+        (getattr(prediction.signals, "failure_burden", 0.0), "elevated failure burden"),
+        (getattr(prediction.signals, "recent_decline", 0.0), "recent decline"),
+        (getattr(prediction.signals, "fail_streak", 0.0), "active fail streak"),
+        (getattr(prediction.signals, "duration_spike", 0.0), "duration slowdown"),
+    ]
+    top_labels = [label for value, label in sorted(signal_labels, key=lambda item: item[0], reverse=True) if value >= 0.15][:2]
+    if len(top_labels) >= 2:
+        return f"{top_labels[0]} + {top_labels[1]}"
+    if top_labels:
+        return top_labels[0]
+    return "mixed historical risk signals"
+
+
+def gather_risk_ranking_fact_bundle(
+    *,
+    project: str | None = None,
+    db_path: "str | Path | None" = None,
+    top_n: int = 20,
+    min_runs: int = 2,
+    scope_label: str = "Selected run window",
+) -> dict[str, object]:
+    """Return a compact fact bundle for risk-ranking narration."""
+    from qara.analyzers.predictor import RiskPredictor, RiskTier
+    from qara.db.schema import get_connection
+
+    conn = get_connection(db_path)
+    try:
+        predictor = RiskPredictor(conn)
+        predictions = predictor.predict_all(project=project, min_runs=min_runs)
+    finally:
+        conn.close()
+
+    _TIER_ORDER = {
+        RiskTier.CRITICAL: 0,
+        RiskTier.HIGH: 1,
+        RiskTier.MEDIUM: 2,
+        RiskTier.LOW: 3,
+    }
+    ranked = sorted(
+        predictions,
+        key=lambda p: (_TIER_ORDER.get(p.tier, 9), -p.risk_pct),
+    )[:top_n]
+    high_risk = sum(1 for prediction in ranked if prediction.tier in (RiskTier.CRITICAL, RiskTier.HIGH))
+    medium_risk = sum(1 for prediction in ranked if prediction.tier == RiskTier.MEDIUM)
+    low_risk = sum(1 for prediction in ranked if prediction.tier == RiskTier.LOW)
+
+    return {
+        "type": "risk_ranking",
+        "scope_label": scope_label,
+        "eligible_tests": len(predictions),
+        "high_risk": high_risk,
+        "medium_risk": medium_risk,
+        "low_risk": low_risk,
+        "top_tests": [
+            {
+                "rank": index,
+                "name": prediction.display_name,
+                "tier": prediction.tier.value,
+                "risk_pct": prediction.risk_pct,
+                "pass_rate": round(prediction.pass_rate, 4),
+                "driver": _risk_driver_summary(prediction),
+            }
+            for index, prediction in enumerate(ranked[:5], 1)
+        ],
+    }
 
 
 # ---------------------------------------------------------------------------

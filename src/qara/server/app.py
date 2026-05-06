@@ -136,6 +136,10 @@ def create_app(
     async def _add_csp(request: Request, call_next):
         response = await call_next(request)
         response.headers["Content-Security-Policy"] = _CSP
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         return response
 
     # ------------------------------------------------------------------

@@ -2,7 +2,7 @@
 // Core domain types for the QARA Compare Engine
 // ─────────────────────────────────────────────────────────────
 
-export type CompareDimension = 'runs' | 'owners' | 'suites' | 'status';
+export type CompareDimension = 'runs' | 'owners' | 'suites';
 export type TimeMode = 'last5' | 'last10' | 'latest_vs_previous' | 'custom';
 export type TestStatus = 'passed' | 'failed' | 'flaky' | 'skipped';
 export type DeltaDirection = 'improved' | 'regressed' | 'stable' | 'broken' | 'new';
@@ -37,13 +37,6 @@ export const DIMENSION_CONFIG: Record<CompareDimension, DimensionConfig> = {
     icon: '📦',
     description: 'Compare health across test suites',
     defaultTimeMode: 'last10',
-    maxSelections: 3,
-  },
-  status: {
-    label: 'Status',
-    icon: '🏷️',
-    description: 'Analyze tests by current status',
-    defaultTimeMode: 'last5',
     maxSelections: 3,
   },
 };

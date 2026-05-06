@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Modal } from '../../../components/Modal';
+import { Tooltip } from '../../../components/Tooltip';
 import type { Run, TimeMode } from '../../types';
 
 interface RunPickerProps {
   runs:           Run[];
   selected:       string[];
   timeMode:       TimeMode;
-  /** Used for custom mode: toggles a run into/out of customRunIds */
   onCustomToggle: (id: string) => void;
   onCustomSet?:   (ids: string[]) => void;
 }
@@ -23,13 +23,7 @@ function fmtDate(iso: string) {
 }
 
 function buildRunSearchText(run: Run) {
-  return [
-    run.label,
-    fmtDate(run.startedAt),
-    `${Math.round(run.passRate * 100)}%`,
-    `${run.failedCount}`,
-    `${run.totalTests}`,
-  ]
+  return [run.label, fmtDate(run.startedAt), `${Math.round(run.passRate * 100)}%`, `${run.failedCount}`, `${run.totalTests}`]
     .join(' ')
     .toLowerCase();
 }
@@ -55,16 +49,9 @@ function PairwisePicker({ runs }: { runs: Run[] }) {
         <CompactRunChip run={prev} />
         <span className="text-[10px] text-muted italic ml-2">Auto-selected</span>
       </div>
-
-      {/* Context line */}
       <div className="flex items-center gap-2 text-xs text-muted">
         <span className="font-medium">Comparing latest vs previous</span>
-        {dateRange && (
-          <>
-            <span>•</span>
-            <span>{dateRange}</span>
-          </>
-        )}
+        {dateRange && <><span>•</span><span>{dateRange}</span></>}
       </div>
     </div>
   );
@@ -75,12 +62,10 @@ function PairwisePicker({ runs }: { runs: Run[] }) {
 // ─────────────────────────────────────────────────────────────
 
 function AutoHistoryPicker({ timeMode, runs }: { timeMode: TimeMode; runs: Run[] }) {
-  const limit = timeMode === 'last5' ? 5 : 10;
+  const limit   = timeMode === 'last5' ? 5 : 10;
   const visible = runs.slice(0, limit);
 
-  if (visible.length === 0) {
-    return <span className="text-xs text-muted italic">Loading runs…</span>;
-  }
+  if (visible.length === 0) return <span className="text-xs text-muted italic">Loading runs…</span>;
 
   const dateRange = visible.length >= 2
     ? `${fmtDate(visible[visible.length - 1].startedAt)} → ${fmtDate(visible[0].startedAt)}`
@@ -88,42 +73,24 @@ function AutoHistoryPicker({ timeMode, runs }: { timeMode: TimeMode; runs: Run[]
 
   return (
     <div className="space-y-2">
-      {/* Horizontal run strip */}
       <div className="relative">
-        <div
-          className="flex gap-2 overflow-x-auto pb-1 scroll-smooth"
-          style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: 'rgb(203 213 225) transparent'
-          }}
-        >
-          {visible.map(run => (
-            <CompactRunChip key={run.id} run={run} />
-          ))}
+        <div className="flex gap-2 overflow-x-auto pb-1 scroll-smooth" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgb(203 213 225) transparent' }}>
+          {visible.map(run => <CompactRunChip key={run.id} run={run} />)}
         </div>
-
-        {/* Fade gradient for scroll indication */}
         {visible.length > 4 && (
           <div className="absolute right-0 top-0 bottom-1 w-8 bg-gradient-to-l from-surface to-transparent pointer-events-none" />
         )}
       </div>
-
-      {/* Context line */}
       <div className="flex items-center gap-2 text-xs text-muted">
         <span className="font-medium">Showing last {visible.length} run{visible.length !== 1 ? 's' : ''}</span>
-        {dateRange && (
-          <>
-            <span>•</span>
-            <span>{dateRange}</span>
-          </>
-        )}
+        {dateRange && <><span>•</span><span>{dateRange}</span></>}
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────
-// custom: modal-based multi-select for scalable run history
+// custom: modal-based multi-select
 // ─────────────────────────────────────────────────────────────
 
 function scrollToResults() {
@@ -131,99 +98,127 @@ function scrollToResults() {
 }
 
 function syncCustomSelection(
-  nextIds: string[],
-  currentIds: string[],
+  nextIds:        string[],
+  currentIds:     string[],
   onCustomToggle: (id: string) => void,
-  onCustomSet?: (ids: string[]) => void,
+  onCustomSet?:   (ids: string[]) => void,
 ) {
-  if (onCustomSet) {
-    onCustomSet(nextIds);
-    return;
-  }
-
+  if (onCustomSet) { onCustomSet(nextIds); return; }
   currentIds.forEach(id => onCustomToggle(id));
   nextIds.forEach(id => onCustomToggle(id));
 }
 
-function describeSelection(selectedRuns: Run[]) {
-  if (selectedRuns.length === 0) {
-    return {
-      title: 'Select runs to compare',
-      detail: 'Choose one run for details, two for pairwise, or more for a history matrix.',
-    };
-  }
-
-  if (selectedRuns.length === 1) {
-    return { title: selectedRuns[0].label, detail: 'Single run detail view' };
-  }
-
-  if (selectedRuns.length === 2) {
-    return {
-      title: `${selectedRuns[0].label} vs ${selectedRuns[1].label}`,
-      detail: 'Pairwise comparison ready',
-    };
-  }
-
-  return {
-    title: `${selectedRuns.length} runs selected`,
-    detail: 'History matrix ready',
-  };
-}
-
-function SelectedRunChip({ run, index, pairwise }: { run: Run; index: number; pairwise: boolean }) {
-  return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-border-default bg-surface px-3 py-1.5 text-xs">
-      {pairwise && <span className="text-faint">{index === 0 ? 'A' : 'B'}</span>}
-      <span className="font-semibold text-primary">{run.label}</span>
-      <span className={`font-medium ${passRateColor(run.passRate)}`}>
-        {Math.round(run.passRate * 100)}%
-      </span>
-    </div>
-  );
-}
+// ── Trigger card ──────────────────────────────────────────────
 
 function CustomRangeTrigger({
   selectedRuns,
   onOpen,
+  onRemove,
 }: {
   selectedRuns: Run[];
-  onOpen: () => void;
+  onOpen:       () => void;
+  onRemove:     (id: string) => void;
 }) {
-  const summary = describeSelection(selectedRuns);
+  const hasSelection = selectedRuns.length > 0;
+  const isReady      = selectedRuns.length >= 2;
+
+  // Title + description based on state
+  const title = hasSelection
+    ? isReady
+      ? `Comparing trends across ${selectedRuns.length} runs`
+      : selectedRuns[0].label
+    : 'Build your comparison';
+
+  const description = hasSelection
+    ? isReady
+      ? 'View flakiness trends, regressions, and stability over time'
+      : 'Add 1 more run to start comparing'
+    : 'Select runs to analyze trends and changes over time';
+
+  const CHIP_LIMIT = 4;
+  const visibleRuns  = selectedRuns.slice(0, CHIP_LIMIT);
+  const hiddenCount  = selectedRuns.length - CHIP_LIMIT;
 
   return (
-    <div className="flex flex-col gap-3 rounded-[1.2rem] border border-border-default bg-subtle px-4 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className={[
+      'flex flex-col gap-3 rounded-[1.2rem] border-2 px-4 py-4 transition-all duration-200',
+      isReady
+        ? 'border-success/25 bg-success/[0.02]'
+        : hasSelection
+          ? 'border-info/20 bg-surface'
+          : 'border-info/15 bg-info/[0.02]',
+    ].join(' ')}>
+
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted">
-            Custom Range
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted mb-1">
+            Custom range
           </p>
-          <p className="mt-1 text-sm font-semibold text-primary">{summary.title}</p>
-          <p className="mt-1 text-xs text-muted">{summary.detail}</p>
+          <p className="text-sm font-semibold text-primary">{title}</p>
+          <p className="mt-0.5 text-xs text-muted">{description}</p>
         </div>
 
         <div className="flex items-center gap-2">
-          {selectedRuns.length > 0 && (
-            <span className="qara-pill qara-pill-active">{selectedRuns.length} selected</span>
+          {hasSelection && (
+            <span className={[
+              'text-[10px] font-bold px-2 py-1 rounded-full border tabular-nums',
+              isReady
+                ? 'bg-success/10 text-success border-success/25'
+                : 'bg-warning/10 text-warning border-warning/25',
+            ].join(' ')}>
+              {selectedRuns.length} selected
+            </span>
           )}
-          <button type="button" onClick={onOpen} className="qara-chip type-chip">
-            {selectedRuns.length > 0 ? 'Edit selection' : 'Select runs'}
+          <button type="button" onClick={onOpen} className={[
+            'qara-chip type-chip',
+            !hasSelection && 'border-info/30 text-info hover:bg-info/5',
+          ].join(' ')}>
+            {hasSelection ? 'Edit selection' : 'Pick runs to compare'}
           </button>
         </div>
       </div>
 
-      {selectedRuns.length > 0 && (
+      {/* Selected chips with remove buttons */}
+      {hasSelection && (
         <div className="flex flex-wrap items-center gap-2">
-          {selectedRuns.slice(0, 4).map((run, index) => (
-            <SelectedRunChip
+          {visibleRuns.map((run, index) => (
+            <div
               key={run.id}
-              run={run}
-              index={index}
-              pairwise={selectedRuns.length === 2}
-            />
+              className={[
+                'group inline-flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg border text-xs font-medium text-primary',
+                'shadow-sm hover:shadow transition-all duration-150',
+                chipColor(run.passRate),
+              ].join(' ')}
+            >
+              {selectedRuns.length === 2 && (
+                <span className="text-[10px] text-faint font-semibold">{index === 0 ? 'A' : 'B'}</span>
+              )}
+              <span className={`font-bold ${passRateColor(run.passRate)}`}>
+                {Math.round(run.passRate * 100)}%
+              </span>
+              <span>{run.label}</span>
+              <Tooltip content={`Remove ${run.label}`} className="inline-flex flex-shrink-0">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onRemove(run.id); }}
+                  className="flex h-4 w-4 items-center justify-center rounded text-muted hover:text-danger transition-colors"
+                >
+                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 2l6 6M8 2L2 8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </Tooltip>
+            </div>
           ))}
-          {selectedRuns.length > 4 && (
-            <span className="qara-pill">+{selectedRuns.length - 4} more</span>
+
+          {hiddenCount > 0 && (
+            <button
+              type="button"
+              onClick={onOpen}
+              className="text-xs text-info hover:text-primary font-medium transition-colors"
+            >
+              View all selected runs ({selectedRuns.length})
+            </button>
           )}
         </div>
       )}
@@ -231,61 +226,89 @@ function CustomRangeTrigger({
   );
 }
 
-function ModalRunRow({
-  run,
-  selected,
-  onToggle,
-}: {
-  run: Run;
-  selected: boolean;
-  onToggle: () => void;
-}) {
+// ── Chip pass-rate border/bg color ───────────────────────────
+
+function chipColor(rate: number): string {
+  if (rate >= 0.8) return 'border-success/30 bg-success/[0.04] hover:border-success/50 hover:bg-success/[0.08]';
+  if (rate >= 0.6) return 'border-warning/30 bg-warning/[0.04] hover:border-warning/50 hover:bg-warning/[0.08]';
+  return 'border-danger/30 bg-danger/[0.04] hover:border-danger/50 hover:bg-danger/[0.08]';
+}
+
+// ── Modal run row ─────────────────────────────────────────────
+
+function ModalRunRow({ run, selected, onToggle }: { run: Run; selected: boolean; onToggle: () => void }) {
   return (
     <button
       type="button"
       onClick={onToggle}
       className={[
-        'grid w-full grid-cols-[24px_minmax(0,1.4fr)_auto] items-center gap-3 rounded-[1rem] border px-3 py-3 text-left transition-all duration-150',
+        'relative w-full flex items-center gap-3 rounded-[0.875rem] border pl-0 pr-3 py-3 text-left transition-all duration-150 overflow-hidden',
         selected
-          ? 'border-info/25 bg-selected'
+          ? 'border-info/25 bg-info/[0.04] shadow-sm'
           : 'border-transparent hover:border-border-default hover:bg-hover',
       ].join(' ')}
     >
-      <span
-        className={[
-          'inline-flex h-5 w-5 items-center justify-center rounded-md border text-[11px] font-semibold',
-          selected
-            ? 'border-info/30 bg-info/10 text-info'
-            : 'border-border-default bg-surface text-transparent',
-        ].join(' ')}
-        aria-hidden="true"
-      >
-        ✓
-      </span>
+      {/* Left accent bar — selected state */}
+      <div className={[
+        'absolute left-0 top-0 bottom-0 w-[3px] rounded-l-[0.875rem] transition-all duration-150',
+        selected ? 'bg-info' : 'bg-transparent',
+      ].join(' ')} />
 
-      <div className="min-w-0">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <span className="truncate text-sm font-semibold text-primary">{run.label}</span>
-          <span className="text-xs text-muted">{fmtDate(run.startedAt)}</span>
-          {run.branch && <span className="qara-pill">{run.branch}</span>}
+      {/* Checkbox — tucked after accent bar */}
+      <div className="pl-3 flex-shrink-0">
+        <span
+          className={[
+            'inline-flex h-4 w-4 items-center justify-center rounded border text-[10px] font-bold transition-all',
+            selected
+              ? 'border-info/50 bg-info/15 text-info'
+              : 'border-border-default bg-surface text-transparent',
+          ].join(' ')}
+          aria-hidden="true"
+        >
+          ✓
+        </span>
+      </div>
+
+      {/* Main content */}
+      <div className="min-w-0 flex-1">
+        {/* Primary line: pass rate (dominant) + run label */}
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className={`text-base font-bold tabular-nums leading-none ${passRateColor(run.passRate)}`}>
+            {Math.round(run.passRate * 100)}%
+          </span>
+          <span className={['text-sm font-semibold truncate', selected ? 'text-primary' : 'text-secondary'].join(' ')}>
+            {run.label}
+          </span>
         </div>
-        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-          <span className={`font-semibold ${passRateColor(run.passRate)}`}>
-            {Math.round(run.passRate * 100)}% pass
-          </span>
-          <span>{run.totalTests} tests</span>
-          <span className={run.failedCount > 0 ? 'font-semibold text-danger' : ''}>
-            {run.failedCount} fail{run.failedCount === 1 ? '' : 's'}
-          </span>
+        {/* Secondary line: metadata */}
+        <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
+          <span className="text-xs text-muted">{fmtDate(run.startedAt)}</span>
+          <span className="text-faint text-[10px]">·</span>
+          <span className="text-xs text-muted">{run.totalTests} tests</span>
+          {run.failedCount > 0 && (
+            <>
+              <span className="text-faint text-[10px]">·</span>
+              <span className="text-xs font-medium text-danger">{run.failedCount} failed</span>
+            </>
+          )}
+          {run.branch && (
+            <>
+              <span className="text-faint text-[10px]">·</span>
+              <span className="qara-pill">{run.branch}</span>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="text-right text-xs text-muted">
-        <div>Run {run.sequence}</div>
+      {/* Run sequence — right-aligned */}
+      <div className="text-right text-[11px] text-muted shrink-0 tabular-nums">
+        #{run.sequence}
       </div>
     </button>
   );
 }
+
+// ── Modal ─────────────────────────────────────────────────────
 
 function CustomRangeModal({
   open,
@@ -295,18 +318,17 @@ function CustomRangeModal({
   onClose,
   onApply,
 }: {
-  open: boolean;
-  runs: Run[];
-  draftSelected: string[];
+  open:             boolean;
+  runs:             Run[];
+  draftSelected:    string[];
   setDraftSelected: (ids: string[]) => void;
-  onClose: () => void;
-  onApply: () => void;
+  onClose:          () => void;
+  onApply:          () => void;
 }) {
   const [search, setSearch] = useState('');
+  const selectedBarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open) setSearch('');
-  }, [open]);
+  useEffect(() => { if (!open) setSearch(''); }, [open]);
 
   const filteredRuns = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -314,68 +336,165 @@ function CustomRangeModal({
     return runs.filter(run => buildRunSearchText(run).includes(query));
   }, [runs, search]);
 
+  const draftRuns = useMemo(
+    () => runs.filter(r => draftSelected.includes(r.id)),
+    [runs, draftSelected],
+  );
+
   const toggleDraft = (id: string) => {
     setDraftSelected(
       draftSelected.includes(id)
-        ? draftSelected.filter(runId => runId !== id)
+        ? draftSelected.filter(rid => rid !== id)
         : [...draftSelected, id],
     );
   };
 
+  // Dynamic guidance
+  const selectionHint = draftSelected.length === 0
+    ? 'Select 2 runs to compare · 3+ for trends'
+    : draftSelected.length === 1
+      ? 'Select 1 more run to compare'
+      : draftSelected.length === 2
+        ? 'Pairwise comparison ready'
+        : 'Trend analysis ready';
+
+  const hintTone = draftSelected.length >= 2 ? 'text-success' : draftSelected.length === 1 ? 'text-warning' : 'text-muted';
+
   return (
     <Modal
       open={open}
-      title="Select Runs to Compare"
+      title="Build your comparison"
       meta={(
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="qara-pill qara-pill-active">{draftSelected.length} selected</span>
-          <span>Search history and build the comparison set without leaving the results view.</span>
-        </div>
+        <span className="text-sm text-muted">
+          Select runs to analyze regressions, flakiness trends, and stability over time.
+        </span>
       )}
       onClose={onClose}
       widthClassName="max-w-5xl"
       footer={(
         <>
+          {/* Preset quick-selects */}
           <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted mr-1">Quick</span>
             <button
               type="button"
-              onClick={() => setDraftSelected(runs.slice(0, 2).map(run => run.id))}
+              onClick={() => setDraftSelected(runs.slice(0, 2).map(r => r.id))}
               className="qara-chip type-chip"
             >
-              Select latest 2
+              Latest 2
             </button>
             <button
               type="button"
-              onClick={() => setDraftSelected(runs.slice(0, 5).map(run => run.id))}
+              onClick={() => setDraftSelected(runs.slice(0, 5).map(r => r.id))}
               className="qara-chip type-chip"
             >
-              Select last 5
+              Last 5
             </button>
             <button
               type="button"
-              onClick={() => setDraftSelected([])}
+              onClick={() => setDraftSelected(runs.slice(0, 10).map(r => r.id))}
               className="qara-chip type-chip"
             >
-              Clear all
+              Last 10
             </button>
+            {draftSelected.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setDraftSelected([])}
+                className="qara-chip type-chip text-muted"
+              >
+                Clear all
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button type="button" onClick={onClose} className="qara-chip type-chip">
               Cancel
             </button>
             <button
               type="button"
               onClick={onApply}
-              className="qara-chip qara-chip-active type-chip"
+              disabled={draftSelected.length === 0}
+              className={[
+                'qara-chip type-chip',
+                draftSelected.length > 0 ? 'qara-chip-active' : 'opacity-40 cursor-not-allowed',
+              ].join(' ')}
             >
-              {draftSelected.length > 0 ? `Compare ${draftSelected.length} selected` : 'Apply'}
+              {draftSelected.length > 0 ? `Apply (${draftSelected.length} runs)` : 'Apply'}
             </button>
           </div>
         </>
       )}
     >
-      <div className="space-y-4">
+      <div className="space-y-3">
+
+        {/* ── Sticky selected bar ────────────────────────────── */}
+        <div
+          ref={selectedBarRef}
+          className={[
+            'rounded-xl border-2 transition-all duration-200 overflow-hidden',
+            draftSelected.length >= 2
+              ? 'border-success/25 bg-success/[0.02]'
+              : draftSelected.length === 1
+                ? 'border-warning/25 bg-warning/[0.02]'
+                : 'border-dashed border-border-default bg-surface-subtle',
+          ].join(' ')}
+        >
+          <div className="flex items-center justify-between gap-3 px-3 py-2">
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted flex-shrink-0">
+                Selected
+              </span>
+              <span className={[
+                'text-[10px] font-bold px-1.5 py-0.5 rounded-full border tabular-nums',
+                draftSelected.length >= 2
+                  ? 'bg-success/10 text-success border-success/25'
+                  : draftSelected.length === 1
+                    ? 'bg-warning/10 text-warning border-warning/25'
+                    : 'bg-surface-raised text-muted border-border-default',
+              ].join(' ')}>
+                {draftSelected.length}
+              </span>
+              <p className={`text-[11px] font-medium ${hintTone}`}>{selectionHint}</p>
+            </div>
+          </div>
+
+          {draftRuns.length > 0 && (
+            <div className="flex flex-wrap gap-2 px-3 pb-2.5">
+              {draftRuns.map((run, i) => (
+                <div
+                  key={run.id}
+                  className={[
+                    'chip-enter group inline-flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg border text-xs font-medium text-primary',
+                    'shadow-sm hover:shadow transition-all duration-150',
+                    chipColor(run.passRate),
+                  ].join(' ')}
+                >
+                  {draftSelected.length === 2 && (
+                    <span className="text-[10px] text-faint font-semibold">{i === 0 ? 'A' : 'B'}</span>
+                  )}
+                  <span className={`font-bold ${passRateColor(run.passRate)}`}>
+                    {Math.round(run.passRate * 100)}%
+                  </span>
+                  <span>{run.label}</span>
+                  <Tooltip content={`Remove ${run.label}`} className="inline-flex flex-shrink-0">
+                    <button
+                      onClick={() => toggleDraft(run.id)}
+                      className="flex h-4 w-4 items-center justify-center rounded text-muted hover:text-danger transition-colors"
+                    >
+                      <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                        <path d="M2 2l6 6M8 2L2 8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                      </svg>
+                    </button>
+                  </Tooltip>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* ── Search ─────────────────────────────────────────── */}
         <div className="qara-control w-full px-3">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 text-muted">
             <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -385,25 +504,27 @@ function CustomRangeModal({
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search runs..."
+            placeholder="Search runs…"
             className="qara-input h-11 text-sm"
           />
         </div>
 
+        {/* ── Run list ───────────────────────────────────────── */}
         <div className="rounded-[1.2rem] border border-border-default bg-surface">
-          <div className="grid grid-cols-[24px_minmax(0,1.4fr)_auto] gap-3 border-b border-border-subtle px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
-            <span />
-            <span>Run</span>
-            <span>Context</span>
+          <div className="flex items-center justify-between border-b border-border-subtle px-4 py-2.5">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">Run</span>
+            <span className="text-[10px] text-muted">
+              Sorted by: <span className="font-semibold">Latest runs</span>
+            </span>
           </div>
 
-          <div className="max-h-[28rem] overflow-y-auto p-2">
+          <div className="max-h-[26rem] overflow-y-auto p-2">
             {filteredRuns.length === 0 ? (
               <div className="px-4 py-10 text-center text-sm text-muted">
                 No runs match this search.
               </div>
             ) : (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {filteredRuns.map(run => (
                   <ModalRunRow
                     key={run.id}
@@ -421,42 +542,45 @@ function CustomRangeModal({
   );
 }
 
+// ── CustomPicker orchestrator ─────────────────────────────────
+
 function CustomPicker({
   runs,
   selected,
   onCustomToggle,
   onCustomSet,
 }: {
-  runs: Run[];
-  selected: string[];
+  runs:           Run[];
+  selected:       string[];
   onCustomToggle: (id: string) => void;
-  onCustomSet?: (ids: string[]) => void;
+  onCustomSet?:   (ids: string[]) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen]           = useState(false);
   const [draftSelected, setDraftSelected] = useState(selected);
 
-  useEffect(() => {
-    setDraftSelected(selected);
-  }, [selected]);
-
-  useEffect(() => {
-    setIsOpen(true);
-  }, []);
+  useEffect(() => { setDraftSelected(selected); }, [selected]);
+  useEffect(() => { setIsOpen(true); }, []);
 
   const selectedRuns = useMemo(
     () => runs.filter(run => selected.includes(run.id)),
     [runs, selected],
   );
 
-  const closeModal = () => {
-    setDraftSelected(selected);
-    setIsOpen(false);
-  };
+  const closeModal = () => { setDraftSelected(selected); setIsOpen(false); };
 
   const applySelection = () => {
     syncCustomSelection(draftSelected, selected, onCustomToggle, onCustomSet);
     setIsOpen(false);
     if (draftSelected.length > 0) scrollToResults();
+  };
+
+  const removeRun = (id: string) => {
+    syncCustomSelection(
+      selected.filter(s => s !== id),
+      selected,
+      onCustomToggle,
+      onCustomSet,
+    );
   };
 
   if (runs.length === 0) {
@@ -469,7 +593,11 @@ function CustomPicker({
 
   return (
     <>
-      <CustomRangeTrigger selectedRuns={selectedRuns} onOpen={() => setIsOpen(true)} />
+      <CustomRangeTrigger
+        selectedRuns={selectedRuns}
+        onOpen={() => setIsOpen(true)}
+        onRemove={removeRun}
+      />
       <CustomRangeModal
         open={isOpen}
         runs={runs}
@@ -487,15 +615,8 @@ function CustomPicker({
 // ─────────────────────────────────────────────────────────────
 
 export function RunPicker({ runs, selected, timeMode, onCustomToggle, onCustomSet }: RunPickerProps) {
-  if (timeMode === 'latest_vs_previous') {
-    return <PairwisePicker runs={runs} />;
-  }
-
-  if (timeMode === 'last5' || timeMode === 'last10') {
-    return <AutoHistoryPicker timeMode={timeMode} runs={runs} />;
-  }
-
-  // custom
+  if (timeMode === 'latest_vs_previous') return <PairwisePicker runs={runs} />;
+  if (timeMode === 'last5' || timeMode === 'last10') return <AutoHistoryPicker timeMode={timeMode} runs={runs} />;
   return <CustomPicker runs={runs} selected={selected} onCustomToggle={onCustomToggle} onCustomSet={onCustomSet} />;
 }
 
@@ -505,24 +626,21 @@ export function RunPicker({ runs, selected, timeMode, onCustomToggle, onCustomSe
 
 function CompactRunChip({ run }: { run: Run }) {
   return (
-    <div
-      className="flex-shrink-0 flex flex-col items-center px-3 py-2 border border-border-default rounded-lg bg-surface hover:bg-hover transition-colors cursor-default group"
-      title={`${run.label} · ${fmtDate(run.startedAt)} · ${run.totalTests} tests · ${run.failedCount} failed`}
+    <Tooltip
+      content={`${run.label} · ${fmtDate(run.startedAt)} · ${run.totalTests} tests · ${run.failedCount} failed`}
+      className="flex-shrink-0"
     >
-      {/* Run number */}
-      <span className="text-xs font-semibold text-primary">{run.label}</span>
-
-      {/* Pass rate with color */}
-      <div className="flex items-center gap-1 mt-1">
-        <span className={`text-xs font-medium ${passRateColor(run.passRate)}`}>
-          {Math.round(run.passRate * 100)}%
-        </span>
+      <div className="flex flex-col items-center px-3 py-2 border border-border-default rounded-lg bg-surface hover:bg-hover transition-colors cursor-default group">
+        <span className="text-xs font-semibold text-primary">{run.label}</span>
+        <div className="flex items-center gap-1 mt-1">
+          <span className={`text-xs font-medium ${passRateColor(run.passRate)}`}>
+            {Math.round(run.passRate * 100)}%
+          </span>
+        </div>
+        <div className="opacity-0 group-hover:opacity-100 transition-opacity text-[9px] text-muted mt-0.5">
+          {fmtDate(run.startedAt)}
+        </div>
       </div>
-
-      {/* Hover tooltip - shown on hover */}
-      <div className="opacity-0 group-hover:opacity-100 transition-opacity text-[9px] text-muted mt-0.5">
-        {fmtDate(run.startedAt)}
-      </div>
-    </div>
+    </Tooltip>
   );
 }

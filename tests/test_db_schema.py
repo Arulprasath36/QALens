@@ -28,6 +28,21 @@ def test_get_connection_returns_connection():
     c.close()
 
 
+def test_get_connection_rejects_unsupported_db_extension(tmp_path):
+    with pytest.raises(ValueError, match="Unsupported SQLite database extension"):
+        get_connection(tmp_path / "qara.txt")
+
+
+def test_get_connection_rejects_sqlite_uri_path():
+    with pytest.raises(ValueError, match="URI"):
+        get_connection("file:/tmp/qara.db?mode=memory")
+
+
+def test_get_connection_rejects_directory_path(tmp_path):
+    with pytest.raises(ValueError, match="must be a file"):
+        get_connection(tmp_path)
+
+
 def test_row_factory_enabled():
     c = get_connection(":memory:")
     init_db(c)

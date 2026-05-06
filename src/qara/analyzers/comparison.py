@@ -61,6 +61,7 @@ class CellData:
     fingerprint: str | None
     error_type: str | None
     message: str | None        # first line only — kept short for grid display
+    stack_trace: str | None
     root_cause_category: str | None
     is_latest_change: bool     # True when state differs from previous run
     tooltip: str               # pre-built summary for hover
@@ -516,6 +517,7 @@ class ComparisonService:
                 f.fingerprint,
                 f.error_type,
                 f.message,
+                f.stack_trace,
                 f.failed_step
             FROM test_cases tc
             JOIN runs r ON r.run_id = tc.run_id
@@ -587,13 +589,14 @@ class ComparisonService:
             row = runs_map.get(rid)
             if row is None:
                 state = "absent"
-                fp = error_type = message = category = None
+                fp = error_type = message = stack_trace = category = None
             else:
                 state = row["status"]
                 fp = row["fingerprint"]
                 error_type = row["error_type"]
                 # Keep only first line of message for grid display
                 raw_msg = row["message"] or ""
+                stack_trace = row["stack_trace"] or None
                 message = raw_msg.splitlines()[0][:120] if raw_msg else None
                 category = self._categorize(error_type, raw_msg)
 
@@ -617,6 +620,7 @@ class ComparisonService:
                 fingerprint=fp,
                 error_type=error_type,
                 message=message,
+                stack_trace=stack_trace,
                 root_cause_category=category,
                 is_latest_change=is_change,
                 tooltip=tooltip,
@@ -772,6 +776,7 @@ def comparison_to_dict(result: ComparisonResult) -> dict[str, Any]:
             "fingerprint": c.fingerprint,
             "error_type": c.error_type,
             "message": c.message,
+            "stack_trace": c.stack_trace,
             "root_cause_category": c.root_cause_category,
             "is_latest_change": c.is_latest_change,
             "tooltip": c.tooltip,

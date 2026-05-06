@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { Dropdown } from '../components/Dropdown';
 import { PageHeader } from '../components/PageHeader';
+import { Tooltip } from '../components/Tooltip';
 import { useProject } from '../hooks/useProject';
 
 // ─────────────────────────────────────────────────────────────
@@ -38,58 +39,115 @@ interface ApiRiskEntry {
 const TIER_ORDER: Array<'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'> = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
 
 const TIER_CONFIG = {
-  CRITICAL: { label: 'Critical', text: 'text-red-400',    bg: 'bg-red-500/10',    border: 'border-red-500/30',    stroke: '#f87171' },
-  HIGH:     { label: 'High',     text: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/30', stroke: '#fb923c' },
-  MEDIUM:   { label: 'Medium',   text: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/30',  stroke: '#fbbf24' },
-  LOW:      { label: 'Low',      text: 'text-green-400',  bg: 'bg-green-500/10',  border: 'border-green-500/30',  stroke: '#4ade80' },
+  CRITICAL: { label: 'Critical', text: 'text-red-400',    badgeClass: 'qara-badge-danger',  ringTone: 'text-red-400',    cardBorder: 'border-red-500/30' },
+  HIGH:     { label: 'High',     text: 'text-orange-400', badgeClass: 'qara-badge-warning', ringTone: 'text-orange-400', cardBorder: 'border-orange-500/30' },
+  MEDIUM:   { label: 'Medium',   text: 'text-amber-400',  badgeClass: 'qara-badge-warning', ringTone: 'text-amber-400',  cardBorder: 'border-amber-500/30' },
+  LOW:      { label: 'Low',      text: 'text-green-400',  badgeClass: 'qara-badge-success', ringTone: 'text-green-400',  cardBorder: 'border-green-500/30' },
 } as const;
 
-const SIGNAL_CONFIG: Record<string, { label: string; tooltip: string; bg: string }> = {
-  volatility:     { label: 'Volatile',   tooltip: 'Frequently switches between pass and fail.',       bg: 'bg-orange-500/20 text-orange-300' },
-  failure_burden: { label: 'Failing',    tooltip: 'High all-time failure rate.',                      bg: 'bg-red-500/20 text-red-300' },
-  recent_decline: { label: 'Declining',  tooltip: 'Recent runs have higher failure rate than average.', bg: 'bg-orange-500/20 text-orange-300' },
-  fail_streak:    { label: 'Fail Streak',tooltip: 'Currently on consecutive failing runs.',           bg: 'bg-red-500/20 text-red-300' },
-  duration_spike: { label: 'Slowing',    tooltip: 'Test is steadily getting slower.',                 bg: 'bg-zinc-500/20 text-zinc-400' },
+const SIGNAL_CONFIG: Record<string, { label: string; tooltip: string; badgeClass: string }> = {
+  volatility:     { label: 'Volatile',    tooltip: 'Frequently switches between pass and fail.',         badgeClass: 'qara-badge-warning' },
+  failure_burden: { label: 'Failing',     tooltip: 'High all-time failure rate.',                        badgeClass: 'qara-badge-danger' },
+  recent_decline: { label: 'Declining',   tooltip: 'Recent runs have higher failure rate than average.', badgeClass: 'qara-badge-warning' },
+  fail_streak:    { label: 'Fail Streak', tooltip: 'Currently on consecutive failing runs.',             badgeClass: 'qara-badge-danger' },
+  duration_spike: { label: 'Slowing',     tooltip: 'Test is steadily getting slower.',                   badgeClass: 'qara-badge-neutral' },
 };
+
+function clampScore(value: number) {
+  return Math.max(0, Math.min(1, value));
+}
+
+function failNextRunScore(signals: ApiRiskEntry['signals']) {
+  return clampScore(
+    0.45 * signals.failure_burden
+    + 0.30 * signals.recent_decline
+    + 0.20 * signals.fail_streak
+    + 0.05 * signals.volatility,
+  );
+}
+
+function flipNextRunScore(signals: ApiRiskEntry['signals']) {
+  return clampScore(
+    0.70 * signals.volatility
+    + 0.20 * signals.recent_decline
+    + 0.10 * signals.fail_streak,
+  );
+}
+
+function scoreTier(score: number): keyof typeof TIER_CONFIG {
+  if (score >= 0.62) return 'CRITICAL';
+  if (score >= 0.41) return 'HIGH';
+  if (score >= 0.24) return 'MEDIUM';
+  return 'LOW';
+}
+
+type NextRunTier = 'Critical' | 'High' | 'Medium' | 'Low';
+
+function nextRunTier(score: number): NextRunTier {
+  if (score >= 0.85) return 'Critical';
+  if (score >= 0.70) return 'High';
+  if (score >= 0.40) return 'Medium';
+  return 'Low';
+}
 
 // ─────────────────────────────────────────────────────────────
 // Sub-components
 // ─────────────────────────────────────────────────────────────
 
 function RiskRing({ pct, tier }: { pct: number; tier: keyof typeof TIER_CONFIG }) {
-  const r    = 13;
+  const r    = 14;
   const circ = 2 * Math.PI * r;
   const fill = Math.min((pct / 100) * circ, circ);
   const cfg  = TIER_CONFIG[tier] ?? TIER_CONFIG.LOW;
 
   return (
-    <svg width="38" height="38" viewBox="0 0 38 38" aria-label={`${pct}% risk`}>
-      {/* Track */}
-      <circle cx="19" cy="19" r={r} fill="none" stroke="#3f3f46" strokeWidth="4" />
-      {/* Progress */}
-      <circle
-        cx="19" cy="19" r={r}
-        fill="none"
-        stroke={cfg.stroke}
-        strokeWidth="4"
-        strokeDasharray={`${fill} ${circ}`}
-        strokeLinecap="round"
-        transform="rotate(-90 19 19)"
-      />
-      {/* Label */}
-      <text x="19" y="23" textAnchor="middle" fill={cfg.stroke}
-            fontSize="8" fontWeight="bold" fontFamily="monospace">
-        {pct}%
-      </text>
-    </svg>
+    <div
+      className={`inline-flex h-11 w-11 items-center justify-center ${cfg.ringTone}`}
+      aria-label={`${pct}% risk score`}
+    >
+      <svg width="44" height="44" viewBox="0 0 44 44" className="overflow-visible">
+        <circle
+          cx="22"
+          cy="22"
+          r={r}
+          fill="none"
+          stroke="currentColor"
+          strokeOpacity="0.16"
+          strokeWidth="4.5"
+        />
+        <circle
+          cx="22"
+          cy="22"
+          r={r}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="4.5"
+          strokeDasharray={`${fill} ${circ}`}
+          strokeLinecap="round"
+          transform="rotate(-90 22 22)"
+        />
+        <text
+          x="22"
+          y="22"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill="currentColor"
+          fontSize="9.5"
+          fontWeight="800"
+          fontFamily="Inter, ui-sans-serif, system-ui, sans-serif"
+        >
+          {pct}
+        </text>
+      </svg>
+    </div>
   );
 }
 
 function TierBadge({ tier }: { tier: keyof typeof TIER_CONFIG }) {
   const cfg = TIER_CONFIG[tier] ?? TIER_CONFIG.LOW;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full
-                      text-xs font-semibold border ${cfg.text} ${cfg.bg} ${cfg.border}`}>
+    <span className={`${cfg.badgeClass} shadow-[inset_0_1px_0_rgb(255_255_255_/_0.03)]`}>
+      <span className={`inline-block h-1.5 w-1.5 rounded-full ${cfg.ringTone.replace('text-', 'bg-')}`} />
       {cfg.label}
     </span>
   );
@@ -109,11 +167,11 @@ function SignalPills({ signals }: { signals: ApiRiskEntry['signals'] }) {
         const cfg = SIGNAL_CONFIG[key];
         if (!cfg) return null;
         return (
-          <span key={key}
-                title={cfg.tooltip}
-                className={`px-2 py-0.5 rounded-full text-xs font-medium cursor-default ${cfg.bg}`}>
-            {cfg.label}
-          </span>
+          <Tooltip key={key} content={cfg.tooltip} className="inline-flex">
+            <span className={`${cfg.badgeClass} cursor-default px-2.5 py-1 shadow-[inset_0_1px_0_rgb(255_255_255_/_0.03)]`}>
+              {cfg.label}
+            </span>
+          </Tooltip>
         );
       })}
     </div>
@@ -200,6 +258,206 @@ function Sparkline({ sparkline }: { sparkline: string }) {
   );
 }
 
+function InlineIcon({
+  tone,
+  children,
+}: {
+  tone: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border ${tone}`}>
+      {children}
+    </span>
+  );
+}
+
+function DecisionTierBadge({ tier, accent }: { tier: NextRunTier; accent: 'fail' | 'flip' }) {
+  const tone =
+    tier === 'Critical' ? 'border-red-200 bg-red-50 text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300'
+    : tier === 'High' ? accent === 'flip'
+      ? 'border-indigo-200 bg-indigo-50 text-indigo-600 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300'
+      : 'border-orange-200 bg-orange-50 text-orange-600 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300'
+    : tier === 'Medium' ? 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
+    : 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300';
+
+  return (
+    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold ${tone}`}>
+      {tier}
+    </span>
+  );
+}
+
+function RiskDecisionMetric({
+  kind,
+  score,
+  helperText,
+}: {
+  kind: 'fail' | 'flip';
+  score: number;
+  helperText: string;
+}) {
+  const tier = nextRunTier(score);
+  const pct = Math.round(score * 100);
+  const isFail = kind === 'fail';
+  const tone = isFail
+    ? 'border-red-100 bg-gradient-to-br from-red-50 via-white to-orange-50/70 dark:border-red-500/20 dark:from-red-500/10 dark:via-slate-950 dark:to-orange-500/10'
+    : 'border-indigo-100 bg-gradient-to-br from-indigo-50 via-white to-violet-50/80 dark:border-indigo-500/20 dark:from-indigo-500/10 dark:via-slate-950 dark:to-violet-500/10';
+  const iconTone = isFail
+    ? 'border-red-100 bg-red-50 text-red-500 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300'
+    : 'border-indigo-100 bg-indigo-50 text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300';
+  const valueTone = isFail ? 'text-red-500 dark:text-red-300' : 'text-indigo-600 dark:text-indigo-300';
+
+  return (
+    <div className={`rounded-2xl border p-5 ${tone}`}>
+      <div className="flex items-center gap-4">
+        <InlineIcon tone={iconTone}>
+          {isFail ? (
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 16l5-5 4 4 7-7" />
+              <path d="M18 8h2v2" />
+              <path d="M4 20h16" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M17 2l4 4-4 4" />
+              <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+              <path d="M7 22l-4-4 4-4" />
+              <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+            </svg>
+          )}
+        </InlineIcon>
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            {isFail ? 'Fail next run' : 'Flip next run'}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <span className={`text-4xl font-semibold tracking-tight ${valueTone}`}>
+              {pct}%
+            </span>
+            <DecisionTierBadge tier={tier} accent={kind} />
+          </div>
+          <p className="mt-3 text-base leading-7 text-slate-600 dark:text-slate-300">
+            {helperText}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function riskDrivers(entry: ApiRiskEntry) {
+  const items = [
+    {
+      key: 'volatility',
+      value: entry.signals.volatility,
+      iconTone: 'border-orange-100 bg-orange-50 text-orange-500 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300',
+      text: `High volatility (${Math.round(entry.signals.volatility * 100)}%)`,
+      suffix: 'frequent status flips',
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 12h4l3-7 4 14 3-7h4" />
+        </svg>
+      ),
+    },
+    {
+      key: 'failure_burden',
+      value: entry.signals.failure_burden,
+      iconTone: 'border-red-100 bg-red-50 text-red-500 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300',
+      text: `Failure rate is elevated (${Math.round(entry.signals.failure_burden * 100)}%)`,
+      suffix: '',
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 9v4" />
+          <path d="M12 17h.01" />
+          <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+        </svg>
+      ),
+    },
+    {
+      key: 'recent_decline',
+      value: entry.signals.recent_decline,
+      iconTone: 'border-amber-100 bg-amber-50 text-amber-600 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300',
+      text: `Early signs of decline (${Math.round(entry.signals.recent_decline * 100)}%)`,
+      suffix: '',
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 17h5l3-5 4 3 6-8" />
+          <path d="M17 7h4v4" />
+        </svg>
+      ),
+    },
+    {
+      key: 'fail_streak',
+      value: entry.signals.fail_streak,
+      iconTone: 'border-rose-100 bg-rose-50 text-rose-500 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300',
+      text: `Current fail streak: ${entry.current_streak < 0 ? Math.abs(entry.current_streak) : 0}`,
+      suffix: '',
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5" />
+          <path d="M12 16h.01" />
+        </svg>
+      ),
+    },
+    {
+      key: 'duration_spike',
+      value: entry.signals.duration_spike,
+      iconTone: 'border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300',
+      text: `Execution time is slowing (${Math.round(entry.signals.duration_spike * 100)}%)`,
+      suffix: '',
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="13" r="8" />
+          <path d="M12 9v4l2.5 2.5" />
+          <path d="M9 2h6" />
+        </svg>
+      ),
+    },
+  ];
+
+  return items
+    .filter(item => item.key === 'fail_streak' ? entry.current_streak < 0 : item.value > 0.05)
+    .sort((a, b) => b.value - a.value);
+}
+
+function meaningText(failScore: number, flipScore: number) {
+  const failText = failScore >= 0.7 ? 'high' : failScore >= 0.4 ? 'moderate' : 'low';
+  const flipText = flipScore >= 0.7 ? 'high' : flipScore >= 0.4 ? 'moderate' : 'low';
+  return `This test is unstable and has a ${flipText} chance of changing state again. There is a ${failText} chance it will fail in the next run.`;
+}
+
+function SupportingMetric({
+  iconTone,
+  label,
+  value,
+  icon,
+  className = '',
+}: {
+  iconTone: string;
+  label: string;
+  value: string;
+  icon: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-3 ${className}`}>
+      <InlineIcon tone={iconTone}>
+        {icon}
+      </InlineIcon>
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">
+          {label}
+        </p>
+        <p className="mt-1 text-[1.05rem] font-semibold text-slate-950 dark:text-slate-50">
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 // Stat cards
 // ─────────────────────────────────────────────────────────────
@@ -213,7 +471,7 @@ function StatCards({ data }: { data: ApiRiskEntry[] }) {
       {TIER_ORDER.map(tier => {
         const cfg = TIER_CONFIG[tier];
         return (
-          <div key={tier} className={`qara-stat-card ${cfg.border}`}>
+          <div key={tier} className={`qara-stat-card ${cfg.cardBorder}`}>
             <span className="type-metric-label">{cfg.label}</span>
             <span className={`type-metric-value ${cfg.text}`}>
               {counts[tier]}
@@ -321,6 +579,10 @@ function FilterBar({
 
 function RiskRow({ entry }: { entry: ApiRiskEntry }) {
   const [expanded, setExpanded] = useState(false);
+  const nextFail = failNextRunScore(entry.signals);
+  const nextFlip = flipNextRunScore(entry.signals);
+  const drivers = riskDrivers(entry);
+  const suiteLabel = entry.suite || entry.module || 'Unknown suite';
 
   return (
     <>
@@ -330,10 +592,11 @@ function RiskRow({ entry }: { entry: ApiRiskEntry }) {
       >
         {/* Test name */}
         <td className="qara-table-cell">
-          <div className="type-td-primary truncate max-w-[260px]"
-               title={entry.display_name}>
-            {entry.display_name}
-          </div>
+          <Tooltip content={entry.display_name} className="block max-w-[260px]">
+            <div className="type-td-primary truncate">
+              {entry.display_name}
+            </div>
+          </Tooltip>
           <div className="type-td-secondary truncate">{entry.module}</div>
         </td>
 
@@ -379,60 +642,140 @@ function RiskRow({ entry }: { entry: ApiRiskEntry }) {
 
       {/* Expanded detail */}
       {expanded && (
-        <tr className="qara-table-row" style={{ background: 'var(--bg-subtle)' }}>
-          <td colSpan={8} className="px-6 py-5">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-              <div>
-                <span className="text-zinc-500">Pass Rate</span>
-                <div className="text-zinc-200 font-semibold mt-0.5">
-                  {(entry.pass_rate * 100).toFixed(1)}%
+        <tr className="qara-table-row">
+          <td colSpan={8} className="px-6 pb-5">
+            <div className="overflow-hidden rounded-b-2xl border border-t-0 border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+              <div className="grid grid-cols-1 gap-6 border-b border-slate-200 px-6 py-5 lg:grid-cols-2 lg:divide-x lg:divide-slate-200 dark:border-slate-800 dark:lg:divide-slate-800">
+                <RiskDecisionMetric
+                  kind="fail"
+                  score={nextFail}
+                  helperText="Chance that this test will fail in the next run"
+                />
+                <div className="lg:pl-6">
+                  <RiskDecisionMetric
+                    kind="flip"
+                    score={nextFlip}
+                    helperText="Chance that this test will change state in the next run"
+                  />
                 </div>
               </div>
-              <div>
-                <span className="text-zinc-500">Flip Score</span>
-                <div className="text-zinc-200 font-semibold mt-0.5">
-                  {(entry.flip_score * 100).toFixed(1)}%
-                </div>
-              </div>
-              <div>
-                <span className="text-zinc-500">Current Streak</span>
-                <div className={`font-semibold mt-0.5 ${
-                  entry.current_streak < 0 ? 'text-red-400' :
-                  entry.current_streak > 0 ? 'text-green-400' : 'text-zinc-400'
-                }`}>
-                  {entry.current_streak < 0
-                    ? `${Math.abs(entry.current_streak)} fails`
-                    : entry.current_streak > 0
-                    ? `${entry.current_streak} passes`
-                    : '—'}
-                </div>
-              </div>
-              <div>
-                <span className="text-zinc-500">Suite</span>
-                <div className="text-zinc-200 font-semibold mt-0.5 truncate">{entry.suite || '—'}</div>
-              </div>
-            </div>
 
-            {/* All signals */}
-            <div className="mt-3">
-              <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-                Risk Signals
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(entry.signals).map(([key, val]) => {
-                  const cfg  = SIGNAL_CONFIG[key];
-                  const pct  = Math.round(val * 100);
-                  if (!cfg) return null;
-                  return (
-                    <div key={key}
-                         title={cfg.tooltip}
-                         className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs
-                                     cursor-default ${pct > 15 ? cfg.bg : 'bg-zinc-800/60 text-zinc-600'}`}>
-                      <span className="font-medium">{cfg.label}</span>
-                      <span className="tabular-nums">{pct}%</span>
+              <div className="grid grid-cols-1 gap-6 border-b border-slate-200 px-6 py-5 lg:grid-cols-2 lg:divide-x lg:divide-slate-200 dark:border-slate-800 dark:lg:divide-slate-800">
+                <div>
+                  <h4 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">
+                    Why this is risky
+                  </h4>
+                  <ul className="mt-5 space-y-4">
+                    {drivers.map(driver => (
+                      <li key={driver.key} className="flex items-start gap-3">
+                        <InlineIcon tone={driver.iconTone}>
+                          {driver.icon}
+                        </InlineIcon>
+                        <p className="pt-2 text-[1.1rem] leading-8 text-slate-700 dark:text-slate-200">
+                          <span className="font-medium text-slate-950 dark:text-slate-50">{driver.text}</span>
+                          {driver.suffix ? <span className="text-slate-500 dark:text-slate-400"> — {driver.suffix}</span> : null}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="lg:pl-6">
+                  <div className="h-full rounded-2xl border border-blue-100 bg-blue-50/60 p-5 dark:border-blue-500/20 dark:bg-blue-500/10">
+                    <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 18h6" />
+                        <path d="M10 22h4" />
+                        <path d="M12 2a7 7 0 0 0-4 12.75c.58.41 1 1.02 1.18 1.7h5.64c.18-.68.6-1.29 1.18-1.7A7 7 0 0 0 12 2Z" />
+                      </svg>
+                      <h4 className="text-xl font-semibold">What this means</h4>
                     </div>
-                  );
-                })}
+                    <p className="mt-4 text-[1.1rem] leading-9 text-slate-700 dark:text-slate-200">
+                      {meaningText(nextFail, nextFlip)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 px-6 py-4 md:grid-cols-5">
+                <SupportingMetric
+                  iconTone="border-emerald-100 bg-emerald-50 text-emerald-600 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"
+                  label="Pass rate"
+                  value={`${(entry.pass_rate * 100).toFixed(1)}%`}
+                  icon={
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m9 12 2 2 4-4" />
+                      <rect x="3" y="3" width="18" height="18" rx="4" />
+                    </svg>
+                  }
+                />
+                <SupportingMetric
+                  className="md:border-l md:border-slate-200 md:pl-4 dark:md:border-slate-800"
+                  iconTone="border-indigo-100 bg-indigo-50 text-indigo-600 dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-300"
+                  label="Flip score"
+                  value={`${(entry.flip_score * 100).toFixed(1)}%`}
+                  icon={
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 2l4 4-4 4" />
+                      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
+                      <path d="M7 22l-4-4 4-4" />
+                      <path d="M21 13v2a4 4 0 0 1-4 4H3" />
+                    </svg>
+                  }
+                />
+                <SupportingMetric
+                  className="md:border-l md:border-slate-200 md:pl-4 dark:md:border-slate-800"
+                  iconTone="border-red-100 bg-red-50 text-red-500 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300"
+                  label="Current streak"
+                  value={entry.current_streak < 0 ? `${Math.abs(entry.current_streak)} fail${Math.abs(entry.current_streak) === 1 ? '' : 's'}` : entry.current_streak > 0 ? `${entry.current_streak} passes` : '—'}
+                  icon={
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="9" />
+                      <path d="M12 7v5" />
+                      <path d="M12 16h.01" />
+                    </svg>
+                  }
+                />
+                <SupportingMetric
+                  className="md:border-l md:border-slate-200 md:pl-4 dark:md:border-slate-800"
+                  iconTone="border-blue-100 bg-blue-50 text-blue-600 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-300"
+                  label="Suite"
+                  value={suiteLabel}
+                  icon={
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 7.5h18" />
+                      <path d="M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" />
+                    </svg>
+                  }
+                />
+                <SupportingMetric
+                  className="md:border-l md:border-slate-200 md:pl-4 dark:md:border-slate-800"
+                  iconTone="border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+                  label="Runs"
+                  value={String(entry.run_count)}
+                  icon={
+                    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="3" />
+                      <path d="M16 2v4" />
+                      <path d="M8 2v4" />
+                      <path d="M3 10h18" />
+                    </svg>
+                  }
+                />
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-slate-200 px-6 py-5 md:flex-row md:items-center md:justify-between dark:border-slate-800">
+                <div className="flex items-start gap-3 text-sm text-slate-500 dark:text-slate-400">
+                  <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border border-slate-200 text-slate-400 dark:border-slate-700 dark:text-slate-500">
+                    i
+                  </span>
+                  <p className="max-w-4xl leading-6">
+                    Risk score is a priority signal, not a direct failure probability. It combines multiple factors—like volatility, failure rate, recent decline, and fail streak—to help you decide what needs attention first.
+                    <br /><br />
+                    <strong>Fail next run</strong> → how likely the test will fail again.{' '}
+                    <strong>Flip next run</strong> → how likely the test will change state (pass ↔ fail).
+                  </p>
+                </div>
               </div>
             </div>
           </td>
@@ -498,7 +841,7 @@ export function RiskPanel() {
         tier="full"
         kicker="Predictive Quality"
         title="Risk"
-        description="Rank tests by failure risk using volatility, burden, streak, and slowdown signals."
+        description="Prioritize tests most likely to fail next using volatility, streak, burden, and slowdown signals."
         icon="🎯"
       />
 
@@ -578,13 +921,23 @@ export function RiskPanel() {
                         Owner
                       </th>
                       <th className="text-left">
-                        Risk
+                        <Tooltip
+                          content="Composite risk score used for prioritization. It is not a literal probability of failure."
+                          className="inline-flex"
+                        >
+                          <span>Risk Score</span>
+                        </Tooltip>
                       </th>
                       <th className="text-left">
                         Tier
                       </th>
                       <th className="text-left">
-                        Signals
+                        <Tooltip
+                          content="Top contributing signals. Expand a row to see the full signal breakdown and percentages."
+                          className="inline-flex"
+                        >
+                          <span>Signals</span>
+                        </Tooltip>
                       </th>
                       <th className="text-left">
                         History

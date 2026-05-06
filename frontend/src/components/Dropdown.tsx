@@ -22,6 +22,7 @@ interface DropdownProps<T extends string = string> {
   renderValue?: (option: DropdownOption<T> | undefined) => ReactNode;
   align?: 'left' | 'right';
   fullWidth?: boolean;
+  hideChevron?: boolean;
 }
 
 function cx(...parts: Array<string | false | null | undefined>) {
@@ -43,6 +44,7 @@ export function Dropdown<T extends string = string>({
   renderValue,
   align = 'left',
   fullWidth = false,
+  hideChevron = false,
 }: DropdownProps<T>) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -192,11 +194,13 @@ export function Dropdown<T extends string = string>({
               : selectedOption?.label ?? placeholder ?? ''}
           </span>
         </span>
-        <span className={cx('qara-dropdown-chevron', open && 'rotate-180')}>
-          <svg viewBox="0 0 12 12" fill="none" className="h-3.5 w-3.5" aria-hidden="true">
-            <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </span>
+        {!hideChevron && (
+          <span className={cx('qara-dropdown-chevron', open && 'rotate-180')}>
+            <svg viewBox="0 0 12 12" fill="none" className="h-3.5 w-3.5" aria-hidden="true">
+              <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
+        )}
       </button>
 
       {open && (
