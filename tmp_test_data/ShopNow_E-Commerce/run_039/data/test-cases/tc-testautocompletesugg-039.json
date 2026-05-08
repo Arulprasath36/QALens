@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testautocompletesugg-039",
+  "name": "testAutocompleteSuggestions()",
+  "fullName": "com.example.tests.SearchTest#testAutocompleteSuggestions",
+  "historyId": "hist-tc-testautocompletesugg-039",
+  "testId": "com.example.tests.SearchTest#testAutocompleteSuggestions",
+  "status": "passed",
+  "time": {
+    "start": 1770541238610,
+    "stop": 1770541239178,
+    "duration": 568
+  },
+  "description": "Verify testAutocompleteSuggestions behaves as expected.",
+  "descriptionHtml": "<p>Verify testAutocompleteSuggestions behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Autocomplete"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

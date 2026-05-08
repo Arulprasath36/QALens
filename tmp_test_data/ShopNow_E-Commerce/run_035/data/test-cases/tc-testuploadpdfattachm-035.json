@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testuploadpdfattachm-035",
+  "name": "testUploadPdfAttachment()",
+  "fullName": "com.example.tests.DocumentUploadTest#testUploadPdfAttachment",
+  "historyId": "hist-tc-testuploadpdfattachm-035",
+  "testId": "com.example.tests.DocumentUploadTest#testUploadPdfAttachment",
+  "status": "passed",
+  "time": {
+    "start": 1770195657637,
+    "stop": 1770195660797,
+    "duration": 3160
+  },
+  "description": "Verify testUploadPdfAttachment behaves as expected.",
+  "descriptionHtml": "<p>Verify testUploadPdfAttachment behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Document Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Documents"
+    },
+    {
+      "name": "story",
+      "value": "Upload"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

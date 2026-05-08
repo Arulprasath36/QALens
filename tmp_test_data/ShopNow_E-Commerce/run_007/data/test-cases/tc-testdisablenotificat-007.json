@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdisablenotificat-007",
+  "name": "testDisableNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testDisableNotifications",
+  "historyId": "hist-tc-testdisablenotificat-007",
+  "testId": "com.example.tests.NotificationTest#testDisableNotifications",
+  "status": "broken",
+  "time": {
+    "start": 1767776443585,
+    "stop": 1767776445800,
+    "duration": 2215
+  },
+  "description": "Verify testDisableNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testDisableNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Preferences"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cart total mismatch: expected 149.99 but was 0.00",
+  "statusTrace": "AssertionError: Cart total mismatch: expected 149.99 but was 0.00\n\tat com.example.tests.NotificationTest.testDisableNotifications(Test.java:59)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:342)\n"
+}

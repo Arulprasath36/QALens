@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testuploadpdfattachm-044",
+  "name": "testUploadPdfAttachment()",
+  "fullName": "com.example.tests.DocumentUploadTest#testUploadPdfAttachment",
+  "historyId": "hist-tc-testuploadpdfattachm-044",
+  "testId": "com.example.tests.DocumentUploadTest#testUploadPdfAttachment",
+  "status": "passed",
+  "time": {
+    "start": 1770973256909,
+    "stop": 1770973259832,
+    "duration": 2923
+  },
+  "description": "Verify testUploadPdfAttachment behaves as expected.",
+  "descriptionHtml": "<p>Verify testUploadPdfAttachment behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Document Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Documents"
+    },
+    {
+      "name": "story",
+      "value": "Upload"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

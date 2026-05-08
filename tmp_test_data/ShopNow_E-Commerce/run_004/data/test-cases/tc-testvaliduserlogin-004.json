@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testvaliduserlogin-004",
+  "name": "testValidUserLogin()",
+  "fullName": "com.example.tests.AuthTest#testValidUserLogin",
+  "historyId": "hist-tc-testvaliduserlogin-004",
+  "testId": "com.example.tests.AuthTest#testValidUserLogin",
+  "status": "passed",
+  "time": {
+    "start": 1767517200000,
+    "stop": 1767517201598,
+    "duration": 1598
+  },
+  "description": "Verify testValidUserLogin behaves as expected.",
+  "descriptionHtml": "<p>Verify testValidUserLogin behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Login"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

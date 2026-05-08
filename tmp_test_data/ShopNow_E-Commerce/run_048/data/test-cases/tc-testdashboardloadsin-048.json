@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdashboardloadsin-048",
+  "name": "testDashboardLoadsInUnder3s()",
+  "fullName": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "historyId": "hist-tc-testdashboardloadsin-048",
+  "testId": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "status": "broken",
+  "time": {
+    "start": 1771318871136,
+    "stop": 1771318874030,
+    "duration": 2894
+  },
+  "description": "Verify testDashboardLoadsInUnder3s behaves as expected.",
+  "descriptionHtml": "<p>Verify testDashboardLoadsInUnder3s behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Dashboard"
+    },
+    {
+      "name": "story",
+      "value": "Performance"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cart total mismatch: expected 149.99 but was 0.00",
+  "statusTrace": "AssertionError: Cart total mismatch: expected 149.99 but was 0.00\n\tat com.example.tests.ReportTest.testDashboardLoadsInUnder3s(Test.java:199)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:252)\n"
+}

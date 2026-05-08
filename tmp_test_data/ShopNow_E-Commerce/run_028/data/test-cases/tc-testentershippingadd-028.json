@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testentershippingadd-028",
+  "name": "testEnterShippingAddress()",
+  "fullName": "com.example.tests.CheckoutTest#testEnterShippingAddress",
+  "historyId": "hist-tc-testentershippingadd-028",
+  "testId": "com.example.tests.CheckoutTest#testEnterShippingAddress",
+  "status": "passed",
+  "time": {
+    "start": 1769590818253,
+    "stop": 1769590819953,
+    "duration": 1700
+  },
+  "description": "Verify testEnterShippingAddress behaves as expected.",
+  "descriptionHtml": "<p>Verify testEnterShippingAddress behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Shipping"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

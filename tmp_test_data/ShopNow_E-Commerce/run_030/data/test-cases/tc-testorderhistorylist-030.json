@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testorderhistorylist-030",
+  "name": "testOrderHistoryList()",
+  "fullName": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "historyId": "hist-tc-testorderhistorylist-030",
+  "testId": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "status": "passed",
+  "time": {
+    "start": 1769763652112,
+    "stop": 1769763654581,
+    "duration": 2469
+  },
+  "description": "Verify testOrderHistoryList behaves as expected.",
+  "descriptionHtml": "<p>Verify testOrderHistoryList behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "History"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

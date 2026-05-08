@@ -234,7 +234,40 @@ View failure clusters directly from a report:
 qara clusters tests/fixtures/allure_sample
 ```
 
-### 8. Run The Web UI
+### 8. Demo Dataset: ShopNow E-Commerce
+
+For a richer demo, the repo includes a synthetic 50-run Allure-style dataset:
+
+```text
+tmp_test_data/ShopNow_E-Commerce/
+```
+
+Each `run_###/` folder is a separate report run. The SQLite files in that
+folder are intentionally ignored; recreate the database locally by ingesting
+the report folders.
+
+Create a demo database:
+
+```bash
+rm -f ./shopnow-demo.db
+for report in tmp_test_data/ShopNow_E-Commerce/run_*; do
+  qara ingest "$report" --db ./shopnow-demo.db
+done
+```
+
+Analyze the full run history:
+
+```bash
+qara analyze --db ./shopnow-demo.db
+```
+
+Open the demo in the web UI:
+
+```bash
+qara serve --db ./shopnow-demo.db
+```
+
+### 9. Run The Web UI
 
 First ingest at least one report:
 
@@ -278,7 +311,7 @@ http://localhost:3000
 
 The Vite dev server proxies `/api/*` requests to `http://localhost:8080`.
 
-### 9. Optional LLM Setup
+### 10. Optional LLM Setup
 
 QARA works without an LLM for ingestion, parsing, summaries, and deterministic
 analysis. LLM-powered chat uses `~/.qara/config.toml`.
@@ -312,7 +345,7 @@ Ask a question after ingesting runs:
 qara ask "What broke in the latest run?" --db ./qara.db
 ```
 
-### 10. Common Local Commands
+### 11. Common Local Commands
 
 | Task | Command |
 |---|---|
@@ -323,6 +356,7 @@ qara ask "What broke in the latest run?" --db ./qara.db
 | Type-check frontend | `cd frontend && npm run typecheck` |
 | Build frontend assets | `make build-ui` |
 | Serve local UI | `qara serve --db ./qara.db` |
+| Serve ShopNow demo | `qara serve --db ./shopnow-demo.db` |
 | Build package | `make build` |
 
 ---
@@ -571,6 +605,16 @@ tests/
 ├── fixtures/allure_sample/   # Sample Allure report fixture
 ├── fixtures/extent_sample/   # Sample Extent report fixture
 └── test_*                    # Backend, parser, analyzer, server, security tests
+```
+
+Demo data:
+
+```
+tmp_test_data/
+└── ShopNow_E-Commerce/       # Synthetic 50-run Allure-style demo dataset
+    ├── run_001/
+    ├── run_002/
+    └── ...
 ```
 
 Build outputs and local files:

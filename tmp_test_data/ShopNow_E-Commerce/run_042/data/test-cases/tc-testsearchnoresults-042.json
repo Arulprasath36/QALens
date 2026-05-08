@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchnoresults-042",
+  "name": "testSearchNoResults()",
+  "fullName": "com.example.tests.SearchTest#testSearchNoResults",
+  "historyId": "hist-tc-testsearchnoresults-042",
+  "testId": "com.example.tests.SearchTest#testSearchNoResults",
+  "status": "failed",
+  "time": {
+    "start": 1770800436738,
+    "stop": 1770800438338,
+    "duration": 1600
+  },
+  "description": "Verify testSearchNoResults behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchNoResults behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Empty State"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected status code 200 but was 500",
+  "statusTrace": "AssertionError: Expected status code 200 but was 500\n\tat com.example.tests.SearchTest.testSearchNoResults(Test.java:78)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:193)\n"
+}

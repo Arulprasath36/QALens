@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdashboardloadsin-049",
+  "name": "testDashboardLoadsInUnder3s()",
+  "fullName": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "historyId": "hist-tc-testdashboardloadsin-049",
+  "testId": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "status": "failed",
+  "time": {
+    "start": 1771405271123,
+    "stop": 1771405273760,
+    "duration": 2637
+  },
+  "description": "Verify testDashboardLoadsInUnder3s behaves as expected.",
+  "descriptionHtml": "<p>Verify testDashboardLoadsInUnder3s behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Dashboard"
+    },
+    {
+      "name": "story",
+      "value": "Performance"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": "HTTP 503 Service Unavailable \u2014 payment gateway unreachable",
+  "statusTrace": "HttpError: HTTP 503 Service Unavailable \u2014 payment gateway unreachable\n\tat com.example.tests.ReportTest.testDashboardLoadsInUnder3s(Test.java:126)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:247)\n"
+}

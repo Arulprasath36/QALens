@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdashboardloadsin-004",
+  "name": "testDashboardLoadsInUnder3s()",
+  "fullName": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "historyId": "hist-tc-testdashboardloadsin-004",
+  "testId": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "status": "passed",
+  "time": {
+    "start": 1767517269475,
+    "stop": 1767517272709,
+    "duration": 3234
+  },
+  "description": "Verify testDashboardLoadsInUnder3s behaves as expected.",
+  "descriptionHtml": "<p>Verify testDashboardLoadsInUnder3s behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Dashboard"
+    },
+    {
+      "name": "story",
+      "value": "Performance"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

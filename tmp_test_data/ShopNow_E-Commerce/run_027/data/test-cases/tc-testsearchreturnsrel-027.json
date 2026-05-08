@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchreturnsrel-027",
+  "name": "testSearchReturnsRelevantProducts()",
+  "fullName": "com.example.tests.SearchTest#testSearchReturnsRelevantProducts",
+  "historyId": "hist-tc-testsearchreturnsrel-027",
+  "testId": "com.example.tests.SearchTest#testSearchReturnsRelevantProducts",
+  "status": "passed",
+  "time": {
+    "start": 1769504431790,
+    "stop": 1769504434528,
+    "duration": 2738
+  },
+  "description": "Verify testSearchReturnsRelevantProducts behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchReturnsRelevantProducts behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Keyword Search"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

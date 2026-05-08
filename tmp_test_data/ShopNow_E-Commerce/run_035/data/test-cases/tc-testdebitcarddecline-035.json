@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdebitcarddecline-035",
+  "name": "testDebitCardDeclined()",
+  "fullName": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "historyId": "hist-tc-testdebitcarddecline-035",
+  "testId": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "status": "failed",
+  "time": {
+    "start": 1770195628596,
+    "stop": 1770195631046,
+    "duration": 2450
+  },
+  "description": "Verify testDebitCardDeclined behaves as expected.",
+  "descriptionHtml": "<p>Verify testDebitCardDeclined behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Declined"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Element not found within timeout: button[data-testid='submit']",
+  "statusTrace": "TimeoutException: Element not found within timeout: button[data-testid='submit']\n\tat com.example.tests.PaymentTest.testDebitCardDeclined(Test.java:174)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:166)\n"
+}

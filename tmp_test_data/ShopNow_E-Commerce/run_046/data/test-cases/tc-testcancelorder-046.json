@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcancelorder-046",
+  "name": "testCancelOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCancelOrder",
+  "historyId": "hist-tc-testcancelorder-046",
+  "testId": "com.example.tests.OrderApiTest#testCancelOrder",
+  "status": "broken",
+  "time": {
+    "start": 1771146052022,
+    "stop": 1771146052828,
+    "duration": 806
+  },
+  "description": "Verify testCancelOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCancelOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Cancel"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected redirect to /dashboard but got /error?code=403",
+  "statusTrace": "AssertionError: Expected redirect to /dashboard but got /error?code=403\n\tat com.example.tests.OrderApiTest.testCancelOrder(Test.java:105)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:141)\n"
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchwithfilter-042",
+  "name": "testSearchWithFilters()",
+  "fullName": "com.example.tests.SearchTest#testSearchWithFilters",
+  "historyId": "hist-tc-testsearchwithfilter-042",
+  "testId": "com.example.tests.SearchTest#testSearchWithFilters",
+  "status": "broken",
+  "time": {
+    "start": 1770800435645,
+    "stop": 1770800436704,
+    "duration": 1059
+  },
+  "description": "Verify testSearchWithFilters behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchWithFilters behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Filters"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Unable to locate element: #order-confirm-btn \u2014 page may not have loaded",
+  "statusTrace": "NoSuchElementException: Unable to locate element: #order-confirm-btn \u2014 page may not have loaded\n\tat com.example.tests.SearchTest.testSearchWithFilters(Test.java:162)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:325)\n"
+}

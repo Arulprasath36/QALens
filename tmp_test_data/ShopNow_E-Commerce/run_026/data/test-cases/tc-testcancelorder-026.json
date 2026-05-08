@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcancelorder-026",
+  "name": "testCancelOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCancelOrder",
+  "historyId": "hist-tc-testcancelorder-026",
+  "testId": "com.example.tests.OrderApiTest#testCancelOrder",
+  "status": "broken",
+  "time": {
+    "start": 1769418051187,
+    "stop": 1769418052083,
+    "duration": 896
+  },
+  "description": "Verify testCancelOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCancelOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Cancel"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cart total mismatch: expected 149.99 but was 0.00",
+  "statusTrace": "AssertionError: Cart total mismatch: expected 149.99 but was 0.00\n\tat com.example.tests.OrderApiTest.testCancelOrder(Test.java:160)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:126)\n"
+}

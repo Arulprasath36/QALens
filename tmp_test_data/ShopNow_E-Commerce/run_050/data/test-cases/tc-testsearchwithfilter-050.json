@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchwithfilter-050",
+  "name": "testSearchWithFilters()",
+  "fullName": "com.example.tests.SearchTest#testSearchWithFilters",
+  "historyId": "hist-tc-testsearchwithfilter-050",
+  "testId": "com.example.tests.SearchTest#testSearchWithFilters",
+  "status": "broken",
+  "time": {
+    "start": 1771491636410,
+    "stop": 1771491637471,
+    "duration": 1061
+  },
+  "description": "Verify testSearchWithFilters behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchWithFilters behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Filters"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected status code 200 but was 500",
+  "statusTrace": "AssertionError: Expected status code 200 but was 500\n\tat com.example.tests.SearchTest.testSearchWithFilters(Test.java:112)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:114)\n"
+}

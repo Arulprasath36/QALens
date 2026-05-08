@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testtwofactorauthflo-020",
+  "name": "testTwoFactorAuthFlow()",
+  "fullName": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "historyId": "hist-tc-testtwofactorauthflo-020",
+  "testId": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "status": "broken",
+  "time": {
+    "start": 1768899609542,
+    "stop": 1768899611853,
+    "duration": 2311
+  },
+  "description": "Verify testTwoFactorAuthFlow behaves as expected.",
+  "descriptionHtml": "<p>Verify testTwoFactorAuthFlow behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "2FA"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": "PDF download response was empty (Content-Length: 0)",
+  "statusTrace": "AssertionError: PDF download response was empty (Content-Length: 0)\n\tat com.example.tests.AuthTest.testTwoFactorAuthFlow(Test.java:186)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:215)\n"
+}

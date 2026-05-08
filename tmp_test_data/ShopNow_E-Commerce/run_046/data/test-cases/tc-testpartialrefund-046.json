@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testpartialrefund-046",
+  "name": "testPartialRefund()",
+  "fullName": "com.example.tests.PaymentTest#testPartialRefund",
+  "historyId": "hist-tc-testpartialrefund-046",
+  "testId": "com.example.tests.PaymentTest#testPartialRefund",
+  "status": "passed",
+  "time": {
+    "start": 1771146032926,
+    "stop": 1771146033328,
+    "duration": 402
+  },
+  "description": "Verify testPartialRefund behaves as expected.",
+  "descriptionHtml": "<p>Verify testPartialRefund behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Refunds"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

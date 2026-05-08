@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testrejectunsupporte-007",
+  "name": "testRejectUnsupportedFileType()",
+  "fullName": "com.example.tests.DocumentUploadTest#testRejectUnsupportedFileType",
+  "historyId": "hist-tc-testrejectunsupporte-007",
+  "testId": "com.example.tests.DocumentUploadTest#testRejectUnsupportedFileType",
+  "status": "passed",
+  "time": {
+    "start": 1767776455307,
+    "stop": 1767776456332,
+    "duration": 1025
+  },
+  "description": "Verify testRejectUnsupportedFileType behaves as expected.",
+  "descriptionHtml": "<p>Verify testRejectUnsupportedFileType behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Document Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Documents"
+    },
+    {
+      "name": "story",
+      "value": "Validation"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

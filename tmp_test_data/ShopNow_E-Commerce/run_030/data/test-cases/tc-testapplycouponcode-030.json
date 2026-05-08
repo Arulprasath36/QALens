@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testapplycouponcode-030",
+  "name": "testApplyCouponCode()",
+  "fullName": "com.example.tests.CartTest#testApplyCouponCode",
+  "historyId": "hist-tc-testapplycouponcode-030",
+  "testId": "com.example.tests.CartTest#testApplyCouponCode",
+  "status": "broken",
+  "time": {
+    "start": 1769763615789,
+    "stop": 1769763618817,
+    "duration": 3028
+  },
+  "description": "Verify testApplyCouponCode behaves as expected.",
+  "descriptionHtml": "<p>Verify testApplyCouponCode behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Discounts"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected status code 200 but was 500",
+  "statusTrace": "AssertionError: Expected status code 200 but was 500\n\tat com.example.tests.CartTest.testApplyCouponCode(Test.java:196)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:241)\n"
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testupdatephonenumbe-004",
+  "name": "testUpdatePhoneNumber()",
+  "fullName": "com.example.tests.ProfileTest#testUpdatePhoneNumber",
+  "historyId": "hist-tc-testupdatephonenumbe-004",
+  "testId": "com.example.tests.ProfileTest#testUpdatePhoneNumber",
+  "status": "passed",
+  "time": {
+    "start": 1767517260358,
+    "stop": 1767517263453,
+    "duration": 3095
+  },
+  "description": "Verify testUpdatePhoneNumber behaves as expected.",
+  "descriptionHtml": "<p>Verify testUpdatePhoneNumber behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Profile Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Profile"
+    },
+    {
+      "name": "story",
+      "value": "Edit Profile"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

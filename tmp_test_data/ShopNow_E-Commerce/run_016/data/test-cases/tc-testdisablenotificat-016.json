@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdisablenotificat-016",
+  "name": "testDisableNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testDisableNotifications",
+  "historyId": "hist-tc-testdisablenotificat-016",
+  "testId": "com.example.tests.NotificationTest#testDisableNotifications",
+  "status": "broken",
+  "time": {
+    "start": 1768554042982,
+    "stop": 1768554045146,
+    "duration": 2164
+  },
+  "description": "Verify testDisableNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testDisableNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Preferences"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "HTTP 503 Service Unavailable \u2014 payment gateway unreachable",
+  "statusTrace": "HttpError: HTTP 503 Service Unavailable \u2014 payment gateway unreachable\n\tat com.example.tests.NotificationTest.testDisableNotifications(Test.java:193)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:148)\n"
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testentershippingadd-011",
+  "name": "testEnterShippingAddress()",
+  "fullName": "com.example.tests.CheckoutTest#testEnterShippingAddress",
+  "historyId": "hist-tc-testentershippingadd-011",
+  "testId": "com.example.tests.CheckoutTest#testEnterShippingAddress",
+  "status": "passed",
+  "time": {
+    "start": 1768122018040,
+    "stop": 1768122019581,
+    "duration": 1541
+  },
+  "description": "Verify testEnterShippingAddress behaves as expected.",
+  "descriptionHtml": "<p>Verify testEnterShippingAddress behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Shipping"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

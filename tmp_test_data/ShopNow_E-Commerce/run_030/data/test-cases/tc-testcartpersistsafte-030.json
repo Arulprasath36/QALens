@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcartpersistsafte-030",
+  "name": "testCartPersistsAfterLogin()",
+  "fullName": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "historyId": "hist-tc-testcartpersistsafte-030",
+  "testId": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "status": "failed",
+  "time": {
+    "start": 1769763615230,
+    "stop": 1769763615741,
+    "duration": 511
+  },
+  "description": "Verify testCartPersistsAfterLogin behaves as expected.",
+  "descriptionHtml": "<p>Verify testCartPersistsAfterLogin behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Persistence"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Connection reset by peer during POST /api/payments/charge",
+  "statusTrace": "ConnectionResetError: Connection reset by peer during POST /api/payments/charge\n\tat com.example.tests.CartTest.testCartPersistsAfterLogin(Test.java:172)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:108)\n"
+}

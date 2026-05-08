@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testremembermetoken-029",
+  "name": "testRememberMeToken()",
+  "fullName": "com.example.tests.AuthTest#testRememberMeToken",
+  "historyId": "hist-tc-testremembermetoken-029",
+  "testId": "com.example.tests.AuthTest#testRememberMeToken",
+  "status": "passed",
+  "time": {
+    "start": 1769677207633,
+    "stop": 1769677208025,
+    "duration": 392
+  },
+  "description": "Verify testRememberMeToken behaves as expected.",
+  "descriptionHtml": "<p>Verify testRememberMeToken behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Remember Me"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

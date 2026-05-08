@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcreditcardpaymen-007",
+  "name": "testCreditCardPayment()",
+  "fullName": "com.example.tests.PaymentTest#testCreditCardPayment",
+  "historyId": "hist-tc-testcreditcardpaymen-007",
+  "testId": "com.example.tests.PaymentTest#testCreditCardPayment",
+  "status": "passed",
+  "time": {
+    "start": 1767776425853,
+    "stop": 1767776427742,
+    "duration": 1889
+  },
+  "description": "Verify testCreditCardPayment behaves as expected.",
+  "descriptionHtml": "<p>Verify testCreditCardPayment behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Credit Card"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

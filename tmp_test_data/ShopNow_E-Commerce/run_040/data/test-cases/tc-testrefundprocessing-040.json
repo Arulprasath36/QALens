@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testrefundprocessing-040",
+  "name": "testRefundProcessing()",
+  "fullName": "com.example.tests.PaymentTest#testRefundProcessing",
+  "historyId": "hist-tc-testrefundprocessing-040",
+  "testId": "com.example.tests.PaymentTest#testRefundProcessing",
+  "status": "broken",
+  "time": {
+    "start": 1770627630196,
+    "stop": 1770627630864,
+    "duration": 668
+  },
+  "description": "Verify testRefundProcessing behaves as expected.",
+  "descriptionHtml": "<p>Verify testRefundProcessing behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Refunds"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": "PDF download response was empty (Content-Length: 0)",
+  "statusTrace": "AssertionError: PDF download response was empty (Content-Length: 0)\n\tat com.example.tests.PaymentTest.testRefundProcessing(Test.java:193)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:280)\n"
+}

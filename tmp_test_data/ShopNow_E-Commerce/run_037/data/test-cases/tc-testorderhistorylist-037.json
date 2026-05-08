@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testorderhistorylist-037",
+  "name": "testOrderHistoryList()",
+  "fullName": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "historyId": "hist-tc-testorderhistorylist-037",
+  "testId": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "status": "passed",
+  "time": {
+    "start": 1770368451978,
+    "stop": 1770368454443,
+    "duration": 2465
+  },
+  "description": "Verify testOrderHistoryList behaves as expected.",
+  "descriptionHtml": "<p>Verify testOrderHistoryList behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "History"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

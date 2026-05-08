@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testselectpaymentmet-004",
+  "name": "testSelectPaymentMethod()",
+  "fullName": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "historyId": "hist-tc-testselectpaymentmet-004",
+  "testId": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "status": "broken",
+  "time": {
+    "start": 1767517220000,
+    "stop": 1767517222896,
+    "duration": 2896
+  },
+  "description": "Verify testSelectPaymentMethod behaves as expected.",
+  "descriptionHtml": "<p>Verify testSelectPaymentMethod behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Payment"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cart total mismatch: expected 149.99 but was 0.00",
+  "statusTrace": "AssertionError: Cart total mismatch: expected 149.99 but was 0.00\n\tat com.example.tests.CheckoutTest.testSelectPaymentMethod(Test.java:27)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:353)\n"
+}

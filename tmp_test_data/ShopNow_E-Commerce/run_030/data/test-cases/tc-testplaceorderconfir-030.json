@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testplaceorderconfir-030",
+  "name": "testPlaceOrderConfirmation()",
+  "fullName": "com.example.tests.CheckoutTest#testPlaceOrderConfirmation",
+  "historyId": "hist-tc-testplaceorderconfir-030",
+  "testId": "com.example.tests.CheckoutTest#testPlaceOrderConfirmation",
+  "status": "passed",
+  "time": {
+    "start": 1769763623741,
+    "stop": 1769763626642,
+    "duration": 2901
+  },
+  "description": "Verify testPlaceOrderConfirmation behaves as expected.",
+  "descriptionHtml": "<p>Verify testPlaceOrderConfirmation behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Order Confirm"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

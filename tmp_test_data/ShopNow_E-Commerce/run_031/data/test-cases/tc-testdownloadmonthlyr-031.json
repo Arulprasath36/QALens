@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdownloadmonthlyr-031",
+  "name": "testDownloadMonthlyReportPdf()",
+  "fullName": "com.example.tests.ReportTest#testDownloadMonthlyReportPdf",
+  "historyId": "hist-tc-testdownloadmonthlyr-031",
+  "testId": "com.example.tests.ReportTest#testDownloadMonthlyReportPdf",
+  "status": "passed",
+  "time": {
+    "start": 1769850068518,
+    "stop": 1769850071120,
+    "duration": 2602
+  },
+  "description": "Verify testDownloadMonthlyReportPdf behaves as expected.",
+  "descriptionHtml": "<p>Verify testDownloadMonthlyReportPdf behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Reports"
+    },
+    {
+      "name": "story",
+      "value": "Export"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

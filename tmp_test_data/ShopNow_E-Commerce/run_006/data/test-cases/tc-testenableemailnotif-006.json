@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testenableemailnotif-006",
+  "name": "testEnableEmailNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "historyId": "hist-tc-testenableemailnotif-006",
+  "testId": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "status": "passed",
+  "time": {
+    "start": 1767690041055,
+    "stop": 1767690042450,
+    "duration": 1395
+  },
+  "description": "Verify testEnableEmailNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testEnableEmailNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Email"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

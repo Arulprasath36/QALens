@@ -1,0 +1,20 @@
+{
+  "reportName": "ShopNow E-Commerce",
+  "testRuns": [],
+  "statistic": {
+    "failed": 9,
+    "broken": 7,
+    "skipped": 0,
+    "passed": 26,
+    "unknown": 0,
+    "total": 42
+  },
+  "time": {
+    "start": 1771146000000,
+    "stop": 1771146075725,
+    "duration": 75725,
+    "minDuration": 375,
+    "maxDuration": 3229,
+    "sumDuration": 73591
+  }
+}

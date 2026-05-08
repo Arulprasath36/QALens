@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testenableemailnotif-013",
+  "name": "testEnableEmailNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "historyId": "hist-tc-testenableemailnotif-013",
+  "testId": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "status": "passed",
+  "time": {
+    "start": 1768294841458,
+    "stop": 1768294842668,
+    "duration": 1210
+  },
+  "description": "Verify testEnableEmailNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testEnableEmailNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Email"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

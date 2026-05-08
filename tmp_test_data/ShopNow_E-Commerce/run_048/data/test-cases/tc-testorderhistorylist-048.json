@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testorderhistorylist-048",
+  "name": "testOrderHistoryList()",
+  "fullName": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "historyId": "hist-tc-testorderhistorylist-048",
+  "testId": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "status": "failed",
+  "time": {
+    "start": 1771318851622,
+    "stop": 1771318854014,
+    "duration": 2392
+  },
+  "description": "Verify testOrderHistoryList behaves as expected.",
+  "descriptionHtml": "<p>Verify testOrderHistoryList behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "History"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Stale element reference: element is not attached to the page document",
+  "statusTrace": "StaleElementReferenceException: Stale element reference: element is not attached to the page document\n\tat com.example.tests.OrderApiTest.testOrderHistoryList(Test.java:72)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:166)\n"
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdisablenotificat-001",
+  "name": "testDisableNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testDisableNotifications",
+  "historyId": "hist-tc-testdisablenotificat-001",
+  "testId": "com.example.tests.NotificationTest#testDisableNotifications",
+  "status": "broken",
+  "time": {
+    "start": 1767258042985,
+    "stop": 1767258044993,
+    "duration": 2008
+  },
+  "description": "Verify testDisableNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testDisableNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Preferences"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected redirect to /dashboard but got /error?code=403",
+  "statusTrace": "AssertionError: Expected redirect to /dashboard but got /error?code=403\n\tat com.example.tests.NotificationTest.testDisableNotifications(Test.java:141)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:308)\n"
+}

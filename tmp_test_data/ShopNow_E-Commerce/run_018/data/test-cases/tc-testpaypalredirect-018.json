@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testpaypalredirect-018",
+  "name": "testPayPalRedirect()",
+  "fullName": "com.example.tests.PaymentTest#testPayPalRedirect",
+  "historyId": "hist-tc-testpaypalredirect-018",
+  "testId": "com.example.tests.PaymentTest#testPayPalRedirect",
+  "status": "passed",
+  "time": {
+    "start": 1768726829495,
+    "stop": 1768726830613,
+    "duration": 1118
+  },
+  "description": "Verify testPayPalRedirect behaves as expected.",
+  "descriptionHtml": "<p>Verify testPayPalRedirect behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "PayPal"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

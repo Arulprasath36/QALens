@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testremembermetoken-034",
+  "name": "testRememberMeToken()",
+  "fullName": "com.example.tests.AuthTest#testRememberMeToken",
+  "historyId": "hist-tc-testremembermetoken-034",
+  "testId": "com.example.tests.AuthTest#testRememberMeToken",
+  "status": "broken",
+  "time": {
+    "start": 1770109207133,
+    "stop": 1770109207536,
+    "duration": 403
+  },
+  "description": "Verify testRememberMeToken behaves as expected.",
+  "descriptionHtml": "<p>Verify testRememberMeToken behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Remember Me"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Element not found within timeout: button[data-testid='submit']",
+  "statusTrace": "TimeoutException: Element not found within timeout: button[data-testid='submit']\n\tat com.example.tests.AuthTest.testRememberMeToken(Test.java:173)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:155)\n"
+}

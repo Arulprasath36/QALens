@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testpartialrefund-005",
+  "name": "testPartialRefund()",
+  "fullName": "com.example.tests.PaymentTest#testPartialRefund",
+  "historyId": "hist-tc-testpartialrefund-005",
+  "testId": "com.example.tests.PaymentTest#testPartialRefund",
+  "status": "passed",
+  "time": {
+    "start": 1767603631108,
+    "stop": 1767603631515,
+    "duration": 407
+  },
+  "description": "Verify testPartialRefund behaves as expected.",
+  "descriptionHtml": "<p>Verify testPartialRefund behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Refunds"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

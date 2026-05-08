@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testproductdetailpag-003",
+  "name": "testProductDetailPage()",
+  "fullName": "com.example.tests.ProductTest#testProductDetailPage",
+  "historyId": "hist-tc-testproductdetailpag-003",
+  "testId": "com.example.tests.ProductTest#testProductDetailPage",
+  "status": "passed",
+  "time": {
+    "start": 1767430837355,
+    "stop": 1767430838588,
+    "duration": 1233
+  },
+  "description": "Verify testProductDetailPage behaves as expected.",
+  "descriptionHtml": "<p>Verify testProductDetailPage behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Detail View"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

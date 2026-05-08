@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testloginwithinvalid-041",
+  "name": "testLoginWithInvalidPassword()",
+  "fullName": "com.example.tests.AuthTest#testLoginWithInvalidPassword",
+  "historyId": "hist-tc-testloginwithinvalid-041",
+  "testId": "com.example.tests.AuthTest#testLoginWithInvalidPassword",
+  "status": "passed",
+  "time": {
+    "start": 1770714001700,
+    "stop": 1770714003413,
+    "duration": 1713
+  },
+  "description": "Verify testLoginWithInvalidPassword behaves as expected.",
+  "descriptionHtml": "<p>Verify testLoginWithInvalidPassword behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Login"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

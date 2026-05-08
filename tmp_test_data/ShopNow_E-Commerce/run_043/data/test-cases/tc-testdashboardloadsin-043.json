@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdashboardloadsin-043",
+  "name": "testDashboardLoadsInUnder3s()",
+  "fullName": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "historyId": "hist-tc-testdashboardloadsin-043",
+  "testId": "com.example.tests.ReportTest#testDashboardLoadsInUnder3s",
+  "status": "passed",
+  "time": {
+    "start": 1770886869929,
+    "stop": 1770886872919,
+    "duration": 2990
+  },
+  "description": "Verify testDashboardLoadsInUnder3s behaves as expected.",
+  "descriptionHtml": "<p>Verify testDashboardLoadsInUnder3s behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Dashboard"
+    },
+    {
+      "name": "story",
+      "value": "Performance"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

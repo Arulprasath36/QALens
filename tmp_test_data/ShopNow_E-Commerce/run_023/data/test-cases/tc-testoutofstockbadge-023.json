@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testoutofstockbadge-023",
+  "name": "testOutOfStockBadge()",
+  "fullName": "com.example.tests.ProductTest#testOutOfStockBadge",
+  "historyId": "hist-tc-testoutofstockbadge-023",
+  "testId": "com.example.tests.ProductTest#testOutOfStockBadge",
+  "status": "passed",
+  "time": {
+    "start": 1769158838549,
+    "stop": 1769158840490,
+    "duration": 1941
+  },
+  "description": "Verify testOutOfStockBadge behaves as expected.",
+  "descriptionHtml": "<p>Verify testOutOfStockBadge behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Stock Status"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcartpersistsafte-016",
+  "name": "testCartPersistsAfterLogin()",
+  "fullName": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "historyId": "hist-tc-testcartpersistsafte-016",
+  "testId": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "status": "broken",
+  "time": {
+    "start": 1768554014575,
+    "stop": 1768554015121,
+    "duration": 546
+  },
+  "description": "Verify testCartPersistsAfterLogin behaves as expected.",
+  "descriptionHtml": "<p>Verify testCartPersistsAfterLogin behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Persistence"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Stale element reference: element is not attached to the page document",
+  "statusTrace": "StaleElementReferenceException: Stale element reference: element is not attached to the page document\n\tat com.example.tests.CartTest.testCartPersistsAfterLogin(Test.java:172)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:170)\n"
+}

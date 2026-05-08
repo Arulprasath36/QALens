@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testtwofactorauthflo-043",
+  "name": "testTwoFactorAuthFlow()",
+  "fullName": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "historyId": "hist-tc-testtwofactorauthflo-043",
+  "testId": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "status": "broken",
+  "time": {
+    "start": 1770886809435,
+    "stop": 1770886812000,
+    "duration": 2565
+  },
+  "description": "Verify testTwoFactorAuthFlow behaves as expected.",
+  "descriptionHtml": "<p>Verify testTwoFactorAuthFlow behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "2FA"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Search result count was 0, expected \u22651 for query 'laptop'",
+  "statusTrace": "AssertionError: Search result count was 0, expected \u22651 for query 'laptop'\n\tat com.example.tests.AuthTest.testTwoFactorAuthFlow(Test.java:77)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:179)\n"
+}

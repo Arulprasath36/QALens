@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcartpersistsafte-017",
+  "name": "testCartPersistsAfterLogin()",
+  "fullName": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "historyId": "hist-tc-testcartpersistsafte-017",
+  "testId": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "status": "failed",
+  "time": {
+    "start": 1768640415176,
+    "stop": 1768640415653,
+    "duration": 477
+  },
+  "description": "Verify testCartPersistsAfterLogin behaves as expected.",
+  "descriptionHtml": "<p>Verify testCartPersistsAfterLogin behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Persistence"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected status code 200 but was 500",
+  "statusTrace": "AssertionError: Expected status code 200 but was 500\n\tat com.example.tests.CartTest.testCartPersistsAfterLogin(Test.java:74)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:344)\n"
+}

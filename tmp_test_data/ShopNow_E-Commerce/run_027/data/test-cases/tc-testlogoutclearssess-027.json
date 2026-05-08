@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testlogoutclearssess-027",
+  "name": "testLogoutClearsSession()",
+  "fullName": "com.example.tests.AuthTest#testLogoutClearsSession",
+  "historyId": "hist-tc-testlogoutclearssess-027",
+  "testId": "com.example.tests.AuthTest#testLogoutClearsSession",
+  "status": "passed",
+  "time": {
+    "start": 1769504406009,
+    "stop": 1769504407228,
+    "duration": 1219
+  },
+  "description": "Verify testLogoutClearsSession behaves as expected.",
+  "descriptionHtml": "<p>Verify testLogoutClearsSession behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Logout"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

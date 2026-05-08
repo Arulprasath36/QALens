@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testproductdetailpag-045",
+  "name": "testProductDetailPage()",
+  "fullName": "com.example.tests.ProductTest#testProductDetailPage",
+  "historyId": "hist-tc-testproductdetailpag-045",
+  "testId": "com.example.tests.ProductTest#testProductDetailPage",
+  "status": "broken",
+  "time": {
+    "start": 1771059637306,
+    "stop": 1771059638888,
+    "duration": 1582
+  },
+  "description": "Verify testProductDetailPage behaves as expected.",
+  "descriptionHtml": "<p>Verify testProductDetailPage behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Detail View"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "HTTP 503 Service Unavailable \u2014 payment gateway unreachable",
+  "statusTrace": "HttpError: HTTP 503 Service Unavailable \u2014 payment gateway unreachable\n\tat com.example.tests.ProductTest.testProductDetailPage(Test.java:24)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:161)\n"
+}

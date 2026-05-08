@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchreturnsrel-020",
+  "name": "testSearchReturnsRelevantProducts()",
+  "fullName": "com.example.tests.SearchTest#testSearchReturnsRelevantProducts",
+  "historyId": "hist-tc-testsearchreturnsrel-020",
+  "testId": "com.example.tests.SearchTest#testSearchReturnsRelevantProducts",
+  "status": "passed",
+  "time": {
+    "start": 1768899632037,
+    "stop": 1768899635264,
+    "duration": 3227
+  },
+  "description": "Verify testSearchReturnsRelevantProducts behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchReturnsRelevantProducts behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Keyword Search"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

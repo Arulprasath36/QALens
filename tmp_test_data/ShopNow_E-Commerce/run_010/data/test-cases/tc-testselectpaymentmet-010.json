@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testselectpaymentmet-010",
+  "name": "testSelectPaymentMethod()",
+  "fullName": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "historyId": "hist-tc-testselectpaymentmet-010",
+  "testId": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "status": "broken",
+  "time": {
+    "start": 1768035619507,
+    "stop": 1768035622210,
+    "duration": 2703
+  },
+  "description": "Verify testSelectPaymentMethod behaves as expected.",
+  "descriptionHtml": "<p>Verify testSelectPaymentMethod behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Payment"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Connection reset by peer during POST /api/payments/charge",
+  "statusTrace": "ConnectionResetError: Connection reset by peer during POST /api/payments/charge\n\tat com.example.tests.CheckoutTest.testSelectPaymentMethod(Test.java:183)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:129)\n"
+}

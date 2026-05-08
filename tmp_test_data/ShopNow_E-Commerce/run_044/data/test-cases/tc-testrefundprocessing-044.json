@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testrefundprocessing-044",
+  "name": "testRefundProcessing()",
+  "fullName": "com.example.tests.PaymentTest#testRefundProcessing",
+  "historyId": "hist-tc-testrefundprocessing-044",
+  "testId": "com.example.tests.PaymentTest#testRefundProcessing",
+  "status": "broken",
+  "time": {
+    "start": 1770973231266,
+    "stop": 1770973231966,
+    "duration": 700
+  },
+  "description": "Verify testRefundProcessing behaves as expected.",
+  "descriptionHtml": "<p>Verify testRefundProcessing behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Refunds"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cart total mismatch: expected 149.99 but was 0.00",
+  "statusTrace": "AssertionError: Cart total mismatch: expected 149.99 but was 0.00\n\tat com.example.tests.PaymentTest.testRefundProcessing(Test.java:181)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:225)\n"
+}

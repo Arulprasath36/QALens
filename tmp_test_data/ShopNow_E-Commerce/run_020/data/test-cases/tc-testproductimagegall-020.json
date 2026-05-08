@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testproductimagegall-020",
+  "name": "testProductImageGallery()",
+  "fullName": "com.example.tests.ProductTest#testProductImageGallery",
+  "historyId": "hist-tc-testproductimagegall-020",
+  "testId": "com.example.tests.ProductTest#testProductImageGallery",
+  "status": "failed",
+  "time": {
+    "start": 1768899639624,
+    "stop": 1768899640166,
+    "duration": 542
+  },
+  "description": "Verify testProductImageGallery behaves as expected.",
+  "descriptionHtml": "<p>Verify testProductImageGallery behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Image Gallery"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Stale element reference: element is not attached to the page document",
+  "statusTrace": "StaleElementReferenceException: Stale element reference: element is not attached to the page document\n\tat com.example.tests.ProductTest.testProductImageGallery(Test.java:153)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:314)\n"
+}

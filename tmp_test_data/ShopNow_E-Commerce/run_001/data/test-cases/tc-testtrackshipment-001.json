@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testtrackshipment-001",
+  "name": "testTrackShipment()",
+  "fullName": "com.example.tests.OrderApiTest#testTrackShipment",
+  "historyId": "hist-tc-testtrackshipment-001",
+  "testId": "com.example.tests.OrderApiTest#testTrackShipment",
+  "status": "passed",
+  "time": {
+    "start": 1767258052099,
+    "stop": 1767258053812,
+    "duration": 1713
+  },
+  "description": "Verify testTrackShipment behaves as expected.",
+  "descriptionHtml": "<p>Verify testTrackShipment behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Tracking"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

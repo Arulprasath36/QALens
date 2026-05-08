@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testupdatephonenumbe-046",
+  "name": "testUpdatePhoneNumber()",
+  "fullName": "com.example.tests.ProfileTest#testUpdatePhoneNumber",
+  "historyId": "hist-tc-testupdatephonenumbe-046",
+  "testId": "com.example.tests.ProfileTest#testUpdatePhoneNumber",
+  "status": "passed",
+  "time": {
+    "start": 1771146062398,
+    "stop": 1771146065401,
+    "duration": 3003
+  },
+  "description": "Verify testUpdatePhoneNumber behaves as expected.",
+  "descriptionHtml": "<p>Verify testUpdatePhoneNumber behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Profile Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Profile"
+    },
+    {
+      "name": "story",
+      "value": "Edit Profile"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

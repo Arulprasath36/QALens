@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testentershippingadd-030",
+  "name": "testEnterShippingAddress()",
+  "fullName": "com.example.tests.CheckoutTest#testEnterShippingAddress",
+  "historyId": "hist-tc-testentershippingadd-030",
+  "testId": "com.example.tests.CheckoutTest#testEnterShippingAddress",
+  "status": "broken",
+  "time": {
+    "start": 1769763618839,
+    "stop": 1769763620812,
+    "duration": 1973
+  },
+  "description": "Verify testEnterShippingAddress behaves as expected.",
+  "descriptionHtml": "<p>Verify testEnterShippingAddress behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Shipping"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Unable to locate element: #order-confirm-btn \u2014 page may not have loaded",
+  "statusTrace": "NoSuchElementException: Unable to locate element: #order-confirm-btn \u2014 page may not have loaded\n\tat com.example.tests.CheckoutTest.testEnterShippingAddress(Test.java:55)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:235)\n"
+}

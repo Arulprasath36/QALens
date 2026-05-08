@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testenableemailnotif-024",
+  "name": "testEnableEmailNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "historyId": "hist-tc-testenableemailnotif-024",
+  "testId": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "status": "failed",
+  "time": {
+    "start": 1769245241256,
+    "stop": 1769245242537,
+    "duration": 1281
+  },
+  "description": "Verify testEnableEmailNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testEnableEmailNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Email"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected status code 200 but was 500",
+  "statusTrace": "AssertionError: Expected status code 200 but was 500\n\tat com.example.tests.NotificationTest.testEnableEmailNotifications(Test.java:194)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:264)\n"
+}

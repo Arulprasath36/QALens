@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testproductdetailpag-044",
+  "name": "testProductDetailPage()",
+  "fullName": "com.example.tests.ProductTest#testProductDetailPage",
+  "historyId": "hist-tc-testproductdetailpag-044",
+  "testId": "com.example.tests.ProductTest#testProductDetailPage",
+  "status": "broken",
+  "time": {
+    "start": 1770973238680,
+    "stop": 1770973240158,
+    "duration": 1478
+  },
+  "description": "Verify testProductDetailPage behaves as expected.",
+  "descriptionHtml": "<p>Verify testProductDetailPage behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Detail View"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cannot read properties of undefined (reading 'price') at ProductPage.js:87",
+  "statusTrace": "JavaScriptException: Cannot read properties of undefined (reading 'price') at ProductPage.js:87\n\tat com.example.tests.ProductTest.testProductDetailPage(Test.java:100)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:276)\n"
+}

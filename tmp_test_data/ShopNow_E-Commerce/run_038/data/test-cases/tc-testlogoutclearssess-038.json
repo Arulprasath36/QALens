@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testlogoutclearssess-038",
+  "name": "testLogoutClearsSession()",
+  "fullName": "com.example.tests.AuthTest#testLogoutClearsSession",
+  "historyId": "hist-tc-testlogoutclearssess-038",
+  "testId": "com.example.tests.AuthTest#testLogoutClearsSession",
+  "status": "broken",
+  "time": {
+    "start": 1770454805976,
+    "stop": 1770454807275,
+    "duration": 1299
+  },
+  "description": "Verify testLogoutClearsSession behaves as expected.",
+  "descriptionHtml": "<p>Verify testLogoutClearsSession behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Logout"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Unable to locate element: #order-confirm-btn \u2014 page may not have loaded",
+  "statusTrace": "NoSuchElementException: Unable to locate element: #order-confirm-btn \u2014 page may not have loaded\n\tat com.example.tests.AuthTest.testLogoutClearsSession(Test.java:64)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:178)\n"
+}

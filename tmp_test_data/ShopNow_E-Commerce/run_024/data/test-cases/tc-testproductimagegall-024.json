@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testproductimagegall-024",
+  "name": "testProductImageGallery()",
+  "fullName": "com.example.tests.ProductTest#testProductImageGallery",
+  "historyId": "hist-tc-testproductimagegall-024",
+  "testId": "com.example.tests.ProductTest#testProductImageGallery",
+  "status": "broken",
+  "time": {
+    "start": 1769245238868,
+    "stop": 1769245239534,
+    "duration": 666
+  },
+  "description": "Verify testProductImageGallery behaves as expected.",
+  "descriptionHtml": "<p>Verify testProductImageGallery behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Image Gallery"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected redirect to /dashboard but got /error?code=403",
+  "statusTrace": "AssertionError: Expected redirect to /dashboard but got /error?code=403\n\tat com.example.tests.ProductTest.testProductImageGallery(Test.java:178)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:371)\n"
+}

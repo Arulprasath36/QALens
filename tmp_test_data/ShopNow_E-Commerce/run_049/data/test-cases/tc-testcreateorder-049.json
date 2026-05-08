@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcreateorder-049",
+  "name": "testCreateOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCreateOrder",
+  "historyId": "hist-tc-testcreateorder-049",
+  "testId": "com.example.tests.OrderApiTest#testCreateOrder",
+  "status": "passed",
+  "time": {
+    "start": 1771405249306,
+    "stop": 1771405250953,
+    "duration": 1647
+  },
+  "description": "Verify testCreateOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCreateOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Create"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

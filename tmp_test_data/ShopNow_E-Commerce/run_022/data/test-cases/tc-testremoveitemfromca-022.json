@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testremoveitemfromca-022",
+  "name": "testRemoveItemFromCart()",
+  "fullName": "com.example.tests.CartTest#testRemoveItemFromCart",
+  "historyId": "hist-tc-testremoveitemfromca-022",
+  "testId": "com.example.tests.CartTest#testRemoveItemFromCart",
+  "status": "passed",
+  "time": {
+    "start": 1769072412942,
+    "stop": 1769072414542,
+    "duration": 1600
+  },
+  "description": "Verify testRemoveItemFromCart behaves as expected.",
+  "descriptionHtml": "<p>Verify testRemoveItemFromCart behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Remove Item"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}
