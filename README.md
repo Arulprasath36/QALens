@@ -82,51 +82,248 @@ Modern test suites produce hundreds or thousands of results per run. Tools like 
 
 ---
 
-## Quickstart
+## Local Setup And Run Guide
 
-### Install
+This section is for someone setting up QARA from this repository on a local
+machine.
+
+### 1. Prerequisites
+
+Install:
+
+- Python 3.10 or newer
+- Node.js 18 or newer, only needed for frontend development or building from source
+- npm, bundled with Node.js
+- Git
+
+If you use `nvm`, the frontend includes an `.nvmrc`:
 
 ```bash
-pip install qara-insights
+cd frontend
+nvm use
+cd ..
 ```
 
-Or from source:
+### 2. Clone The Repository
 
 ```bash
-git clone https://github.com/your-org/qara.git
-cd qara
+git clone https://github.com/Arulprasath36/QARA.git
+cd QARA
+```
+
+### 3. Create A Python Virtual Environment
+
+macOS/Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+```
+
+Windows PowerShell:
+
+```powershell
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+```
+
+### 4. Install QARA For Local Development
+
+```bash
 pip install -e ".[dev]"
 ```
 
-### Detect what kind of report you have
+This installs the Python package in editable mode and registers the `qara`
+command.
+
+Verify:
 
 ```bash
-qara detect ./reports/my-report
+qara --help
+qara --version
 ```
 
-### Extract normalized data from a report
+### 5. Install Frontend Dependencies
+
+The packaged Python wheel ships with built frontend assets, but source
+development requires installing frontend dependencies:
 
 ```bash
-qara extract ./reports/allure-report --out extracted.json
+cd frontend
+npm ci
+cd ..
 ```
 
-### Analyze and classify failures
+### 6. Verify The Local Setup
+
+Backend tests:
 
 ```bash
-qara analyze ./reports/allure-report --history ./history --out analysis.json
+pytest
 ```
 
-### Generate a Markdown summary
+Frontend checks:
 
 ```bash
-qara summarize ./reports/extent-report --format markdown --out summary.md
+cd frontend
+npm run typecheck
+npm test
+npm run build
+cd ..
 ```
 
-### View failure clusters
+Useful full build command from the repo root:
 
 ```bash
-qara clusters ./reports/allure-report
+make build-ui
 ```
+
+`make build-ui` compiles the React app into `src/qara/server/static/`, which is
+what `qara serve` uses when serving the built UI from Python.
+
+### 7. Try QARA With Sample Reports
+
+The repo includes parser fixtures under `tests/fixtures/`.
+
+Detect a report format:
+
+```bash
+qara detect tests/fixtures/allure_sample
+qara detect tests/fixtures/extent_sample
+```
+
+Extract normalized JSON:
+
+```bash
+qara extract tests/fixtures/allure_sample --out extracted.json
+```
+
+Ingest a report into the local SQLite database:
+
+```bash
+qara ingest tests/fixtures/allure_sample
+```
+
+The sample Allure fixture may print a warning about a missing screenshot
+attachment. That is expected for this fixture and does not block ingestion.
+
+By default QARA stores data in `~/.qara/qara.db`. You can use a project-local
+database instead:
+
+```bash
+qara ingest tests/fixtures/allure_sample --db ./qara.db
+```
+
+Analyze ingested runs:
+
+```bash
+qara analyze --db ./qara.db
+```
+
+Generate a one-off summary directly from a report:
+
+```bash
+qara summarize tests/fixtures/allure_sample --format markdown --out summary.md
+```
+
+View failure clusters directly from a report:
+
+```bash
+qara clusters tests/fixtures/allure_sample
+```
+
+### 8. Run The Web UI
+
+First ingest at least one report:
+
+```bash
+qara ingest tests/fixtures/allure_sample --db ./qara.db
+```
+
+Then start the local server:
+
+```bash
+qara serve --db ./qara.db
+```
+
+The UI runs at:
+
+```text
+http://127.0.0.1:8080
+```
+
+For frontend development, run the Python API server and Vite dev server in two
+terminals.
+
+Terminal 1:
+
+```bash
+qara serve --db ./qara.db --no-open
+```
+
+Terminal 2:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+The Vite dev server proxies `/api/*` requests to `http://localhost:8080`.
+
+### 9. Optional LLM Setup
+
+QARA works without an LLM for ingestion, parsing, summaries, and deterministic
+analysis. LLM-powered chat uses `~/.qara/config.toml`.
+
+Create the default config:
+
+```bash
+qara llm-config --init
+qara llm-config --show
+```
+
+The default provider is local Ollama. Cloud providers require an explicit
+opt-in because report data may include test names, stack traces, hostnames, and
+other sensitive details:
+
+```toml
+[llm]
+provider = "openai"
+allow_external = true
+```
+
+You can also set:
+
+```bash
+export QARA_ALLOW_EXTERNAL_LLM=1
+```
+
+Ask a question after ingesting runs:
+
+```bash
+qara ask "What broke in the latest run?" --db ./qara.db
+```
+
+### 10. Common Local Commands
+
+| Task | Command |
+|---|---|
+| Install Python package | `pip install -e ".[dev]"` |
+| Install frontend deps | `cd frontend && npm ci` |
+| Run backend tests | `pytest` |
+| Run frontend tests | `cd frontend && npm test` |
+| Type-check frontend | `cd frontend && npm run typecheck` |
+| Build frontend assets | `make build-ui` |
+| Serve local UI | `qara serve --db ./qara.db` |
+| Build package | `make build` |
 
 ---
 
@@ -309,24 +506,81 @@ In `full` mode the summary also reports images stored and duplicates skipped.
 
 ### Storage note
 
-Image bytes are **never stored in the SQLite database**. The `artifacts` table holds metadata and a `file://` URI pointing to the artifact store directory. This keeps the database small and query-fast while still allowing analysis layers to reference screenshots by their stable SHA-256 content hash. S3/MinIO backends can be added by implementing the `ArtifactStore` interface in `src/ari/artifacts/storage.py`.
+Image bytes are **never stored in the SQLite database**. The `artifacts` table holds metadata and a `file://` URI pointing to the artifact store directory. This keeps the database small and query-fast while still allowing analysis layers to reference screenshots by their stable SHA-256 content hash. S3/MinIO backends can be added by implementing the `ArtifactStore` interface in `src/qara/artifacts/storage.py`.
 
 ---
 
-## Project Architecture
+## Repository Structure
+
+Top-level layout:
+
+```
+QARA/
+├── src/qara/                 # Python package
+├── frontend/                 # React + Vite web UI
+├── tests/                    # Python test suite and parser fixtures
+├── docs/                     # Design and architecture notes
+├── examples/                 # Example normalized data and CI snippets
+├── scripts/                  # Local helper scripts for data generation/seeding
+├── .github/workflows/        # GitHub Actions CI
+├── Makefile                  # Build shortcuts
+├── pyproject.toml            # Python package, tooling, and test config
+├── hatch_build.py            # Builds frontend assets during package builds
+├── SECURITY.md               # Security policy and controls
+└── PRODUCTION_CHECKLIST.md   # Networked-deployment checklist
+```
+
+Python package layout:
 
 ```
 src/qara/
-├── parsers/      # Report-specific HTML/JSON extractors
-├── models/       # Canonical Pydantic data models
-├── analyzers/    # Heuristic + optional ML analysis
-├── outputs/      # JSON, Markdown, console writers
-├── utils/        # Text normalization, hashing, FS utilities
-├── artifacts/    # Artifact ingestion policy, storage, compression
-└── api/          # Public Python library surface
+├── api/          # Public Python API; QARAClient lives here
+├── analyzers/    # Categorization, flaky scoring, clustering, comparison, prediction
+├── artifacts/    # Screenshot/artifact policy, image inspection, storage
+├── cli/          # Active Typer CLI package for the `qara` command
+├── cli.py        # Legacy monolithic CLI kept during CLI migration work
+├── db/           # SQLite schema, repository layer, row models
+├── llm/          # LLM config, prompt builders, routing, context gathering, client
+├── models/       # Canonical Pydantic/domain models for runs, tests, failures
+├── parsers/      # Allure and Extent report detection/parsing
+├── security.py   # Shared security constants, validation, redaction helpers
+├── server/       # FastAPI app, API routes, packaged static UI assets
+└── utils/        # Filesystem and text helpers
 ```
 
-See [docs/architecture.md](docs/architecture.md) for the full design.
+Frontend layout:
+
+```
+frontend/
+├── src/App.tsx
+├── src/main.tsx
+├── src/components/           # Shared UI components
+├── src/hooks/                # Shared React hooks
+├── src/panels/               # Main dashboard panels and chat panel
+├── src/panels/chat/          # Chat result workspace, types, markdown sanitizer
+├── src/compare-engine/       # Run comparison feature area
+├── public/                   # Icons, manifest, static public assets
+├── package.json              # Frontend scripts and dependencies
+└── vite.config.ts            # Vite build/dev-server config
+```
+
+Tests and fixtures:
+
+```
+tests/
+├── fixtures/allure_sample/   # Sample Allure report fixture
+├── fixtures/extent_sample/   # Sample Extent report fixture
+└── test_*                    # Backend, parser, analyzer, server, security tests
+```
+
+Build outputs and local files:
+
+- `src/qara/server/static/` is generated by `npm run build` or `make build-ui`.
+- `node_modules/`, `.venv/`, caches, local databases, local reports, and generated
+  artifacts are intentionally ignored by git.
+- The default local database is `~/.qara/qara.db`.
+
+See [docs/architecture.md](docs/architecture.md) for the deeper system design.
 
 ---
 
