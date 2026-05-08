@@ -115,9 +115,6 @@ function isPassing(state?: CellState | null)   { return state === 'passed'; }
 function latestCell(row: ApiHistoryRow)        { return row.cells[row.cells.length - 1] ?? null; }
 function baselineCell(row: ApiHistoryRow)      { return row.cells.find(c => c.state !== 'absent') ?? row.cells[0] ?? null; }
 function isRegression(row: ApiHistoryRow)      { return isPassing(baselineCell(row)?.state) && isFailure(latestCell(row)?.state); }
-function isRecovered(row: ApiHistoryRow)       { return isFailure(baselineCell(row)?.state) && isPassing(latestCell(row)?.state); }
-function isStable(row: ApiHistoryRow)          { return row.health.classification === 'STABLE' && isPassing(latestCell(row)?.state); }
-function isFlaky(row: ApiHistoryRow)           { return row.health.classification === 'FLAKY'; }
 
 function failureCount(row: ApiHistoryRow) {
   return row.cells.filter(c => isFailure(c.state)).length;
@@ -144,10 +141,6 @@ function fmtRelative(ts: number | null): string {
   return hrs < 24 ? `${hrs}h ago` : `${Math.floor(hrs / 24)}d ago`;
 }
 
-function fmtTime(ts: number | null): string {
-  if (ts == null) return '';
-  return new Date(ts * 1000).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
-}
 
 function fmtDateTime(ts: number | null): string {
   if (ts == null) return '';

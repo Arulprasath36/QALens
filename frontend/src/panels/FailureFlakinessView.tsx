@@ -922,15 +922,7 @@ export function FailureFlakinessView({
   const ownerConcentration = useMemo(() => groupConcentration(rows, 'owner'), [rows]);
   const suiteConcentration = useMemo(() => groupConcentration(rows, 'suite'), [rows]);
 
-  const windowFingerprints = useMemo(() => {
-    const set = new Set<string>();
-    for (const row of rows)
-      for (const cell of row.cells)
-        if (cell.fingerprint && isFailure(cell.state)) set.add(cell.fingerprint);
-    return set;
-  }, [rows]);
-
-  const focusedRows = useMemo(() => {
+const focusedRows = useMemo(() => {
     // When a transitionFilter is active, search all rows — some transitions
     // (e.g. Failed → Passed / Recovered) include tests that are currently
     // passing and are therefore absent from unstableRows.
@@ -993,9 +985,6 @@ export function FailureFlakinessView({
 
   const topSuites    = suiteConcentration.slice(0, 2).map(s => s.label).join(' and ');
   const topOwners    = ownerConcentration.slice(0, 2).map(o => o.label.split(' ')[0]).join(' and ');
-  const windowSize   = history.summary.window_size || runsWindow;
-  const windowPhrase = windowSize === 1 ? 'this run' : `the last ${windowSize} runs`;
-
   const contextNote = isWindowAnalysis && firstRun && latestRun
     ? `Analyzing Runs #${firstRun.run_sequence}–#${latestRun.run_sequence}`
     : latestRun
@@ -1545,8 +1534,6 @@ export function FailureFlakinessView({
               ? 'Tests matching failure pattern'
               : FILTER_LABELS[statusFilter] ?? 'Active failures and flaky tests';
           const isRecoveredSection = transitionFilter === 'Failed → Passed' || statusFilter === 'recovered';
-          const isExistingFailuresSection = transitionFilter === 'Failed → Failed';
-          const isSingleRunFailedSection = !isWindowAnalysis && statusFilter === 'failed' && !transitionFilter;
           const sectionSubtitle = isRecoveredSection
             ? `${focusedRows.length} recovered in this window · ${activeContext}`
             : `${focusedRows.length} shown · ${activeContext}`;

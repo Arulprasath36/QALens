@@ -11,6 +11,14 @@ import re
 from pathlib import Path
 
 MAX_LLM_PROMPT_CHARS = 80_000
+MAX_ASK_QUESTION_CHARS = 4_000
+MAX_ASK_HISTORY_ITEMS = 12
+MAX_COMPARE_RUN_IDS = 50
+MAX_COMPARE_ENTITY_CHARS = 200
+MAX_COMPARE_PROJECT_CHARS = 200
+MAX_COMPARE_SEARCH_CHARS = 500
+MAX_SOURCE_REFERENCE_CHARS = 512
+
 SUPPORTED_REPORT_FILE_EXTENSIONS = frozenset({".html", ".htm", ".json"})
 SUPPORTED_SQLITE_EXTENSIONS = frozenset({".db", ".sqlite", ".sqlite3"})
 SUPPORTED_IMAGE_MIME_TYPES = frozenset({
@@ -20,6 +28,40 @@ SUPPORTED_IMAGE_MIME_TYPES = frozenset({
     "image/webp",
     "image/bmp",
 })
+SUPPORTED_IMAGE_EXTENSIONS = frozenset({
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".webp",
+    ".bmp",
+})
+ALLOWED_TEST_STATUSES = frozenset({
+    "passed",
+    "failed",
+    "broken",
+    "skipped",
+    "pending",
+    "unknown",
+})
+ALLOWED_FAILURE_CATEGORIES = frozenset({
+    "element_not_found",
+    "stale_element",
+    "timeout",
+    "assertion",
+    "null_pointer",
+    "network",
+    "authentication",
+    "infrastructure",
+    "test_data",
+    "permission",
+    "configuration",
+    "unknown",
+})
+LOCAL_LLM_PROVIDERS = frozenset({"ollama", "lmstudio"})
+EXTERNAL_LLM_OPT_IN_ENV = "QARA_ALLOW_EXTERNAL_LLM"
+UNTRUSTED_DATA_START = "===== BEGIN UNTRUSTED REPORT DATA ====="
+UNTRUSTED_DATA_END = "===== END UNTRUSTED REPORT DATA ====="
 
 _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (
@@ -119,6 +161,11 @@ def prepare_llm_prompt_text(text: str, *, max_chars: int = MAX_LLM_PROMPT_CHARS)
         cleaned[:max_chars]
         + "\n\n[QARA SECURITY NOTE: prompt text was truncated before LLM submission.]"
     )
+
+
+def wrap_untrusted_data(text: str) -> str:
+    """Wrap report-derived prompt context in explicit untrusted-data markers."""
+    return f"{UNTRUSTED_DATA_START}\n{text}\n{UNTRUSTED_DATA_END}"
 
 
 def sniff_image_mime(data: bytes) -> str | None:

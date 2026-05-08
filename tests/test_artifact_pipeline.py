@@ -218,6 +218,18 @@ class TestMetadataOnlyMode:
         assert stats.records_created == 1
         assert records[0].sha256 == hashlib.sha256(_PNG_1x1).hexdigest()
 
+    def test_svg_data_uri_is_rejected(self):
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"></svg>'
+        config = ArtifactConfig(mode=ArtifactMode.METADATA_ONLY)
+        policy = ArtifactIngestionPolicy(config)
+        ref = _make_ref(
+            uri=_data_uri(svg, "image/svg+xml"),
+            mime_type="image/svg+xml",
+        )
+        records, stats = policy.process("tc::1", [ref])
+        assert records == []
+        assert stats.errors_skipped == 1
+
 
 # ---------------------------------------------------------------------------
 # full mode

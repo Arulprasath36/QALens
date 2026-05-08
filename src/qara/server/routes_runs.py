@@ -13,9 +13,8 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import Response
 
+from qara.security import ALLOWED_TEST_STATUSES
 from qara.server.models import _dc_to_dict
-
-_ALLOWED_TEST_STATUSES = frozenset({"passed", "failed", "broken", "skipped", "unknown"})
 
 
 def make_runs_router(db_path: str | Path | None) -> APIRouter:
@@ -66,14 +65,21 @@ def make_runs_router(db_path: str | Path | None) -> APIRouter:
 
         conn = get_connection(db_path)
         try:
-            if status is not None and status.lower() not in _ALLOWED_TEST_STATUSES:
-                allowed = ", ".join(sorted(_ALLOWED_TEST_STATUSES))
-                raise HTTPException(status_code=422, detail=f"Invalid status filter. Allowed: {allowed}.")
+            if status is not None and status.lower() not in ALLOWED_TEST_STATUSES:
+                allowed = ", ".join(sorted(ALLOWED_TEST_STATUSES))
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"Invalid status filter. Allowed: {allowed}.",
+                )
             status_filter = status.lower() if status else None
             repo = RunRepository(conn)
             if repo.get_run(run_id) is None:
                 raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found.")
-            tests = repo.get_test_cases_for_run(run_id, status=status_filter, include_details=include_details)
+            tests = repo.get_test_cases_for_run(
+                run_id,
+                status=status_filter,
+                include_details=include_details,
+            )
             return [_dc_to_dict(t) for t in tests]
         finally:
             conn.close()

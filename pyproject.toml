@@ -74,11 +74,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-org/qara"
-Documentation = "https://github.com/your-org/qara/tree/main/docs"
-Repository = "https://github.com/your-org/qara"
-Issues = "https://github.com/your-org/qara/issues"
-Changelog = "https://github.com/your-org/qara/releases"
+Homepage      = "https://github.com/Arulprasath36/QARA"
+Documentation = "https://github.com/Arulprasath36/QARA/tree/main/docs"
+Repository    = "https://github.com/Arulprasath36/QARA"
+Issues        = "https://github.com/Arulprasath36/QARA/issues"
+Changelog     = "https://github.com/Arulprasath36/QARA/releases"
 
 [project.scripts]
 qara = "qara.cli:app"
@@ -104,6 +104,32 @@ path = "hatch_build.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/qara"]
+# Include generated frontend assets even though src/qara/server/static/ is gitignored.
+# The custom build hook compiles the React app into this directory before hatchling
+# packages the wheel, so end-users get the full UI with no Node.js required.
+artifacts = ["src/qara/server/static/**"]
+
+[tool.hatch.build.targets.sdist]
+# Ship the frontend source so `pip install qara-insights --no-binary` works.
+# Listing files explicitly avoids accidentally including node_modules/.
+include = [
+    "/src",
+    "/frontend/package.json",
+    "/frontend/package-lock.json",
+    "/frontend/index.html",
+    "/frontend/vite.config.ts",
+    "/frontend/tsconfig.json",
+    "/frontend/tsconfig.app.json",
+    "/frontend/tsconfig.node.json",
+    "/frontend/postcss.config.ts",
+    "/frontend/tailwind.config.ts",
+    "/frontend/src",
+    "/frontend/public",
+    "/hatch_build.py",
+    "/pyproject.toml",
+    "/README.md",
+    "/LICENSE",
+]
 
 # ---------------------------------------------------------------------------
 # ruff — linting and formatting

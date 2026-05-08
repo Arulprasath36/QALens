@@ -5,11 +5,10 @@ import {
   useCallback,
   useMemo,
 } from 'react';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
 import { Tooltip } from '../components/Tooltip';
 import { useProject } from '../hooks/useProject';
 import { ResultWorkspace } from './chat/ResultWorkspace';
+import { renderMarkdown } from './chat/markdown';
 import type {
   AssistantUiHints,
   HistoryState,
@@ -18,17 +17,6 @@ import type {
   RiskRankingResult,
   RiskTier,
 } from './chat/types';
-
-// ─────────────────────────────────────────────────────────────
-// Markdown helper
-// ─────────────────────────────────────────────────────────────
-
-marked.setOptions({ breaks: true, gfm: true });
-
-function renderMarkdown(raw: string): string {
-  const html = marked.parse(raw) as string;
-  return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel'] });
-}
 
 // ─────────────────────────────────────────────────────────────
 // API types
@@ -551,11 +539,11 @@ function provisionalOwnerFailureRateResult(data: ApiAskResponse): OwnerFailureRa
     totalTests: source.total_tests ?? 0,
     runCount: source.run_count ?? 0,
     primaryReason: ownerPrimaryReason(source),
-    emphasis: source.rank_label === 'Highest'
+    emphasis: (source.rank_label === 'Highest'
       ? 'highest_rate'
       : (source.failed_executions ?? 0) >= Math.max(...ownerSources.map(item => item.failed_executions ?? 0))
         ? 'most_failures'
-        : undefined,
+        : undefined) as 'highest_rate' | 'most_failures' | undefined,
     evidence: [
       { label: 'Source summary', value: source.meta },
       { label: 'Failure rate', value: `${Math.round((source.failure_rate ?? 0) * 100)}%` },
@@ -645,21 +633,6 @@ async function hydrateRiskResult(
   };
 }
 
-function rankingSummary(result: RiskRankingResult) {
-  const topItems = result.ranking.slice(0, 3);
-  const bullets = topItems.map(item =>
-    `${item.rank}. ${item.testName} — ${item.riskTier} · ${Math.round(item.passRate * 100)}% pass rate`,
-  );
-
-  return [
-    `I found ${result.ranking.length} tests likely to fail in the next run.`,
-    '',
-    'Top risks:',
-    ...bullets,
-    '',
-    'I ranked them by QARA risk score, not pass rate alone. The detailed ranked view is shown in the Results workspace.',
-  ].join('\n');
-}
 
 function ownerFailureRateSummary(result: OwnerFailureRateResult) {
   const topOwners = result.ranking.slice(0, 3);
@@ -1167,7 +1140,7 @@ export function ChatPanel() {
     [suggestedQuestions, visibleFollowUpQuestionKeys],
   );
   const desktopGridStyle = useMemo(
-    () => ({ ['--chat-panel-width' as const]: `${chatPanelWidth}px` }),
+    () => ({ '--chat-panel-width': `${chatPanelWidth}px` } as React.CSSProperties),
     [chatPanelWidth],
   );
 

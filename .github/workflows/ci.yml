@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version-file: frontend/.nvmrc
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
 
@@ -30,6 +30,9 @@ jobs:
 
       - name: Type-check
         run: npx tsc --noEmit
+
+      - name: Tests
+        run: npm test
 
       - name: Security audit
         # Fail on high or critical CVEs; moderate ones are reported but non-blocking

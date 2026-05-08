@@ -96,6 +96,7 @@ timeout = 60
 max_tokens = 2048
 temperature = 0.5
 system_prompt = "Be concise."
+allow_external = true
 """
     p = tmp_path / "config.toml"
     p.write_text(toml_content, encoding="utf-8")
@@ -107,6 +108,23 @@ system_prompt = "Be concise."
     assert cfg.max_tokens == 2048
     assert abs(cfg.temperature - 0.5) < 0.001
     assert cfg.system_prompt == "Be concise."
+    assert cfg.allow_external is True
+
+
+def test_external_llm_requires_opt_in_by_default():
+    cfg = LLMConfig(provider="openai")
+    assert cfg.external_llm_allowed is False
+
+
+def test_external_llm_env_opt_in(monkeypatch):
+    monkeypatch.setenv("QARA_ALLOW_EXTERNAL_LLM", "1")
+    cfg = LLMConfig(provider="openai")
+    assert cfg.external_llm_allowed is True
+
+
+def test_local_llm_is_allowed_without_opt_in():
+    cfg = LLMConfig(provider="ollama")
+    assert cfg.external_llm_allowed is True
 
 
 def test_load_config_env_overrides_provider(tmp_path, monkeypatch):

@@ -24,7 +24,6 @@ _MIME_TO_EXT: dict[str, str] = {
     "image/gif": ".gif",
     "image/webp": ".webp",
     "image/bmp": ".bmp",
-    "image/svg+xml": ".svg",
 }
 
 

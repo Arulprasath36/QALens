@@ -33,15 +33,15 @@ from qara.artifacts.models import ArtifactIngestStats, ArtifactRecord
 from qara.artifacts.selector import select_screenshots
 from qara.artifacts.storage import ArtifactStore, mime_to_ext
 from qara.models.artifact_ref import ArtifactRef
-from qara.security import validate_image_bytes
+from qara.security import (
+    MAX_SOURCE_REFERENCE_CHARS,
+    SUPPORTED_IMAGE_EXTENSIONS,
+    validate_image_bytes,
+)
 
 logger = logging.getLogger(__name__)
 
 _DATA_URI_RE = re.compile(r"^data:([^;,\s]+);base64,(.+)$", re.DOTALL)
-
-# Keep source_reference short — never store the full base64 payload in the DB
-_MAX_SOURCE_REF = 512
-
 
 class ArtifactIngestionPolicy:
     """Applies the configured artifact mode to per-test artifact refs.
@@ -168,7 +168,7 @@ class ArtifactIngestionPolicy:
             prefix_end = ref.source_uri.find(",")
             src_ref = ref.source_uri[: prefix_end + 1] + "…" if prefix_end != -1 else "data:…"
         else:
-            src_ref = ref.source_uri[:_MAX_SOURCE_REF]
+            src_ref = ref.source_uri[:MAX_SOURCE_REFERENCE_CHARS]
 
         storage_uri: str | None = None
         if self._config.mode == ArtifactMode.FULL:
@@ -292,6 +292,7 @@ _EXT_TO_MIME: dict[str, str] = {
     ".webp": "image/webp",
     ".bmp": "image/bmp",
 }
+assert frozenset(_EXT_TO_MIME) == SUPPORTED_IMAGE_EXTENSIONS
 
 
 def _ext_to_mime(ext: str) -> str | None:

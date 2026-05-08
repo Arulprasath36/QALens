@@ -171,6 +171,21 @@ Recommended Actions
 - **Plugin-extensible** — Add custom parsers, rules, or output writers without forking.
 - **Production-quality** — Typed, tested, documented, and maintainable.
 
+## Security Defaults
+
+QARA treats reports as untrusted input. Ingestion validates supported report
+file types, bounds screenshot bytes, rejects SVG artifacts, validates raster
+images by magic bytes, and redacts common secrets before report-derived text is
+sent to an LLM.
+
+LLM features default to local providers. Cloud providers require an explicit
+opt-in with `allow_external = true` in the QARA LLM config or
+`QARA_ALLOW_EXTERNAL_LLM=1`.
+
+For networked deployments, review [SECURITY.md](SECURITY.md) and
+[PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md). `qara serve` has no built-in
+authentication and should be exposed only behind an authenticated reverse proxy.
+
 ---
 
 ## Using QARA as a Python Library

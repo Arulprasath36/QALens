@@ -295,6 +295,28 @@ def test_get_run_tests_invalid_status_rejected(client: TestClient) -> None:
     assert res.status_code == 422
 
 
+def test_compare_custom_rejects_invalid_status_filter(client: TestClient) -> None:
+    res = client.post(
+        "/api/compare/custom",
+        json={
+            "run_ids": ["run-001", "run-002"],
+            "filters": {"status": "failed' OR 1=1 --"},
+        },
+    )
+    assert res.status_code == 422
+
+
+def test_compare_custom_rejects_invalid_category_filter(client: TestClient) -> None:
+    res = client.post(
+        "/api/compare/custom",
+        json={
+            "run_ids": ["run-001", "run-002"],
+            "filters": {"category": "xss<script>"},
+        },
+    )
+    assert res.status_code == 422
+
+
 def test_get_run_tests_not_found(client: TestClient) -> None:
     res = client.get("/api/runs/no-such/tests")
     assert res.status_code == 404
@@ -392,8 +414,10 @@ def test_ask_rejects_oversized_question(client: TestClient) -> None:
     assert res.status_code == 422
 
 
-def test_ask_llm_error_returns_503(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    """When LLMClient.chat raises LLMError the endpoint should return 503."""
+def test_ask_llm_error_returns_deterministic_fallback(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """When LLMClient.chat raises LLMError the endpoint should fall back locally."""
     from qara.llm.client import LLMError
 
     class _BrokenClient:
@@ -410,7 +434,8 @@ def test_ask_llm_error_returns_503(client: TestClient, monkeypatch: pytest.Monke
     monkeypatch.setattr("qara.llm.client.LLMClient", _BrokenClient)
 
     res = client.post("/api/ask", json={"question": "What failed?", "project": "ServerProject"})
-    assert res.status_code == 503
+    assert res.status_code == 200
+    assert "could not reach the configured LLM" in res.json()["answer"]
 
 
 def test_ask_returns_answer(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -439,7 +464,7 @@ def test_ask_returns_answer(client: TestClient, monkeypatch: pytest.MonkeyPatch)
     assert "context_mode" in data
     assert "sources" in data
     assert isinstance(data["sources"], list)
-    assert data["answer"] == "testCreate is consistently broken."
+    assert data["answer"].startswith("testCreate is consistently broken.")
 
 
 def test_ask_surrogate_chars_in_llm_answer_do_not_crash(

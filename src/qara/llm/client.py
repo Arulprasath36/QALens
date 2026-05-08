@@ -21,7 +21,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from qara.security import prepare_llm_prompt_text
+from qara.security import (
+    EXTERNAL_LLM_OPT_IN_ENV,
+    LOCAL_LLM_PROVIDERS,
+    prepare_llm_prompt_text,
+)
 
 if TYPE_CHECKING:
     from qara.llm.config import LLMConfig
@@ -106,6 +110,15 @@ class LLMClient:
             LLMError: On HTTP or API errors.
         """
         sys = system_prompt or self._config.system_prompt or _DEFAULT_SYSTEM_PROMPT
+        provider = self._config.provider.lower()
+
+        if provider not in LOCAL_LLM_PROVIDERS and not self._config.external_llm_allowed:
+            raise LLMError(
+                f"External LLM provider '{self._config.provider}' is disabled. "
+                "Set allow_external = true in the QARA LLM config or "
+                f"{EXTERNAL_LLM_OPT_IN_ENV}=1 "
+                "after confirming report data may be sent to that provider."
+            )
 
         # Report-derived prompt text is untrusted: remove broken surrogates,
         # redact likely secrets, and bound size before provider adapters encode
@@ -113,7 +126,6 @@ class LLMClient:
         user_message = prepare_llm_prompt_text(user_message)
         sys = prepare_llm_prompt_text(sys)
 
-        provider = self._config.provider.lower()
         if provider == "anthropic":
             return self._chat_anthropic(user_message, sys)
         if provider == "gemini":

@@ -11,7 +11,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 
-from qara.server.models import CompareRequest
+from qara.server.models import CompareRequest, EntityCompareRequest
 
 
 def _parse_compare_filters(params: dict[str, Any]):
@@ -115,7 +115,7 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
             conn.close()
 
     @router.post("/api/compare/owners", tags=["comparison"])
-    async def compare_owners(body: dict) -> dict[str, Any]:
+    async def compare_owners(body: EntityCompareRequest) -> dict[str, Any]:
         """Compare test results between two or three owners across a run window.
 
         Request body::
@@ -133,27 +133,26 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
         each owner's aggregate in the **latest run**.  Each row carries the test's
         status in the latest run (``status_a``) vs the baseline run (``status_b``).
         """
-        owner_a = (body.get("owner_a") or "").strip()
-        owner_b = (body.get("owner_b") or "").strip()
-        owner_c = (body.get("owner_c") or "").strip() or None
+        owner_a = (body.owner_a or "").strip()
+        owner_b = (body.owner_b or "").strip()
+        owner_c = (body.owner_c or "").strip() or None
         if not owner_a or not owner_b:
             raise HTTPException(status_code=400, detail="owner_a and owner_b are required.")
         if owner_a == owner_b:
             raise HTTPException(status_code=400, detail="owner_a and owner_b must be different.")
         if owner_c and owner_c in (owner_a, owner_b):
-            raise HTTPException(status_code=400, detail="owner_c must be different from owner_a and owner_b.")
+            raise HTTPException(
+                status_code=400,
+                detail="owner_c must be different from owner_a and owner_b.",
+            )
 
-        try:
-            limit = min(max(int(body.get("limit") or 5), 1), 50)
-        except (TypeError, ValueError):
-            limit = 5
-        run_ids_raw = body.get("run_ids") or None
-        run_ids = list(dict.fromkeys([str(rid) for rid in run_ids_raw])) if isinstance(run_ids_raw, list) else None
+        limit = body.limit if "limit" in body.model_fields_set else 5
+        run_ids = list(dict.fromkeys(body.run_ids)) if body.run_ids else None
         if run_ids is not None and not run_ids:
             raise HTTPException(status_code=400, detail="run_ids must not be empty.")
         if run_ids is not None and len(run_ids) > 50:
             raise HTTPException(status_code=400, detail="At most 50 run IDs allowed.")
-        project = (body.get("project") or None)
+        project = body.project or None
 
         from qara.db.schema import get_connection, init_db
 
@@ -169,7 +168,7 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
             conn.close()
 
     @router.post("/api/compare/suites", tags=["comparison"])
-    async def compare_suites(body: dict) -> dict[str, Any]:
+    async def compare_suites(body: EntityCompareRequest) -> dict[str, Any]:
         """Compare test results between two or three suites across a run window.
 
         Request body::
@@ -183,27 +182,26 @@ def make_compare_router(db_path: str | Path | None) -> APIRouter:
                 "project":  "OrangeHRM"   // optional
             }
         """
-        suite_a = (body.get("suite_a") or "").strip()
-        suite_b = (body.get("suite_b") or "").strip()
-        suite_c = (body.get("suite_c") or "").strip() or None
+        suite_a = (body.suite_a or "").strip()
+        suite_b = (body.suite_b or "").strip()
+        suite_c = (body.suite_c or "").strip() or None
         if not suite_a or not suite_b:
             raise HTTPException(status_code=400, detail="suite_a and suite_b are required.")
         if suite_a == suite_b:
             raise HTTPException(status_code=400, detail="suite_a and suite_b must be different.")
         if suite_c and suite_c in (suite_a, suite_b):
-            raise HTTPException(status_code=400, detail="suite_c must be different from suite_a and suite_b.")
+            raise HTTPException(
+                status_code=400,
+                detail="suite_c must be different from suite_a and suite_b.",
+            )
 
-        try:
-            limit = min(max(int(body.get("limit") or 10), 1), 50)
-        except (TypeError, ValueError):
-            limit = 10
-        run_ids_raw = body.get("run_ids") or None
-        run_ids = list(dict.fromkeys([str(rid) for rid in run_ids_raw])) if isinstance(run_ids_raw, list) else None
+        limit = body.limit if "limit" in body.model_fields_set else 10
+        run_ids = list(dict.fromkeys(body.run_ids)) if body.run_ids else None
         if run_ids is not None and not run_ids:
             raise HTTPException(status_code=400, detail="run_ids must not be empty.")
         if run_ids is not None and len(run_ids) > 50:
             raise HTTPException(status_code=400, detail="At most 50 run IDs allowed.")
-        project = (body.get("project") or None)
+        project = body.project or None
 
         from qara.db.schema import get_connection, init_db
 

@@ -73,6 +73,9 @@ Security controls active in server mode:
 
 > QARA is designed as a **local developer tool**. If you choose to expose it on a network, work through this checklist first.
 
+Use the standalone [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md) before any
+networked deployment. The summary below is kept as a quick reference.
+
 ### Authentication & network exposure
 - [ ] Place the server behind a reverse proxy (nginx, Caddy) that enforces authentication (Basic Auth, OAuth2, mTLS)
 - [ ] Bind `qara serve` to `127.0.0.1` only; never expose directly on `0.0.0.0` without a proxy

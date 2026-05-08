@@ -10,6 +10,7 @@ Example ``~/.qara/config.toml``::
     base_url  = "http://localhost:11434/v1"
     model     = "llama3.2"
     api_key   = ""
+    allow_external = false
     timeout   = 120
     max_tokens = 1024
     temperature = 0.2
@@ -28,7 +29,7 @@ Supported providers
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -116,6 +117,11 @@ temperature = 0.2
 
 # Optional system prompt override (leave blank for QARA default)
 system_prompt = ""
+
+# External/cloud LLM providers are disabled by default. Set this to true, or
+# set QARA_ALLOW_EXTERNAL_LLM=1, only after confirming report data may leave
+# the local machine.
+allow_external = false
 """
 
 
@@ -137,6 +143,8 @@ class LLMConfig:
         max_tokens: Maximum tokens to generate.
         temperature: Sampling temperature.
         system_prompt: Optional system prompt override.
+        allow_external: Permit cloud/external providers to receive redacted
+            report context. Local providers are always allowed.
     """
 
     provider: str = "ollama"
@@ -147,6 +155,7 @@ class LLMConfig:
     max_tokens: int = 2048
     temperature: float = 0.2
     system_prompt: str = ""
+    allow_external: bool = False
 
     @property
     def is_openai_compatible(self) -> bool:
@@ -164,6 +173,16 @@ class LLMConfig:
         if self.base_url:
             return self.base_url.rstrip("/")
         return (_PROVIDER_DEFAULTS.get(self.provider, {}).get("base_url", "")).rstrip("/")
+
+    @property
+    def external_llm_allowed(self) -> bool:
+        """Return whether this config may send prompts to an external provider."""
+        from qara.security import EXTERNAL_LLM_OPT_IN_ENV, LOCAL_LLM_PROVIDERS
+
+        if self.provider in LOCAL_LLM_PROVIDERS:
+            return True
+        env_value = os.environ.get(EXTERNAL_LLM_OPT_IN_ENV, "").strip().lower()
+        return self.allow_external or env_value in {"1", "true", "yes", "on"}
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +245,7 @@ def load_config(path: Path | None = None) -> LLMConfig:
         max_tokens=int(raw.get("max_tokens", 2048)),
         temperature=float(raw.get("temperature", 0.2)),
         system_prompt=raw.get("system_prompt", ""),
+        allow_external=bool(raw.get("allow_external", False)),
     )
 
     # Environment overrides

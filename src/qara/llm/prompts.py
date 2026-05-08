@@ -31,6 +31,8 @@ from __future__ import annotations
 
 import json
 
+from qara.security import wrap_untrusted_data
+
 # ---------------------------------------------------------------------------
 # Legacy two-template fallback (used when no AnswerPlan is supplied)
 # ---------------------------------------------------------------------------
@@ -39,7 +41,7 @@ _TEST_QUESTION_TEMPLATE = """The following is structured data about a test (or t
 report database. Use it to answer the question below.
 
 ===== CONTEXT =====
-{context}
+{wrapped_context}
 ===================
 {history_block}
 Question: {question}
@@ -60,7 +62,7 @@ aspects of the data are relevant and any guardrails that apply. Follow those \
 guardrails strictly.
 
 ===== CONTEXT =====
-{context}
+{wrapped_context}
 ===================
 {history_block}
 Question: {question}
@@ -89,7 +91,7 @@ _STRUCTURED_PROMPT_TEMPLATE = """[QUESTION INTENT: {intent_label}]
 {structured_facts}
 
 ===== CONTEXT =====
-{context}
+{wrapped_context}
 ==================={history_block}
 [QUESTION]
 {question}
@@ -749,7 +751,7 @@ def build_prompt(
             intent_description=intent_desc,
             answer_rules=rules_block,
             structured_facts=facts_block,
-            context=context,
+            wrapped_context=wrap_untrusted_data(context),
             history_block=history_block,
             question=question,
         )
@@ -759,7 +761,9 @@ def build_prompt(
         _PROJECT_QUESTION_TEMPLATE if mode == "project" else _TEST_QUESTION_TEMPLATE
     )
     return template.format(
-        context=context, question=question, history_block=history_block
+        wrapped_context=wrap_untrusted_data(context),
+        question=question,
+        history_block=history_block,
     )
 
 

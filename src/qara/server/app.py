@@ -225,6 +225,13 @@ def create_app(
     app.include_router(make_homepage_router(_db))
 
     _static_dir = Path(__file__).parent / "static"
+    if not (_static_dir / "index.html").exists():
+        import warnings
+        warnings.warn(
+            "QARA frontend assets not found at "
+            f"{_static_dir}. Run `hatch build` or `make build-ui` to compile the UI.",
+            stacklevel=2,
+        )
     app.mount("/static", StaticFiles(directory=_static_dir), name="static")
 
     return app

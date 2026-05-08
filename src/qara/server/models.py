@@ -8,15 +8,23 @@ from __future__ import annotations
 
 import dataclasses
 import enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
+from qara.security import (
+    ALLOWED_FAILURE_CATEGORIES,
+    ALLOWED_TEST_STATUSES,
+    MAX_ASK_HISTORY_ITEMS,
+    MAX_ASK_QUESTION_CHARS,
+    MAX_COMPARE_ENTITY_CHARS,
+    MAX_COMPARE_PROJECT_CHARS,
+    MAX_COMPARE_RUN_IDS,
+    MAX_COMPARE_SEARCH_CHARS,
+)
 
-MAX_ASK_QUESTION_CHARS = 4_000
-MAX_ASK_HISTORY_ITEMS = 12
-MAX_COMPARE_RUN_IDS = 50
 
+MAX_HISTORY_MESSAGE_CHARS = 8_000
 
 # ---------------------------------------------------------------------------
 # Surrogate-sanitisation helpers
@@ -56,7 +64,23 @@ class AskRequest(BaseModel):
 
     question: str = Field(..., min_length=1, max_length=MAX_ASK_QUESTION_CHARS)
     project: str | None = Field(default=None, max_length=200)
-    history: list[dict[str, str]] = Field(default_factory=list, max_length=MAX_ASK_HISTORY_ITEMS)
+    history: list[dict[str, str]] = Field(
+        default_factory=list,
+        max_length=MAX_ASK_HISTORY_ITEMS,
+    )
+
+    @field_validator("history")
+    @classmethod
+    def _validate_history(cls, v: list[dict[str, str]]) -> list[dict[str, str]]:
+        allowed_roles = {"user", "assistant"}
+        for item in v:
+            role = item.get("role")
+            content = item.get("content")
+            if role not in allowed_roles:
+                raise ValueError("History role must be 'user' or 'assistant'.")
+            if not isinstance(content, str) or len(content) > MAX_HISTORY_MESSAGE_CHARS:
+                raise ValueError("History content must be a bounded string.")
+        return v
 
 
 class AskResponse(BaseModel):
@@ -99,7 +123,88 @@ class CompareRequest(BaseModel):
     """Request body for POST /api/compare/custom."""
 
     run_ids: list[str] = Field(..., min_length=1, max_length=MAX_COMPARE_RUN_IDS)
-    filters: dict[str, Any] = Field(default_factory=dict)
+    filters: dict[str, Any] = Field(default_factory=dict, max_length=12)
+
+    @field_validator("filters")
+    @classmethod
+    def _validate_filters(cls, v: dict[str, Any]) -> dict[str, Any]:
+        allowed_keys = {
+            "suite",
+            "owner",
+            "feature",
+            "search",
+            "status",
+            "category",
+            "flaky_only",
+            "broken_only",
+            "changed_only",
+            "latest_failed_only",
+        }
+        unknown = set(v) - allowed_keys
+        if unknown:
+            raise ValueError(f"Unsupported filter keys: {', '.join(sorted(unknown))}.")
+
+        for key in ("suite", "owner", "feature", "search"):
+            value = v.get(key)
+            if value is not None and (not isinstance(value, str) or len(value) > 500):
+                raise ValueError(f"Filter {key!r} must be a bounded string.")
+
+        status = v.get("status")
+        if status is not None and str(status).lower() not in ALLOWED_TEST_STATUSES:
+            allowed = ", ".join(sorted(ALLOWED_TEST_STATUSES))
+            raise ValueError(f"Invalid status filter. Allowed: {allowed}.")
+
+        category = v.get("category")
+        if category is not None and str(category).lower() not in ALLOWED_FAILURE_CATEGORIES:
+            allowed = ", ".join(sorted(ALLOWED_FAILURE_CATEGORIES))
+            raise ValueError(f"Invalid category filter. Allowed: {allowed}.")
+
+        for key in ("flaky_only", "broken_only", "changed_only", "latest_failed_only"):
+            value = v.get(key)
+            if value is not None and not isinstance(value, bool):
+                raise ValueError(f"Filter {key!r} must be boolean.")
+        return v
+
+
+class EntityCompareRequest(BaseModel):
+    """Request body for owner/suite entity comparison endpoints."""
+
+    owner_a: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=MAX_COMPARE_ENTITY_CHARS,
+    )
+    owner_b: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=MAX_COMPARE_ENTITY_CHARS,
+    )
+    owner_c: str | None = Field(default=None, max_length=MAX_COMPARE_ENTITY_CHARS)
+    suite_a: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=MAX_COMPARE_ENTITY_CHARS,
+    )
+    suite_b: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=MAX_COMPARE_ENTITY_CHARS,
+    )
+    suite_c: str | None = Field(default=None, max_length=MAX_COMPARE_ENTITY_CHARS)
+    limit: int = Field(default=10, ge=1, le=50)
+    run_ids: list[str] | None = Field(
+        default=None,
+        min_length=1,
+        max_length=MAX_COMPARE_RUN_IDS,
+    )
+    project: str | None = Field(default=None, max_length=MAX_COMPARE_PROJECT_CHARS)
+
+
+class BreakdownRequestParams(BaseModel):
+    """Validated filters used by comparison breakdown-style APIs."""
+
+    group_by: Literal["owner", "suite"] = "owner"
+    search: str | None = Field(default=None, max_length=MAX_COMPARE_SEARCH_CHARS)
 
 
 class HomepageCard(BaseModel):

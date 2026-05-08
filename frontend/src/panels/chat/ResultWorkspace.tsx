@@ -201,12 +201,6 @@ function useCopySummary(summaryText: string) {
   return { copied, handleCopySummary };
 }
 
-function nextRunLabel(score: number | undefined) {
-  if (score == null) return 'NA';
-  if (score >= 0.7) return 'High';
-  if (score >= 0.4) return 'Medium';
-  return 'Low';
-}
 
 type WorkspaceEvidenceTest = {
   type: 'test';
@@ -2272,7 +2266,7 @@ function NewFailuresIntroducedWorkspace({
                       {item.tier}
                     </span>
                     <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${classificationBadgeClass(item.classification)}`}>
-                      {item.classification.replaceAll('_', ' ')}
+                      {item.classification.replace(/_/g, ' ')}
                     </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-300">
@@ -2292,11 +2286,11 @@ function NewFailuresIntroducedWorkspace({
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Previous status</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.previousStatus.replaceAll('_', ' ')}</p>
+                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.previousStatus.replace(/_/g, ' ')}</p>
                     </div>
                     <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Latest status</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.latestStatus.replaceAll('_', ' ')}</p>
+                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.latestStatus.replace(/_/g, ' ')}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -2441,7 +2435,7 @@ function RunComparisonWorkspace({
                       {item.testName}
                     </code>
                     <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] ${TIER_STYLES[item.tier].badge}`}>
-                      {item.delta.replaceAll('_', ' ')}
+                      {item.delta.replace(/_/g, ' ')}
                     </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600 dark:text-slate-300">
@@ -2461,11 +2455,11 @@ function RunComparisonWorkspace({
                   <div className="grid gap-2 sm:grid-cols-2">
                     <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Baseline status</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.baselineStatus.replaceAll('_', ' ')}</p>
+                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.baselineStatus.replace(/_/g, ' ')}</p>
                     </div>
                     <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 dark:border-slate-800 dark:bg-slate-900">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Latest status</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.latestStatus.replaceAll('_', ' ')}</p>
+                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-slate-50">{item.latestStatus.replace(/_/g, ' ')}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -3246,10 +3240,6 @@ export function ResultWorkspace({
 
   if (result.type === 'owner_failure_rate') {
     return <OwnerFailureRateWorkspace result={result} />;
-  }
-
-  if (result.type === 'owner_flaky_tests') {
-    return <OwnerFlakyTestsWorkspace result={result} />;
   }
 
   if (result.type === 'owner_flaky_tests') {

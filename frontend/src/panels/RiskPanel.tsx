@@ -74,13 +74,6 @@ function flipNextRunScore(signals: ApiRiskEntry['signals']) {
   );
 }
 
-function scoreTier(score: number): keyof typeof TIER_CONFIG {
-  if (score >= 0.62) return 'CRITICAL';
-  if (score >= 0.41) return 'HIGH';
-  if (score >= 0.24) return 'MEDIUM';
-  return 'LOW';
-}
-
 type NextRunTier = 'Critical' | 'High' | 'Medium' | 'Low';
 
 function nextRunTier(score: number): NextRunTier {

@@ -158,6 +158,32 @@ def test_chat_no_auth_header_when_no_api_key(httpx_mock):
     assert "authorization" not in request.headers
 
 
+def test_chat_blocks_external_provider_without_opt_in():
+    cfg = LLMConfig(
+        provider="openai",
+        base_url="https://api.openai.com/v1",
+        model="gpt-4o-mini",
+        api_key="sk-test",
+    )
+    with pytest.raises(LLMError, match="External LLM provider"):
+        LLMClient(cfg).chat("q")
+
+
+def test_chat_allows_external_provider_with_opt_in(httpx_mock):
+    cfg = LLMConfig(
+        provider="openai",
+        base_url="https://api.openai.com/v1",
+        model="gpt-4o-mini",
+        api_key="sk-test",
+        allow_external=True,
+    )
+    httpx_mock.add_response(
+        url="https://api.openai.com/v1/chat/completions",
+        json=_openai_response("ok"),
+    )
+    assert LLMClient(cfg).chat("q") == "ok"
+
+
 def test_chat_raises_llm_error_on_http_500(httpx_mock):
     cfg = _ollama_cfg()
     httpx_mock.add_response(
@@ -191,6 +217,7 @@ def test_chat_anthropic_returns_answer(httpx_mock):
         model="claude-3-haiku-20240307",
         api_key="sk-ant-test",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://api.anthropic.com/v1/messages",
@@ -207,6 +234,7 @@ def test_chat_anthropic_sends_api_key_header(httpx_mock):
         model="claude-3-haiku-20240307",
         api_key="sk-ant-key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://api.anthropic.com/v1/messages",
@@ -224,6 +252,7 @@ def test_chat_anthropic_raises_on_error(httpx_mock):
         model="claude-3-haiku-20240307",
         api_key="bad-key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://api.anthropic.com/v1/messages",
@@ -246,6 +275,7 @@ def test_chat_gemini_returns_answer(httpx_mock):
         model="gemini-2.0-flash",
         api_key="gemini-key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=gemini-key",
@@ -262,6 +292,7 @@ def test_chat_gemini_raises_on_bad_format(httpx_mock):
         model="gemini-2.0-flash",
         api_key="key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=key",
@@ -280,6 +311,7 @@ def test_chat_gemini_raises_on_max_tokens(httpx_mock):
         api_key="key",
         timeout=10,
         max_tokens=256,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=key",
@@ -297,6 +329,7 @@ def test_chat_gemini_joins_multiple_parts(httpx_mock):
         model="gemini-2.0-flash",
         api_key="key",
         timeout=10,
+        allow_external=True,
     )
     multi_part_response = {
         "candidates": [
