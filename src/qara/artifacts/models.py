@@ -1,15 +1,15 @@
 """Data-transfer objects internal to the artifact pipeline.
 
 ``ArtifactRecord``
-    Produced by :class:`~ari.artifacts.policy.ArtifactIngestionPolicy`.
+    Produced by :class:`~qara.artifacts.policy.ArtifactIngestionPolicy`.
     Ready for insertion into the ``artifacts`` DB table.
 
 ``ArtifactIngestStats``
     Collects per-run counters and is returned by
-    :meth:`~ari.api.library.QARAClient.ingest_report` alongside the
+    :meth:`~qara.api.library.QARAClient.ingest_report` alongside the
     ``(TestRun, inserted)`` tuple.
 
-Note: ``ArtifactRef`` lives in ``ari.models.artifact_ref`` (not here) so
+Note: ``ArtifactRef`` lives in ``qara.models.artifact_ref`` (not here) so
 that parsers can import it without pulling in the full artifacts sub-package.
 """
 
@@ -23,8 +23,8 @@ from dataclasses import dataclass, field
 class ArtifactRecord:
     """A processed artifact ready for insertion into the ``artifacts`` DB table.
 
-    Produced by :meth:`~ari.artifacts.policy.ArtifactIngestionPolicy.process`
-    after applying the configured :class:`~ari.artifacts.config.ArtifactMode`.
+    Produced by :meth:`~qara.artifacts.policy.ArtifactIngestionPolicy.process`
+    after applying the configured :class:`~qara.artifacts.config.ArtifactMode`.
 
     Attributes:
         tc_id: DB-stored ``tc_id`` key in the ``test_cases`` table.
@@ -71,7 +71,7 @@ class ArtifactRecord:
 class ArtifactIngestStats:
     """Per-run artifact processing counters.
 
-    Returned by :meth:`~ari.api.library.QARAClient.ingest_report` alongside
+    Returned by :meth:`~qara.api.library.QARAClient.ingest_report` alongside
     the ``(TestRun, inserted)`` pair.  Used by the CLI to print the
     end-of-run ingestion summary.
 

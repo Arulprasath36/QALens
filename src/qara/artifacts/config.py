@@ -23,7 +23,7 @@ class ArtifactMode(str, Enum):
             metadata persisted to the DB (content hash, MIME type, dimensions,
             sequence number, etc.).  No image bytes are written.
         FULL: Everything from ``METADATA_ONLY`` plus image bytes written to the
-            configured :class:`~ari.artifacts.storage.ArtifactStore`.
+            configured :class:`~qara.artifacts.storage.ArtifactStore`.
             Optional compression/resizing is applied before storage.
     """
 
@@ -39,7 +39,7 @@ class ArtifactConfig:
     Attributes:
         mode: Ingestion tier — text-only / metadata-only / full.
         max_screenshots_per_failure: Hard cap on screenshots retained per
-            failed test.  The :func:`~ari.artifacts.selector.select_screenshots`
+            failed test.  The :func:`~qara.artifacts.selector.select_screenshots`
             function applies a priority ranking before truncation.
         compress_images: Apply resize/quality reduction before storage in
             ``full`` mode.  Requires Pillow; silently skipped if unavailable.
@@ -56,9 +56,9 @@ class ArtifactConfig:
         max_total_screenshot_bytes_per_run: Maximum screenshot bytes decoded
             for a single run.
         storage_dir: Root directory for the
-            :class:`~ari.artifacts.storage.LocalFilesystemStore`.  Required
+            :class:`~qara.artifacts.storage.LocalFilesystemStore`.  Required
             when ``mode == FULL``.  Defaults to ``~/.qara/artifacts/`` in
-            :meth:`~ari.api.library.QARAClient.ingest_report`.
+            :meth:`~qara.api.library.QARAClient.ingest_report`.
     """
 
     mode: ArtifactMode = ArtifactMode.METADATA_ONLY

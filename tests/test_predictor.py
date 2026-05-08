@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.predictor — RiskPredictor."""
+"""Tests for qara.analyzers.predictor — RiskPredictor."""
 
 from __future__ import annotations
 

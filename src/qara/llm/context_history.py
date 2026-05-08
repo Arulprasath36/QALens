@@ -1,7 +1,7 @@
 """Conversation-history helpers for QARA LLM context building.
 
-Extracted from :mod:`ari.llm.context` for cohesion.
-All public names are re-exported from :mod:`ari.llm.context` for backward
+Extracted from :mod:`qara.llm.context` for cohesion.
+All public names are re-exported from :mod:`qara.llm.context` for backward
 compatibility.
 """
 
@@ -121,12 +121,12 @@ class ConversationContext:
 class ResolvedQueryContext:
     """Resolved plan details from the previous conversation turn.
 
-    Passed into :func:`~ari.llm.answer_plan.build_answer_plan` so follow-up
+    Passed into :func:`~qara.llm.answer_plan.build_answer_plan` so follow-up
     questions inherit the intent, metric, and numeric cap from the prior turn
     without the user having to repeat them.
 
     Attributes:
-        prior_intent:           Primary :class:`~ari.llm.answer_plan.AnswerIntent` of the last turn.
+        prior_intent:           Primary :class:`~qara.llm.answer_plan.AnswerIntent` of the last turn.
         prior_secondary_intent: Secondary intent of the last turn, or ``None``.
         prior_ranking_metric:   Ranking metric used in the last turn, or ``None``.
         prior_max_results:      ``max_results`` cap from the last turn, or ``None``.
@@ -149,15 +149,15 @@ def extract_query_context_from_plan(
 ) -> ResolvedQueryContext:
     """Snapshot the key resolved fields of *plan* for follow-up inheritance.
 
-    Call this after building an :class:`~ari.llm.answer_plan.AnswerPlan` and
+    Call this after building an :class:`~qara.llm.answer_plan.AnswerPlan` and
     store the result; on the next turn pass it to
-    :func:`~ari.llm.answer_plan.build_answer_plan` as ``prior_context`` so
+    :func:`~qara.llm.answer_plan.build_answer_plan` as ``prior_context`` so
     follow-up questions do not need to re-state the metric/intent.
 
     Args:
-        plan:        The :class:`~ari.llm.answer_plan.AnswerPlan` from this turn.
+        plan:        The :class:`~qara.llm.answer_plan.AnswerPlan` from this turn.
         test_names:  Test names that were discussed this turn (e.g. from
-                     :func:`~ari.llm.context.extract_test_from_history`).
+                     :func:`~qara.llm.context.extract_test_from_history`).
         time_window: Time-window phrase extracted from the question.
 
     Returns:

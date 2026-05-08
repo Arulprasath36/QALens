@@ -1,14 +1,14 @@
 """QARA command-line interface.
 
-Built with Typer. Entry point registered in ``pyproject.toml`` as ``ari``.
+Built with Typer. Entry point registered in ``pyproject.toml`` as ``qara``.
 
 Usage examples::
 
-    ari detect ./reports/allure-report
-    ari extract ./reports/allure-report --out extracted.json
-    ari analyze ./reports/allure-report --history ./history --out analysis.json
-    ari summarize ./reports/extent-report --format markdown --out summary.md
-    ari clusters ./reports/allure-report
+    qara detect ./reports/allure-report
+    qara extract ./reports/allure-report --out extracted.json
+    qara analyze ./reports/allure-report --history ./history --out analysis.json
+    qara summarize ./reports/extent-report --format markdown --out summary.md
+    qara clusters ./reports/allure-report
 """
 
 from __future__ import annotations
@@ -19,11 +19,10 @@ from rich.console import Console
 from qara.version import __version__
 
 app = typer.Typer(
-    name="ari",
+    name="qara",
     help=(
         "QARA — Automated Root-cause Insights.\n\n"
         "Transforms static test HTML reports into triage-ready intelligence.\n\n"
-        "'Ari' (அறி) means 'know' in Tamil."
     ),
     no_args_is_help=True,
     rich_markup_mode="rich",
@@ -34,7 +33,7 @@ console = Console()
 
 def _version_callback(value: bool) -> None:
     if value:
-        console.print(f"ari version [bold]{__version__}[/bold]")
+        console.print(f"qara version [bold]{__version__}[/bold]")
         raise typer.Exit()
 
 

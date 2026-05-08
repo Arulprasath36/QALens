@@ -1,14 +1,14 @@
 """QARA command-line interface.
 
-Built with Typer. Entry point registered in ``pyproject.toml`` as ``ari``.
+Built with Typer. Entry point registered in ``pyproject.toml`` as ``qara``.
 
 Usage examples::
 
-    ari detect ./reports/allure-report
-    ari extract ./reports/allure-report --out extracted.json
-    ari analyze ./reports/allure-report --history ./history --out analysis.json
-    ari summarize ./reports/extent-report --format markdown --out summary.md
-    ari clusters ./reports/allure-report
+    qara detect ./reports/allure-report
+    qara extract ./reports/allure-report --out extracted.json
+    qara analyze ./reports/allure-report --history ./history --out analysis.json
+    qara summarize ./reports/extent-report --format markdown --out summary.md
+    qara clusters ./reports/allure-report
 """
 
 from __future__ import annotations
@@ -22,11 +22,10 @@ from qara.api.library import QARAClient
 from qara.version import __version__
 
 app = typer.Typer(
-    name="ari",
+    name="qara",
     help=(
         "QARA — Automated Root-cause Insights.\n\n"
         "Transforms static test HTML reports into triage-ready intelligence.\n\n"
-        "'Ari' (அறி) means 'know' in Tamil."
     ),
     no_args_is_help=True,
     rich_markup_mode="rich",
@@ -44,7 +43,7 @@ def _is_public_bind_host(host: str) -> bool:
 
 def _version_callback(value: bool) -> None:
     if value:
-        console.print(f"ari version [bold]{__version__}[/bold]")
+        console.print(f"qara version [bold]{__version__}[/bold]")
         raise typer.Exit()
 
 
@@ -150,7 +149,7 @@ def ingest(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output."),
 ) -> None:
@@ -227,7 +226,7 @@ def analyze(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     flaky: bool = typer.Option(True, "--flaky/--no-flaky", help="Show flaky test analysis."),
     failures: bool = typer.Option(True, "--failures/--no-failures", help="Show grouped failure analysis."),
@@ -385,7 +384,7 @@ def digest(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     format: str = typer.Option(  # noqa: A002
         "html",
@@ -417,9 +416,9 @@ def digest(
 
     Examples::
 
-        ari digest --project "Allure Report" --out digest.html
-        ari digest --project "Allure Report" --format markdown --out digest.md
-        ari digest --project "Allure Report" --format json --out digest.json
+        qara digest --project "Allure Report" --out digest.html
+        qara digest --project "Allure Report" --format markdown --out digest.md
+        qara digest --project "Allure Report" --format json --out digest.json
     """
     from qara.outputs.digest import build_digest, render_html, render_json, render_markdown
 
@@ -492,7 +491,7 @@ def ask(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     config: Path | None = typer.Option(
         None,
@@ -513,9 +512,9 @@ def ask(
 
     Examples::
 
-        ari ask "why does testCreateOrder keep failing?" --project "Allure Report"
-        ari ask "summarize all failures" --project "Allure Report"
-        ari ask "which tests are most likely flaky infrastructure issues?"
+        qara ask "why does testCreateOrder keep failing?" --project "Allure Report"
+        qara ask "summarize all failures" --project "Allure Report"
+        qara ask "which tests are most likely flaky infrastructure issues?"
     """
     from qara.llm.answer_plan import build_answer_plan, detect_answer_intent
     from qara.llm.client import LLMError
@@ -534,7 +533,7 @@ def ask(
     except Exception as exc:  # noqa: BLE001
         err_console.print(f"[red]Config error:[/red] {exc}")
         err_console.print(
-            "Run [bold]ari llm-config[/bold] to set up your LLM provider."
+            "Run [bold]qara llm-config[/bold] to set up your LLM provider."
         )
         raise typer.Exit(code=1) from exc
 
@@ -576,7 +575,7 @@ def ask(
     if "No test matching" in context and mode == "test":
         console.print(f"[yellow]{context}[/yellow]")
         console.print(
-            "\nTip: ingest reports first with [bold]ari ingest <report>[/bold]"
+            "\nTip: ingest reports first with [bold]qara ingest <report>[/bold]"
         )
         raise typer.Exit(code=1)
 
@@ -593,7 +592,7 @@ def ask(
         err_console.print(f"[red]LLM error:[/red] {exc}")
         err_console.print(
             f"Make sure {provider_name} is running. "
-            "Run [bold]ari llm-config[/bold] to change provider settings."
+            "Run [bold]qara llm-config[/bold] to change provider settings."
         )
         raise typer.Exit(code=1) from exc
     except ImportError as exc:
@@ -656,11 +655,11 @@ def llm_config(
 
     Examples::
 
-        ari llm-config --show
-        ari llm-config --init
-        ari llm-config --provider openai --model gpt-4o-mini --api-key sk-...
-        ari llm-config --provider ollama --model llama3.2
-        ari llm-config --test
+        qara llm-config --show
+        qara llm-config --init
+        qara llm-config --provider openai --model gpt-4o-mini --api-key sk-...
+        qara llm-config --provider ollama --model llama3.2
+        qara llm-config --test
     """
     from qara.llm.config import (
         _PROVIDER_DEFAULTS,
@@ -674,7 +673,7 @@ def llm_config(
 
     if init:
         path = save_default_config(config_path)
-        if path.read_text().startswith("# ARI"):
+        if path.read_text().startswith("# QARA"):
             console.print(f"[green]Config template written:[/green] {path}")
         else:
             console.print(f"[yellow]Config already exists:[/yellow] {path}")
@@ -706,7 +705,7 @@ def llm_config(
             cfg = load_config(config_path)
         except Exception as exc:  # noqa: BLE001
             err_console.print(f"[red]Cannot load config:[/red] {exc}")
-            console.print(f"Run [bold]ari llm-config --init[/bold] to create {config_path}")
+            console.print(f"Run [bold]qara llm-config --init[/bold] to create {config_path}")
             raise typer.Exit(code=1) from exc
 
         from rich.table import Table
@@ -750,7 +749,7 @@ def llm_config(
 
 
 def _write_config(config_path: Path, cfg: object) -> None:
-    """Rewrite config.toml from an :class:`~ari.llm.config.LLMConfig`."""
+    """Rewrite config.toml from an :class:`~qara.llm.config.LLMConfig`."""
     from qara.llm.config import LLMConfig
     assert isinstance(cfg, LLMConfig)
     lines = [
@@ -779,7 +778,7 @@ def serve(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database (default: ~/.qara/ari.db).",
+        help="Path to QARA SQLite database (default: ~/.qara/qara.db).",
     ),
     config: Path | None = typer.Option(
         None,
@@ -810,16 +809,16 @@ def serve(
 
     Examples::
 
-        ari serve
-        ari serve --port 9090 --project "Allure Report"
-        ari serve --no-open --host 0.0.0.0 --allow-public-bind
+        qara serve
+        qara serve --port 9090 --project "Allure Report"
+        qara serve --no-open --host 0.0.0.0 --allow-public-bind
     """
     try:
         import uvicorn  # noqa: PLC0415
     except ImportError:  # pragma: no cover
         err_console.print(
             "[red]uvicorn is not installed.[/red]  "
-            "Run: [bold]pip install 'ari-insights[serve]'[/bold]"
+            "Run: [bold]pip install 'qara-insights[serve]'[/bold]"
         )
         raise typer.Exit(code=1)
 
@@ -843,7 +842,7 @@ def serve(
 
     url = f"http://{host}:{port}"
     console.print(
-        f"[bold]ARI[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
+        f"[bold]QARA[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
     )
     console.print("Press [bold]Ctrl+C[/bold] to stop.\n")
 
@@ -936,13 +935,13 @@ def summarize(
 
     [bold]CI gate[/bold]: use threshold flags to fail the build when failure
     counts exceed a limit.  Exit code [bold]2[/bold] means a gate was breached
-    (distinct from exit code 1 which means an QARA error).
+    (distinct from exit code 1 which means a QARA error).
 
     Examples::
 
-        ari summarize ./reports/allure-report --format json
-        ari summarize ./reports/allure-report --fail-on-defects 0
-        ari summarize ./reports/allure-report --strict
+        qara summarize ./reports/allure-report --format json
+        qara summarize ./reports/allure-report --fail-on-defects 0
+        qara summarize ./reports/allure-report --strict
     """
     valid_formats = {"markdown", "json", "console"}
     if format.lower() not in valid_formats:
@@ -1079,8 +1078,8 @@ def clusters(
 
     Examples::
 
-        ari clusters ./reports/allure-report
-        ari clusters ./reports/allure-report --out clusters.json
+        qara clusters ./reports/allure-report
+        qara clusters ./reports/allure-report --out clusters.json
     """
     import json
 

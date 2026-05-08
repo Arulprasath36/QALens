@@ -1,4 +1,4 @@
-"""Test run models for ARI.
+"""Test run models for QARA.
 
 ``TestRun`` is the top-level canonical object produced by every parser.
 It contains run-level metadata and the full list of test case results.

@@ -1,6 +1,6 @@
-"""Private rendering helpers for :class:`~ari.models.insight.AnalysisSummary`.
+"""Private rendering helpers for :class:`~qara.models.insight.AnalysisSummary`.
 
-Extracted from :mod:`ari.api.library` for cohesion.
+Extracted from :mod:`qara.api.library` for cohesion.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ def _render_analysis_markdown(analysis: "AnalysisSummary") -> str:  # noqa: F821
         f"**Report:** `{analysis.report_path}`  ",
         f"**Run ID:** `{analysis.run_id}`  ",
         f"**Format:** {analysis.report_format}  ",
-        f"**Engine:** ari v{analysis.analysis_engine_version}",
+        f"**Engine:** qara v{analysis.analysis_engine_version}",
         "",
         "## Status Overview",
         "",
@@ -108,13 +108,13 @@ def _render_analysis_console(analysis: "AnalysisSummary") -> str:  # noqa: F821
 
     # Header
     parts.append(
-        f"[bold]ARI Analysis Summary[/bold] — "
+        f"[bold]QARA Analysis Summary[/bold] — "
         f"[dim]{analysis.report_path}[/dim]"
     )
     parts.append(
         f"Run [cyan]{analysis.run_id}[/cyan]  "
         f"Format [cyan]{analysis.report_format}[/cyan]  "
-        f"Engine [dim]ari v{analysis.analysis_engine_version}[/dim]"
+        f"Engine [dim]qara v{analysis.analysis_engine_version}[/dim]"
     )
     parts.append("")
 

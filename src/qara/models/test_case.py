@@ -1,4 +1,4 @@
-"""Test case and step models for ARI.
+"""Test case and step models for QARA.
 
 ``TestCaseResult`` is the central unit of analysis in QARA — one instance per
 test that appeared in the report, regardless of status. ``StepResult``
@@ -130,7 +130,7 @@ class StepResult(BaseModel):
 class TestCaseResult(BaseModel):
     """A single test case result extracted from a report.
 
-    This is the canonical unit of analysis in ARI. One ``TestCaseResult``
+    This is the canonical unit of analysis in QARA. One ``TestCaseResult``
     is created per test that appeared in the source report, regardless of
     whether it passed or failed.
 

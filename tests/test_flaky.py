@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.flaky — FlakyScorer."""
+"""Tests for qara.analyzers.flaky — FlakyScorer."""
 
 from __future__ import annotations
 

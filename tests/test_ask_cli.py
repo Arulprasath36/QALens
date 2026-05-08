@@ -1,4 +1,4 @@
-"""Tests for the ``qara ask`` and ``ari llm-config`` CLI commands (Phase 7)."""
+"""Tests for the ``qara ask`` and ``qara llm-config`` CLI commands (Phase 7)."""
 
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ def mock_config(tmp_path) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# ari llm-config --show
+# qara llm-config --show
 # ---------------------------------------------------------------------------
 
 
@@ -108,7 +108,7 @@ def test_llm_config_shows_model(mock_config):
 
 
 # ---------------------------------------------------------------------------
-# ari ask — with mocked LLM via httpx_mock
+# qara ask — with mocked LLM via httpx_mock
 # ---------------------------------------------------------------------------
 
 
@@ -125,7 +125,7 @@ def _intent_response(intents: list[str] | None = None) -> dict:
 
 
 def test_ask_exits_nonzero_when_no_db_data_and_llm_fails(ask_db, mock_config, httpx_mock):
-    """When LLM returns 500, ari ask exits non-zero."""
+    """When LLM returns 500, qara ask exits non-zero."""
     # First call: intent parse — return a valid intent so routing proceeds
     httpx_mock.add_response(
         url="http://localhost:11434/v1/chat/completions",
@@ -150,7 +150,7 @@ def test_ask_exits_nonzero_when_no_db_data_and_llm_fails(ask_db, mock_config, ht
 
 
 def test_ask_exits_zero_with_valid_llm_response(ask_db, mock_config, httpx_mock):
-    """When LLM returns a valid response, ari ask exits 0 and prints the answer."""
+    """When LLM returns a valid response, qara ask exits 0 and prints the answer."""
     httpx_mock.add_response(
         url="http://localhost:11434/v1/chat/completions",
         json=_intent_response(["root_cause"]),
@@ -199,16 +199,8 @@ def test_ask_show_context_prints_context(ask_db, mock_config, httpx_mock):
     assert "testLogin" in result.output or "testlogin" in result.output.lower()
 
 
-def test_ask_project_mode_on_summary_question(ask_db, mock_config, httpx_mock):
-    """Questions with 'summarize' trigger project-level context."""
-    httpx_mock.add_response(
-        url="http://localhost:11434/v1/chat/completions",
-        json=_intent_response(["failure_summary"]),
-    )
-    httpx_mock.add_response(
-        url="http://localhost:11434/v1/chat/completions",
-        json={"choices": [{"message": {"role": "assistant", "content": "Project summary here."}}]},
-    )
+def test_ask_project_mode_on_summary_question(ask_db, mock_config):
+    """Summary questions use the deterministic project-level answer path."""
     result = runner.invoke(
         app,
         [
@@ -219,7 +211,8 @@ def test_ask_project_mode_on_summary_question(ask_db, mock_config, httpx_mock):
         ],
     )
     assert result.exit_code == 0
-    assert "Project summary here." in result.output
+    assert "QARA has" in result.output
+    assert "Latest run" in result.output
 
 
 def test_ask_no_matching_test_falls_back_to_project_context(ask_db, mock_config, httpx_mock):

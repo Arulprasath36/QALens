@@ -1,7 +1,6 @@
 # QARA Architecture
 
 > QARA — Quality Analysis & Root Automation  
-> "Qara" is named after the Tamil word "Ari" (அறி), meaning "know".
 
 ---
 

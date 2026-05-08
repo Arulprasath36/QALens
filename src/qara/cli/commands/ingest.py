@@ -101,7 +101,7 @@ def ingest(
     db: Optional[Path] = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     attachments_dir: Optional[Path] = typer.Option(
         None,

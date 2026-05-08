@@ -1,10 +1,10 @@
 """Incident assembly from run failure data.
 
-Transforms raw :class:`~ari.db.models.TestCaseRow` failures for a given run
-into :class:`~ari.models.incident.IncidentSummary` objects by:
+Transforms raw :class:`~qara.db.models.TestCaseRow` failures for a given run
+into :class:`~qara.models.incident.IncidentSummary` objects by:
 
 1. Grouping failures that share the same ``fingerprint`` — identical root-cause
-   signal produced by :mod:`ari.analyzers.fingerprint`.
+   signal produced by :mod:`qara.analyzers.fingerprint`.
 2. Sub-grouping fingerprint-less failures by ``error_type``.
 3. Collecting any remaining ungrouped failures into a single catch-all incident.
 4. Annotating each group with category, evidence bullets, and a concrete
@@ -284,7 +284,7 @@ def assemble_incidents(
     *,
     project: str | None = None,  # reserved for future cross-run enrichment
 ) -> list[IncidentSummary]:
-    """Build :class:`~ari.models.incident.IncidentSummary` objects for *run_id*.
+    """Build :class:`~qara.models.incident.IncidentSummary` objects for *run_id*.
 
     Reads persisted failure data from the SQLite database; no live parsing or
     LLM calls are performed.

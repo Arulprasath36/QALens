@@ -119,7 +119,7 @@ def parse_query_intent(
     Args:
         question: The raw user question.
         config:   LLM config to use.  When ``None``, loaded automatically via
-                  :func:`~ari.llm.config.load_config`.
+                  :func:`~qara.llm.config.load_config`.
 
     Returns:
         A :class:`QueryIntent` with ``source="llm"`` on success or
@@ -435,7 +435,7 @@ def gather_context_for_signals(
     evidence already filtered by the signals that were detected.
 
     When :attr:`QuerySignals.needs_risk_context` is ``True``, the function
-    calls :func:`~ari.llm.context.gather_risk_context` and prepends a
+    calls :func:`~qara.llm.context.gather_risk_context` and prepends a
     ``[QUERY SIGNALS]`` block.
 
     When no signal routing applies, returns ``("", "", [], "")`` to signal
@@ -447,7 +447,7 @@ def gather_context_for_signals(
         project:     Optional project name filter.
         db_path:     Path to the QARA SQLite database.
         intent:      Optional pre-parsed :class:`QueryIntent`.
-        answer_plan: Optional :class:`~ari.llm.answer_plan.AnswerPlan`.
+        answer_plan: Optional :class:`~qara.llm.answer_plan.AnswerPlan`.
 
     Returns:
         A 4-tuple of ``(context_text, structured_facts, sources, mode)`` or
@@ -1091,7 +1091,7 @@ def gather_ranking_context(
         db_path:  Path to the QARA SQLite database.
         top_n:    Maximum number of tests to include.
         min_runs: Minimum run appearances required for classification.
-        metric:   Which :class:`~ari.llm.answer_plan.RankingMetric` to sort by.
+        metric:   Which :class:`~qara.llm.answer_plan.RankingMetric` to sort by.
                   ``None`` defaults to FLAKINESS.
 
     Returns:
@@ -1484,7 +1484,7 @@ def gather_comparison_context(
 
     When *is_trend* is ``True``, fetches 5 runs instead of 2 and prepends
     a ``[TREND ANALYSIS]`` block to the structured facts using pre-computed
-    pass-rate trend direction and confidence from :mod:`ari.llm.trend`.
+    pass-rate trend direction and confidence from :mod:`qara.llm.trend`.
 
     Args:
         project:   Optional project name filter.

@@ -1,7 +1,7 @@
 """Date-filtered context builder for QARA LLM queries.
 
-Extracted from :mod:`ari.llm.context` for cohesion.
-All public names are re-exported from :mod:`ari.llm.context` for backward
+Extracted from :mod:`qara.llm.context` for cohesion.
+All public names are re-exported from :mod:`qara.llm.context` for backward
 compatibility.
 """
 
@@ -69,7 +69,7 @@ def gather_date_context(
     """Build a context block scoped to a specific date extracted from *question*.
 
     Returns ``None`` when no recognisable date is found in *question*, so the
-    caller can fall back to :func:`~ari.llm.context.gather_project_context`.
+    caller can fall back to :func:`~qara.llm.context.gather_project_context`.
 
     When a date is found, returns a tuple of ``(context_text, sources)`` where:
     - ``context_text`` lists the run(s) from that date and their failed tests.

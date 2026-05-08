@@ -1,6 +1,6 @@
 """Pydantic request/response models and JSON serialisation helpers.
 
-Extracted from :mod:`ari.server.app` so that route modules can import them
+Extracted from :mod:`qara.server.app` so that route modules can import them
 without creating circular dependencies.
 """
 

@@ -1,11 +1,11 @@
-"""One-off script: extract the ARI frontend f-string into static files.
+"""One-off script: extract the QARA frontend f-string into static files.
 
-Reads src/ari/server/ui.py, pulls out the giant f-string, converts
+Reads src/qara/server/ui.py, pulls out the giant f-string, converts
 all {{ / }} escaping back to real JS braces, and writes three files:
 
-  src/ari/server/static/index.html
-  src/ari/server/static/app.css
-  src/ari/server/static/app.js
+  src/qara/server/static/index.html
+  src/qara/server/static/app.css
+  src/qara/server/static/app.js
 
 Run once from the repo root:
   python scripts/extract_frontend.py
@@ -18,8 +18,8 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
-UI_PY     = REPO_ROOT / "src/ari/server/ui.py"
-STATIC    = REPO_ROOT / "src/ari/server/static"
+UI_PY     = REPO_ROOT / "src/qara/server/ui.py"
+STATIC    = REPO_ROOT / "src/qara/server/static"
 
 
 # ---------------------------------------------------------------------------

@@ -60,11 +60,11 @@ def llm_config(
 
     Examples::
 
-        ari llm-config --show
-        ari llm-config --init
-        ari llm-config --provider openai --model gpt-4o-mini --api-key sk-...
-        ari llm-config --provider ollama --model llama3.2
-        ari llm-config --test
+        qara llm-config --show
+        qara llm-config --init
+        qara llm-config --provider openai --model gpt-4o-mini --api-key sk-...
+        qara llm-config --provider ollama --model llama3.2
+        qara llm-config --test
     """
     from qara.llm.config import (
         _PROVIDER_DEFAULTS,
@@ -78,7 +78,7 @@ def llm_config(
 
     if init:
         path = save_default_config(config_path)
-        if path.read_text().startswith("# ARI"):
+        if path.read_text().startswith("# QARA"):
             console.print(f"[green]Config template written:[/green] {path}")
         else:
             console.print(f"[yellow]Config already exists:[/yellow] {path}")
@@ -110,7 +110,7 @@ def llm_config(
             cfg = load_config(config_path)
         except Exception as exc:  # noqa: BLE001
             err_console.print(f"[red]Cannot load config:[/red] {exc}")
-            console.print(f"Run [bold]ari llm-config --init[/bold] to create {config_path}")
+            console.print(f"Run [bold]qara llm-config --init[/bold] to create {config_path}")
             raise typer.Exit(code=1) from exc
 
         from rich.table import Table
@@ -154,7 +154,7 @@ def llm_config(
 
 
 def _write_config(config_path: Path, cfg: object) -> None:
-    """Rewrite config.toml from an :class:`~ari.llm.config.LLMConfig`."""
+    """Rewrite config.toml from an :class:`~qara.llm.config.LLMConfig`."""
     from qara.llm.config import LLMConfig
     assert isinstance(cfg, LLMConfig)
     lines = [

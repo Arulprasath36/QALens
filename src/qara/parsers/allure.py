@@ -1,4 +1,4 @@
-"""Allure HTML report parser for ARI.
+"""Allure HTML report parser for QARA.
 
 Supports Allure Report v2.x (single-page-app layout) and the older
 Allure v1.x flat HTML layout.
@@ -129,7 +129,7 @@ class AllureHtmlParser(BaseParser):
             report_path: Path to a report directory or ``index.html``.
 
         Returns:
-            A :class:`~ari.parsers.base.DetectionResult` with confidence
+            A :class:`~qara.parsers.base.DetectionResult` with confidence
             and evidence reasons.
         """
         try:
@@ -234,7 +234,7 @@ class AllureHtmlParser(BaseParser):
             report_path: Path to the Allure report directory or index.html.
 
         Returns:
-            A fully populated :class:`~ari.models.run.TestRun`.
+            A fully populated :class:`~qara.models.run.TestRun`.
 
         Raises:
             ReportMalformedError: If the path cannot be resolved.
@@ -388,7 +388,7 @@ class AllureHtmlParser(BaseParser):
     def _build_metadata(
         self, root: Path, summary_data: dict | None
     ) -> RunMetadata:
-        """Build :class:`~ari.models.run.RunMetadata` from the summary widget.
+        """Build :class:`~qara.models.run.RunMetadata` from the summary widget.
 
         Extracts project name, report start/stop times, and the Allure
         framework version from the ``widgets/summary.json`` payload.
@@ -398,7 +398,7 @@ class AllureHtmlParser(BaseParser):
             summary_data: Parsed ``summary.json`` dict, or ``None``.
 
         Returns:
-            A populated :class:`~ari.models.run.RunMetadata`.
+            A populated :class:`~qara.models.run.RunMetadata`.
         """
         project: str | None = None
         report_version: str | None = None
@@ -528,7 +528,7 @@ class AllureHtmlParser(BaseParser):
             source_format: Parser key string (``"allure"``).
 
         Returns:
-            List of :class:`~ari.models.test_case.TestCaseResult` objects.
+            List of :class:`~qara.models.test_case.TestCaseResult` objects.
         """
         # Collect (uid, name, status_str, suite_name) tuples from the tree
         uid_entries: list[tuple[str, str, str, str]] = []
@@ -609,7 +609,7 @@ class AllureHtmlParser(BaseParser):
         source_format: str,
     ) -> TestCaseResult | None:
         """Load and convert one test-case detail JSON into a
-        :class:`~ari.models.test_case.TestCaseResult`.
+        :class:`~qara.models.test_case.TestCaseResult`.
 
         Falls back to summary-level data when the detail file is missing.
 
@@ -622,7 +622,7 @@ class AllureHtmlParser(BaseParser):
             source_format: Parser key string.
 
         Returns:
-            A :class:`~ari.models.test_case.TestCaseResult`, or ``None``
+            A :class:`~qara.models.test_case.TestCaseResult`, or ``None``
             on unrecoverable error.
         """
         tc_data = self._load_test_case_detail(root, uid)
@@ -883,7 +883,7 @@ class AllureHtmlParser(BaseParser):
             depth: Current nesting depth (0 = top-level).
 
         Returns:
-            Flat list of :class:`~ari.models.test_case.StepResult` objects
+            Flat list of :class:`~qara.models.test_case.StepResult` objects
             in tree order (parent before children).
         """
         results: list[StepResult] = []
@@ -974,7 +974,7 @@ class AllureHtmlParser(BaseParser):
         tc_data: dict,
         steps: list[StepResult],
     ) -> FailureInfo | None:
-        """Build a :class:`~ari.models.failure.FailureInfo` from test-case data.
+        """Build a :class:`~qara.models.failure.FailureInfo` from test-case data.
 
         Allure stores the primary failure in ``statusMessage`` and
         ``statusTrace`` at the test-case level.
@@ -984,7 +984,7 @@ class AllureHtmlParser(BaseParser):
             steps: Already-extracted steps (used to find ``failed_step``).
 
         Returns:
-            A :class:`~ari.models.failure.FailureInfo`, or ``None`` if
+            A :class:`~qara.models.failure.FailureInfo`, or ``None`` if
             there is no useful failure data.
         """
         message: str = tc_data.get("statusMessage") or ""
@@ -1023,7 +1023,7 @@ class AllureHtmlParser(BaseParser):
         root: Path,
         source_format: str,
     ) -> list[Attachment]:
-        """Convert Allure attachment objects to :class:`~ari.models.attachment.Attachment`.
+        """Convert Allure attachment objects to :class:`~qara.models.attachment.Attachment`.
 
         Allure v2 attachment format:
         ``{"name": "...", "source": "<hash>-attachment.ext", "type": "image/png"}``
@@ -1036,7 +1036,7 @@ class AllureHtmlParser(BaseParser):
             source_format: Parser key string.
 
         Returns:
-            List of :class:`~ari.models.attachment.Attachment` objects.
+            List of :class:`~qara.models.attachment.Attachment` objects.
         """
         results: list[Attachment] = []
         for att in attachments:
@@ -1067,13 +1067,13 @@ class AllureHtmlParser(BaseParser):
         return results
 
     def _mime_to_kind(self, mime: str) -> AttachmentKind:
-        """Map a MIME type string to an :class:`~ari.models.attachment.AttachmentKind`.
+        """Map a MIME type string to an :class:`~qara.models.attachment.AttachmentKind`.
 
         Args:
             mime: MIME type string (e.g. ``"image/png"``).
 
         Returns:
-            The most appropriate :class:`~ari.models.attachment.AttachmentKind`.
+            The most appropriate :class:`~qara.models.attachment.AttachmentKind`.
         """
         mime = (mime or "").lower()
         if mime.startswith("image/"):

@@ -7,9 +7,6 @@ heuristics, and generates meaningful root-cause insights for QA and engineering 
 QARA is NOT a test reporting framework. It is an intelligence layer on top of
 your existing reports.
 
-"Ari" (அறி) means "know" in Tamil — reflecting the project's goal of turning
-raw automation reports into actionable understanding.
-
 Quickstart::
 
     from qara.api.library import QARAClient
@@ -21,9 +18,9 @@ Quickstart::
 
 CLI::
 
-    ari detect ./reports/allure-report
-    ari analyze ./reports/allure-report --out analysis.json
-    ari summarize ./reports/extent-report --format markdown
+    qara detect ./reports/allure-report
+    qara analyze ./reports/allure-report --out analysis.json
+    qara summarize ./reports/extent-report --format markdown
 """
 
 from qara.version import __version__

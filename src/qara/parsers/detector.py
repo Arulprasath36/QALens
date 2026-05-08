@@ -1,8 +1,8 @@
-"""Format detector for ARI.
+"""Format detector for QARA.
 
 Provides :class:`Detector` — the registry that runs all registered
-:class:`~ari.parsers.base.BaseParser` implementations against a given
-report path and returns the best-matching :class:`~ari.parsers.base.DetectionResult`.
+:class:`~qara.parsers.base.BaseParser` implementations against a given
+report path and returns the best-matching :class:`~qara.parsers.base.DetectionResult`.
 
 Typical usage
 -------------
@@ -42,14 +42,14 @@ class Detector:
     """Registry and dispatcher for all QARA report parsers.
 
     On construction, a default set of built-in parsers is registered
-    (currently :class:`~ari.parsers.allure.AllureHtmlParser` and
-    :class:`~ari.parsers.extent.ExtentHtmlParser`).
+    (currently :class:`~qara.parsers.allure.AllureHtmlParser` and
+    :class:`~qara.parsers.extent.ExtentHtmlParser`).
 
     Parsers are tried in registration order; the result with the highest
     confidence is returned. Ties are broken by registration order (first wins).
 
     Args:
-        parsers: An optional list of :class:`~ari.parsers.base.BaseParser`
+        parsers: An optional list of :class:`~qara.parsers.base.BaseParser`
             instances.  When ``None`` (the default), the built-in parsers
             are registered automatically.  Pass an empty list to start
             with a clean registry.
@@ -75,12 +75,12 @@ class Detector:
     def register(self, parser: BaseParser) -> None:
         """Add a parser to the registry.
 
-        If a parser with the same :attr:`~ari.parsers.base.BaseParser.parser_key`
+        If a parser with the same :attr:`~qara.parsers.base.BaseParser.parser_key`
         is already registered, it is **replaced** to avoid
         ambiguous detection results.
 
         Args:
-            parser: The :class:`~ari.parsers.base.BaseParser` instance to add.
+            parser: The :class:`~qara.parsers.base.BaseParser` instance to add.
         """
         existing_keys = {p.parser_key for p in self._parsers}
         if parser.parser_key in existing_keys:
@@ -96,7 +96,7 @@ class Detector:
         """Remove a parser from the registry by key.
 
         Args:
-            parser_key: The :attr:`~ari.parsers.base.BaseParser.parser_key`
+            parser_key: The :attr:`~qara.parsers.base.BaseParser.parser_key`
                 of the parser to remove.
 
         Returns:
@@ -120,20 +120,20 @@ class Detector:
         """Run all registered parsers against *report_path* and return
         the best result.
 
-        Each parser's :meth:`~ari.parsers.base.BaseParser.can_parse` is
+        Each parser's :meth:`~qara.parsers.base.BaseParser.can_parse` is
         called.  The result with the highest
-        :attr:`~ari.parsers.base.DetectionResult.confidence` is returned.
+        :attr:`~qara.parsers.base.DetectionResult.confidence` is returned.
         If no parser reaches the match threshold (``0.30``) an
-        :meth:`~ari.parsers.base.DetectionResult.unknown` sentinel is
+        :meth:`~qara.parsers.base.DetectionResult.unknown` sentinel is
         returned.
 
         Args:
             report_path: Path to the report directory or HTML file.
 
         Returns:
-            The :class:`~ari.parsers.base.DetectionResult` with the
+            The :class:`~qara.parsers.base.DetectionResult` with the
             highest confidence, or
-            :meth:`~ari.parsers.base.DetectionResult.unknown` if no
+            :meth:`~qara.parsers.base.DetectionResult.unknown` if no
             parser matched.
         """
         if not self._parsers:
@@ -183,11 +183,11 @@ class Detector:
         """Retrieve a registered parser by its key.
 
         Args:
-            parser_key: The :attr:`~ari.parsers.base.BaseParser.parser_key`
+            parser_key: The :attr:`~qara.parsers.base.BaseParser.parser_key`
                 to look up.
 
         Returns:
-            The matching :class:`~ari.parsers.base.BaseParser`.
+            The matching :class:`~qara.parsers.base.BaseParser`.
 
         Raises:
             ParserNotFoundError: If no parser with that key is registered.
@@ -207,7 +207,7 @@ class Detector:
             report_path: Path to the report directory or HTML file.
 
         Returns:
-            The :class:`~ari.parsers.base.BaseParser` that matched with
+            The :class:`~qara.parsers.base.BaseParser` that matched with
             the highest confidence.
 
         Raises:

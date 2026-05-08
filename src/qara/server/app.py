@@ -3,11 +3,11 @@
 Factory function ``create_app`` returns a configured :class:`fastapi.FastAPI`
 instance.  Run it with *uvicorn*::
 
-    uvicorn ari.server.app:app --reload
+    uvicorn qara.server.app:app --reload
 
 Or via the QARA CLI::
 
-    ari serve --port 8080
+    qara serve --port 8080
 """
 
 from __future__ import annotations
@@ -65,7 +65,7 @@ def create_app(
 
     Args:
         db_path: Path to the QARA SQLite database.  Defaults to
-            ``~/.qara/ari.db``.
+            ``~/.qara/qara.db``.
         config_path: Path to the LLM ``config.toml``.  Defaults to
             ``~/.qara/config.toml``.
         default_project: Pre-selected project name shown in the UI on load.
@@ -161,7 +161,7 @@ def create_app(
         )
         return response
 
-    logger.info("ARI server initialised  db=%s  config=%s", _db or "~/.qara/ari.db", _cfg or "~/.qara/config.toml")
+    logger.info("QARA server initialised  db=%s  config=%s", _db or "~/.qara/qara.db", _cfg or "~/.qara/config.toml")
 
     # ------------------------------------------------------------------
     # UI
@@ -190,7 +190,7 @@ def create_app(
         """Return a sorted list of distinct project names stored in the DB."""
         from qara.db.schema import get_connection, init_db
 
-        logger.info("list_projects: connecting to db=%s", _db or "~/.qara/ari.db")
+        logger.info("list_projects: connecting to db=%s", _db or "~/.qara/qara.db")
         conn = get_connection(_db)
         try:
             init_db(conn)  # ensure schema exists even on a fresh DB
@@ -238,7 +238,7 @@ def create_app(
 
 
 # ---------------------------------------------------------------------------
-# Fallback module-level app instance (for `uvicorn ari.server.app:app`)
+# Fallback module-level app instance (for `uvicorn qara.server.app:app`)
 # ---------------------------------------------------------------------------
 
 app = create_app()

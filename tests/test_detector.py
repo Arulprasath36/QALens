@@ -1,4 +1,4 @@
-"""Tests for the :class:`~ari.parsers.detector.Detector` class.
+"""Tests for the :class:`~qara.parsers.detector.Detector` class.
 
 These tests use the real file-system fixtures under
 ``tests/fixtures/`` to exercise detection end-to-end.
@@ -126,7 +126,7 @@ class TestDetectorExtentDetection:
 
     def test_detects_extent_from_html_file(self) -> None:
         d = Detector()
-        result = d.detect(EXTENT_DIR / "index.html")
+        result = d.detect(EXTENT_DIR / "ExtentReport.html")
         assert result.matched
         assert result.parser_key == "extent"
 

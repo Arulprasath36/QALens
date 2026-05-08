@@ -1,4 +1,4 @@
-"""Deterministic failure clustering engine for ARI.
+"""Deterministic failure clustering engine for QARA.
 
 Groups failing tests from a single ``TestRun`` by their normalised failure
 signature.  Two failures are considered the *same root cause* when they
@@ -138,7 +138,7 @@ def cluster_failures(
             passing tests — non-failing tests are skipped automatically).
 
     Returns:
-        A list of :class:`~ari.models.insight.FailureCluster` objects,
+        A list of :class:`~qara.models.insight.FailureCluster` objects,
         ordered by cluster size descending.  An empty list is returned
         when there are no failing tests.
 

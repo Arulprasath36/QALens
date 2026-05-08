@@ -1,4 +1,4 @@
-"""Run Comparison service for ARI.
+"""Run Comparison service for QARA.
 
 Computes per-test history matrices and summary statistics across an
 arbitrary set of runs selected by the caller.
@@ -16,7 +16,7 @@ Design decisions
 * **Fixed** in the latest run: the latest run is passed *and* the immediately
   preceding selected run was failed/broken.
 * **Flaky** detection inside the selected window reuses :func:`_compute_flip_score`
-  from :mod:`ari.analyzers.flaky` with the same 0.35 threshold.
+  from :mod:`qara.analyzers.flaky` with the same 0.35 threshold.
 * Only non-retry test cases are included in the matrix (``is_retry = 0``).
 * When a test appears multiple times in one run (retriggered), the last
   (highest ``id``) occurrence is used.

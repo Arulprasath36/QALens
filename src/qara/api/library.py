@@ -1,6 +1,6 @@
 """QARA public Python library API.
 
-``QARAClient`` is the primary entry point for programmatic use of ARI.
+``QARAClient`` is the primary entry point for programmatic use of QARA.
 It orchestrates detection, extraction, analysis, and summarization.
 
 Example::
@@ -48,7 +48,7 @@ class QARAClient:
             to run alongside the built-in heuristics.
         enable_fuzzy_clustering: When ``True``, enables TF-IDF-based fuzzy
             clustering after deterministic grouping. Requires ``scikit-learn``
-            (``pip install ari-insights[ml]``).
+            (``pip install qara-insights[ml]``).
 
     """
 
@@ -73,9 +73,9 @@ class QARAClient:
             report_path: Path to a report directory or HTML file.
 
         Returns:
-            A :class:`~ari.parsers.base.DetectionResult` with the
+            A :class:`~qara.parsers.base.DetectionResult` with the
             parser key, confidence, and evidence reasons.  Check
-            :attr:`~ari.parsers.base.DetectionResult.matched` to
+            :attr:`~qara.parsers.base.DetectionResult.matched` to
             determine whether a supported format was found.
 
         """
@@ -88,7 +88,7 @@ class QARAClient:
             report_path: Path to a report directory or HTML file.
 
         Returns:
-            The :class:`~ari.parsers.base.BaseParser` with the highest
+            The :class:`~qara.parsers.base.BaseParser` with the highest
             detection confidence for the given path.
 
         Raises:
@@ -106,7 +106,7 @@ class QARAClient:
         """Parse a report and return a normalized ``TestRun``.
 
         Detects the report format automatically, selects the best-matched
-        parser, and delegates to its :meth:`~ari.parsers.base.BaseParser.parse`
+        parser, and delegates to its :meth:`~qara.parsers.base.BaseParser.parse`
         method.
 
         Args:
@@ -115,7 +115,7 @@ class QARAClient:
                 reports) will be extracted.  ``None`` skips extraction.
 
         Returns:
-            A :class:`~ari.models.run.TestRun` containing all extracted
+            A :class:`~qara.models.run.TestRun` containing all extracted
             test case results and run metadata.
 
         Raises:
@@ -164,9 +164,9 @@ class QARAClient:
         Args:
             report_path: Path to a report directory or HTML file.
             db_path: Path to the SQLite database file.  When ``None``, the
-                default ``~/.qara/ari.db`` is used.
+                default ``~/.qara/qara.db`` is used.
             skip_if_exists: Passed through to
-                :meth:`~ari.db.repository.RunRepository.save_run`.
+                :meth:`~qara.db.repository.RunRepository.save_run`.
             attachments_dir: Legacy parameter — directory where embedded base64
                 screenshots are written by the parser directly.  Prefer
                 passing an ``ArtifactConfig`` with ``mode=FULL`` instead.
@@ -254,7 +254,7 @@ class QARAClient:
         self,
         db_path: str | Path | None = None,
     ) -> RunRepository:
-        """Return an open :class:`~ari.db.repository.RunRepository`.
+        """Return an open :class:`~qara.db.repository.RunRepository`.
 
         The caller is responsible for closing the underlying connection when
         finished.  Prefer using this for batch query operations.
@@ -263,7 +263,7 @@ class QARAClient:
             db_path: Path to the SQLite database, or ``None`` for the default.
 
         Returns:
-            An initialised :class:`~ari.db.repository.RunRepository`.
+            An initialised :class:`~qara.db.repository.RunRepository`.
 
         """
         from qara.db.repository import RunRepository
@@ -288,14 +288,14 @@ class QARAClient:
 
         Args:
             canonical_name: Normalised test name.  Use
-                :func:`~ari.analyzers.canonical.to_canonical_name` to obtain
+                :func:`~qara.analyzers.canonical.to_canonical_name` to obtain
                 this from a raw display name.
             project: Restrict history to this project.
             db_path: Path to the QARA SQLite database.
             limit: Maximum run history depth.
 
         Returns:
-            A :class:`~ari.analyzers.flaky.FlakyResult` for the test.
+            A :class:`~qara.analyzers.flaky.FlakyResult` for the test.
 
         """
         from qara.analyzers.flaky import FlakyScorer
@@ -324,7 +324,7 @@ class QARAClient:
             min_runs: Minimum run appearances required.
 
         Returns:
-            List of :class:`~ari.analyzers.flaky.FlakyResult` sorted by
+            List of :class:`~qara.analyzers.flaky.FlakyResult` sorted by
             flip score descending.
 
         """
@@ -354,7 +354,7 @@ class QARAClient:
             min_runs: Minimum run appearances required.
 
         Returns:
-            List of :class:`~ari.analyzers.flaky.FlakyResult` sorted by
+            List of :class:`~qara.analyzers.flaky.FlakyResult` sorted by
             flip score descending.
 
         """
@@ -418,7 +418,7 @@ class QARAClient:
             run: A ``TestRun`` produced by :meth:`extract_report`.
 
         Returns:
-            A list of :class:`~ari.models.insight.FailureCluster` objects
+            A list of :class:`~qara.models.insight.FailureCluster` objects
             ordered by cluster size descending.  Empty list when there are
             no failing tests.
 
@@ -451,14 +451,14 @@ class QARAClient:
             project: Optional project filter for database queries.
             db_path: Path to the QARA SQLite database.
             config_path: Path to ``config.toml``.  ``None`` = default.
-            llm_config: Pre-built :class:`~ari.llm.config.LLMConfig`.  When
+            llm_config: Pre-built :class:`~qara.llm.config.LLMConfig`.  When
                 supplied, *config_path* is ignored.
 
         Returns:
             The LLM's plain-text answer.
 
         Raises:
-            :exc:`ari.llm.client.LLMError`: On HTTP or provider errors.
+            :exc:`qara.llm.client.LLMError`: On HTTP or provider errors.
 
         """
         from qara.llm.answer_plan import build_answer_plan, detect_answer_intent
@@ -495,11 +495,11 @@ class QARAClient:
         min_runs: int = 2,
         max_failure_groups: int = 50,
     ) -> DigestData:
-        """Build a :class:`~ari.outputs.digest.DigestData` from the database.
+        """Build a :class:`~qara.outputs.digest.DigestData` from the database.
 
         Collects flakiness profiles and failure groups for the given project
         and returns a data object ready to be rendered as HTML, Markdown, or
-        JSON via the functions in :mod:`ari.outputs.digest`.
+        JSON via the functions in :mod:`qara.outputs.digest`.
 
         Args:
             project: Restrict to a specific project (``None`` = all).
@@ -508,7 +508,7 @@ class QARAClient:
             max_failure_groups: Maximum number of recurring failure groups.
 
         Returns:
-            A :class:`~ari.outputs.digest.DigestData` instance.
+            A :class:`~qara.outputs.digest.DigestData` instance.
 
         """
         from qara.outputs.digest import build_digest
@@ -529,17 +529,17 @@ class QARAClient:
 
         The pipeline executes in order:
 
-        1. :class:`~ari.analyzers.signatures.SignatureEngine` enriches every
+        1. :class:`~qara.analyzers.signatures.SignatureEngine` enriches every
            ``FailureInfo`` with ``normalized_message``, ``normalized_stack_trace``,
            and ``failure_signature``.
-        2. :func:`~ari.analyzers.categorizer.categorize_failure` assigns a
-           :class:`~ari.analyzers.categorizer.FailureCategory` to each failure.
-        3. One :class:`~ari.models.insight.Insight` is built per failing test,
+        2. :func:`~qara.analyzers.categorizer.categorize_failure` assigns a
+           :class:`~qara.analyzers.categorizer.FailureCategory` to each failure.
+        3. One :class:`~qara.models.insight.Insight` is built per failing test,
            including evidence strings, confidence, and related-test cross-links.
-        4. :func:`~ari.analyzers.clustering.cluster_failures` groups failures by
-           shared signature into :class:`~ari.models.insight.FailureCluster` objects.
-        5. :class:`~ari.models.insight.StatusCounts` and
-           :class:`~ari.models.insight.CategoryCounts` are aggregated.
+        4. :func:`~qara.analyzers.clustering.cluster_failures` groups failures by
+           shared signature into :class:`~qara.models.insight.FailureCluster` objects.
+        5. :class:`~qara.models.insight.StatusCounts` and
+           :class:`~qara.models.insight.CategoryCounts` are aggregated.
         6. Recommended triage actions are derived from the category distribution.
 
         Args:
@@ -547,7 +547,7 @@ class QARAClient:
             history_dir: Reserved for v1.2 historical comparison. Ignored in v1.
 
         Returns:
-            An :class:`~ari.models.insight.AnalysisSummary` with all insights,
+            An :class:`~qara.models.insight.AnalysisSummary` with all insights,
             clusters, status counts, and recommended actions.
 
         """
@@ -779,7 +779,7 @@ class QARAClient:
         *,
         fmt: Literal["markdown", "json", "console"] = "console",
     ) -> str:
-        """Render an :class:`~ari.models.insight.AnalysisSummary` as a string.
+        """Render an :class:`~qara.models.insight.AnalysisSummary` as a string.
 
         Args:
             analysis: The ``AnalysisSummary`` produced by :meth:`analyze_report`.
@@ -800,7 +800,7 @@ class QARAClient:
 
 
 # ---------------------------------------------------------------------------
-# Private rendering helpers (extracted to ari.api._render)
+# Private rendering helpers (extracted to qara.api._render)
 # ---------------------------------------------------------------------------
 
 from qara.api._render import (  # noqa: E402, F401

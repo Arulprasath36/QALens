@@ -128,13 +128,13 @@ In a future release, QARA will support automatic plugin discovery via Python ent
 
 ```toml
 # your plugin's pyproject.toml
-[project.entry-points."ari.parsers"]
+[project.entry-points."qara.parsers"]
 myformat = "my_plugin.parsers.myformat:MyFormatParser"
 
-[project.entry-points."ari.rules"]
+[project.entry-points."qara.rules"]
 my_rule = "my_plugin.rules.my_rule:my_custom_rule"
 ```
 
-This will allow `pip install ari-myformat-plugin` to automatically extend ARI.
+This will allow `pip install qara-myformat-plugin` to automatically extend QARA.
 
 > **Note**: The entry-point plugin loader is not yet implemented in v1. The programmatic API above is the supported extension mechanism for now.

@@ -2,7 +2,7 @@
 
 Factory function :func:`make_runs_router` registers all ``/api/runs`` and
 ``/api/tests`` endpoints onto an :class:`~fastapi.APIRouter`, which is then
-mounted by :func:`~ari.server.app.create_app`.
+mounted by :func:`~qara.server.app.create_app`.
 """
 
 from __future__ import annotations

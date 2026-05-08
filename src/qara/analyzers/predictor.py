@@ -1,9 +1,9 @@
-"""Flakiness risk predictor for ARI.
+"""Flakiness risk predictor for QARA.
 
 Computes a risk score (0–100 %) for every test using historical pass/fail
 patterns from the QARA database.  No ML model is needed — the score is a
 weighted combination of four deterministic signals derived from a test's
-:class:`~ari.analyzers.flaky.FlakyResult`:
+:class:`~qara.analyzers.flaky.FlakyResult`:
 
 ``volatility``
     Normalised flip score (how often the test switches between pass and fail).
@@ -227,7 +227,7 @@ def _compute_risk(
     result: FlakyResult,
     duration_trend: float,
 ) -> tuple[float, RiskSignals]:
-    """Compute risk score and signals from a :class:`~ari.analyzers.flaky.FlakyResult`.
+    """Compute risk score and signals from a :class:`~qara.analyzers.flaky.FlakyResult`.
 
     Args:
         result: Scored flakiness profile for the test.

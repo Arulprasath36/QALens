@@ -1,6 +1,6 @@
 """Screenshot selection: apply priority ranking and per-failure cap.
 
-Given an unbounded list of :class:`~ari.models.artifact_ref.ArtifactRef`
+Given an unbounded list of :class:`~qara.models.artifact_ref.ArtifactRef`
 objects for a single test case, :func:`select_screenshots` returns the best
 ``max_count`` entries using this priority order:
 
@@ -36,7 +36,7 @@ def select_screenshots(
             returns an empty list.
 
     Returns:
-        Ordered list of up to *max_count* :class:`~ari.models.artifact_ref.ArtifactRef`
+        Ordered list of up to *max_count* :class:`~qara.models.artifact_ref.ArtifactRef`
         objects.  Screenshot priority order is applied; relative order within
         each priority tier is preserved.
     """

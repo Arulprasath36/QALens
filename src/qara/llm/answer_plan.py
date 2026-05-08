@@ -18,9 +18,9 @@ Flow::
     build_prompt()          →  structured LLM prompt
     build_system_prompt()   →  intent-aware system prompt
 
-Enums and data models live in :mod:`ari.llm.answer_types`.
+Enums and data models live in :mod:`qara.llm.answer_types`.
 Heuristic keyword cues and detection functions live in
-:mod:`ari.llm.intent_detection`.  This module re-exports them for
+:mod:`qara.llm.intent_detection`.  This module re-exports them for
 backward compatibility.
 """
 
@@ -61,8 +61,8 @@ from qara.llm.intent_detection import (  # noqa: F401
 class AnswerPlan:
     """Controls how the LLM answer should be structured for a given query.
 
-    Consumed by :func:`~ari.llm.prompts.build_prompt` and
-    :func:`~ari.llm.prompts.build_system_prompt` to inject structured
+    Consumed by :func:`~qara.llm.prompts.build_prompt` and
+    :func:`~qara.llm.prompts.build_system_prompt` to inject structured
     per-intent guidance instead of using a generic freeform template.
     """
 
@@ -92,7 +92,7 @@ class AnswerPlan:
 
 # NOTE: Cue sets, detection helpers, and public detection functions
 # (detect_answer_intent, detect_answer_type, detect_ranking_metric,
-# detect_secondary_intent) now live in ari.llm.intent_detection and are
+# detect_secondary_intent) now live in qara.llm.intent_detection and are
 # re-exported above for backward compatibility.
 
 _RANKING_CUES_REMOVED = True  # marker — see intent_detection.py

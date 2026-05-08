@@ -15,7 +15,7 @@ from qara.server.models import CompareRequest, EntityCompareRequest
 
 
 def _parse_compare_filters(params: dict[str, Any]):
-    """Convert a flat filter dict into a :class:`~ari.analyzers.comparison.ComparisonFilters`."""
+    """Convert a flat filter dict into a :class:`~qara.analyzers.comparison.ComparisonFilters`."""
     from qara.analyzers.comparison import ComparisonFilters
     return ComparisonFilters(
         suite=params.get("suite") or None,

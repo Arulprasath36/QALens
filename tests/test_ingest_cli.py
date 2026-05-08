@@ -11,7 +11,7 @@ from qara.cli import app
 
 runner = CliRunner()
 
-EXTENT_FIXTURE = Path(__file__).parent / "fixtures" / "extent_sample" / "index.html"
+EXTENT_FIXTURE = Path(__file__).parent / "fixtures" / "extent_sample" / "ExtentReport.html"
 ALLURE_FIXTURE = Path(__file__).parent / "fixtures" / "allure_sample"
 
 

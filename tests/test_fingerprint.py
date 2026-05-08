@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.fingerprint."""
+"""Tests for qara.analyzers.fingerprint."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""LLM provider configuration for ARI.
+"""LLM provider configuration for QARA.
 
 Configuration is stored in ``~/.qara/config.toml`` and loaded lazily on first
 use.  Users can also override any field via environment variables.
@@ -91,7 +91,7 @@ _OPENAI_COMPATIBLE = {"ollama", "openai", "azure", "lmstudio", "custom"}
 
 DEFAULT_CONFIG_TOML = """\
 # QARA LLM configuration
-# Run `ari llm-config` to interactively set up a provider.
+# Run `qara llm-config` to interactively set up a provider.
 
 [llm]
 # Provider: ollama | openai | azure | lmstudio | anthropic | gemini | custom

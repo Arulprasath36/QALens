@@ -9,9 +9,9 @@ Design notes:
 - :class:`BaseParser` is an ABC. Concrete parsers subclass it and
   implement :meth:`can_parse` and :meth:`parse`.
 - :class:`DetectionResult` is a Pydantic model so it serializes cleanly
-  to JSON alongside the rest of ARI's output.
+  to JSON alongside the rest of QARA's output.
 - Exceptions are kept in this module to avoid a proliferation of tiny
-  files; they are re-exported from :mod:`ari.parsers`.
+  files; they are re-exported from :mod:`qara.parsers`.
 """
 
 from __future__ import annotations
@@ -91,7 +91,7 @@ class DetectionResult(BaseModel):
     """Explainable result of attempting to detect the report format at a path.
 
     Each parser's :meth:`BaseParser.can_parse` method returns a
-    :class:`DetectionResult`. The :class:`~ari.parsers.detector.Detector`
+    :class:`DetectionResult`. The :class:`~qara.parsers.detector.Detector`
     collects results from all registered parsers and selects the best match.
 
     Attributes:
@@ -198,15 +198,15 @@ class BaseParser(ABC):
     1. Set :attr:`parser_key` and :attr:`parser_name` as class attributes.
     2. Implement :meth:`can_parse` to return a :class:`DetectionResult`
        based on file/content signals — **without** heavy I/O or full parsing.
-    3. Implement :meth:`parse` to return a normalized :class:`~ari.models.run.TestRun`.
+    3. Implement :meth:`parse` to return a normalized :class:`~qara.models.run.TestRun`.
 
     Parsers must never perform analysis, categorization, or scoring.
     That responsibility belongs exclusively to the analyzer layer.
 
     Warning collection:
         During parsing, call :meth:`_warn` to record
-        :class:`~ari.models.warnings.ExtractionWarning` objects. These are
-        attached to the returned :class:`~ari.models.run.TestRun`.
+        :class:`~qara.models.warnings.ExtractionWarning` objects. These are
+        attached to the returned :class:`~qara.models.run.TestRun`.
     """
 
     #: Short unique identifier for this parser format.
@@ -246,7 +246,7 @@ class BaseParser(ABC):
         """Parse the report at ``report_path`` and return a normalized run.
 
         Implementations must:
-        - Return a :class:`~ari.models.run.TestRun` even for partial results.
+        - Return a :class:`~qara.models.run.TestRun` even for partial results.
         - Call :meth:`_warn` for every field that could not be populated.
         - Raise :class:`ReportMalformedError` if the report is structurally
           invalid to the point where no useful data can be extracted.
@@ -256,7 +256,7 @@ class BaseParser(ABC):
             report_path: A directory or HTML file path to parse.
 
         Returns:
-            A normalized :class:`~ari.models.run.TestRun`.
+            A normalized :class:`~qara.models.run.TestRun`.
 
         Raises:
             ReportMalformedError: If the report cannot yield any useful data.
@@ -298,7 +298,7 @@ class BaseParser(ABC):
         """Return accumulated warnings and reset the internal list.
 
         This is called by :meth:`parse` implementations at the end of
-        extraction to attach warnings to the returned :class:`~ari.models.run.TestRun`.
+        extraction to attach warnings to the returned :class:`~qara.models.run.TestRun`.
 
         Returns:
             All warnings accumulated since the last call or since

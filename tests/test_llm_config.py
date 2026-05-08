@@ -1,4 +1,4 @@
-"""Tests for ari.llm.config (Phase 7)."""
+"""Tests for qara.llm.config (Phase 7)."""
 
 from __future__ import annotations
 

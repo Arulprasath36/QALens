@@ -1,4 +1,4 @@
-"""Security tests for ARI's ingestion pipeline.
+"""Security tests for QARA's ingestion pipeline.
 
 Covers:
 - XSS / script-injection via report-derived string fields

@@ -1,11 +1,11 @@
 """ArtifactRef — parser-side raw reference to a test artifact.
 
 Parsers emit ``ArtifactRef`` objects instead of making storage decisions.
-The :class:`~ari.artifacts.policy.ArtifactIngestionPolicy` consumes these
+The :class:`~qara.artifacts.policy.ArtifactIngestionPolicy` consumes these
 and decides whether to ignore, store metadata, or persist bytes — based on
-the configured :class:`~ari.artifacts.config.ArtifactMode`.
+the configured :class:`~qara.artifacts.config.ArtifactMode`.
 
-This module lives in ``ari.models`` (not ``ari.artifacts``) so that parser
+This module lives in ``qara.models`` (not ``qara.artifacts``) so that parser
 modules can import it without creating a circular dependency on the artifacts
 sub-package.
 """

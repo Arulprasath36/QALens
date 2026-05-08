@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.clustering."""
+"""Tests for qara.analyzers.clustering."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Tests for the trend computation module (ari.llm.trend).
+"""Tests for the trend computation module (qara.llm.trend).
 
 Covers:
 - compute_trend Direction detection (declining / improving / stable / insufficient_data)

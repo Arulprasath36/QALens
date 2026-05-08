@@ -1,4 +1,4 @@
-"""Tests for :class:`~ari.parsers.allure.AllureHtmlParser`.
+"""Tests for :class:`~qara.parsers.allure.AllureHtmlParser`.
 
 Uses synthetic JSON/HTML fixtures under ``tests/fixtures/allure_sample/``.
 """

@@ -1,4 +1,4 @@
-"""Tests for :mod:`ari.llm.routing` — signal detection and context orchestration."""
+"""Tests for :mod:`qara.llm.routing` — signal detection and context orchestration."""
 
 from __future__ import annotations
 

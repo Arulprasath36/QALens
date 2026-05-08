@@ -1,4 +1,4 @@
-"""Rule-based failure categorizer for ARI.
+"""Rule-based failure categorizer for QARA.
 
 Maps an error type + message pair to a human-readable :class:`FailureCategory`
 using ordered regex rules.  No ML or external dependencies required.

@@ -5,13 +5,13 @@ flakiness analysis, failure groups, digest reports, and LLM Q&A.
 
 Usage via CLI::
 
-    ari serve --port 8080
+    qara serve --port 8080
 
 Usage programmatically::
 
     from qara.server.app import create_app
     import uvicorn
 
-    app = create_app(db_path="~/.qara/ari.db")
+    app = create_app(db_path="~/.qara/qara.db")
     uvicorn.run(app, host="127.0.0.1", port=8080)
 """

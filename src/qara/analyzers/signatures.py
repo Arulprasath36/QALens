@@ -173,7 +173,7 @@ class SignatureEngine:
         return run
 
     def enrich_failure_info(self, failure: FailureInfo) -> FailureInfo:
-        """Enrich a single :class:`~ari.models.failure.FailureInfo` in-place.
+        """Enrich a single :class:`~qara.models.failure.FailureInfo` in-place.
 
         Useful for one-off enrichment outside of a full ``TestRun``.
         Idempotent: a ``FailureInfo`` that already has ``failure_signature``

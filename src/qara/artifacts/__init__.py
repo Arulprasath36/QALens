@@ -1,4 +1,4 @@
-"""Artifact ingestion policy, storage, and image processing for ARI.
+"""Artifact ingestion policy, storage, and image processing for QARA.
 
 Three ingestion modes
 ---------------------
@@ -13,15 +13,15 @@ Three ingestion modes
 
 ``full``
     Everything from ``metadata-only`` plus compressed image bytes stored in
-    the configured :class:`~ari.artifacts.storage.ArtifactStore`.
+    the configured :class:`~qara.artifacts.storage.ArtifactStore`.
 
 Public re-exports
 -----------------
 ``ArtifactMode``, ``ArtifactConfig``
-    Configuration objects — pass to :meth:`~ari.api.library.QARAClient.ingest_report`.
+    Configuration objects — pass to :meth:`~qara.api.library.QARAClient.ingest_report`.
 
 ``ArtifactIngestStats``
-    Per-run statistics returned by :meth:`~ari.api.library.QARAClient.ingest_report`.
+    Per-run statistics returned by :meth:`~qara.api.library.QARAClient.ingest_report`.
 """
 
 from qara.artifacts.config import ArtifactConfig, ArtifactMode

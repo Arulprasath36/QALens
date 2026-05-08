@@ -1,4 +1,4 @@
-"""Stack-trace fingerprinting for ARI.
+"""Stack-trace fingerprinting for QARA.
 
 A *fingerprint* is a short, stable hex string that identifies the
 *shape* of a failure independently of run-specific noise (line numbers,

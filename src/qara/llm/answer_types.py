@@ -115,9 +115,9 @@ class AnswerType(str, Enum):
 class DefaultScopeInfo:
     """Records that QARA applied a default data scope because the question was underspecified.
 
-    When the user's question specifies no run, time window, or dataset, ARI
+    When the user's question specifies no run, time window, or dataset, QARA
     applies a sensible default (last N runs) and attaches this object to the
-    :class:`~ari.llm.answer_plan.AnswerPlan`.  The prompt builder reads it to
+    :class:`~qara.llm.answer_plan.AnswerPlan`.  The prompt builder reads it to
     inject scope-disclosure instructions so the LLM always states what data
     was used and offers refinement options.
 

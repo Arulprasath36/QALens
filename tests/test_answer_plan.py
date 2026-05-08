@@ -1,5 +1,5 @@
-"""Tests for ari.llm.answer_plan, ari.llm.prompts (intent-aware), and
-ari.llm.context_history (ConversationContext).
+"""Tests for qara.llm.answer_plan, qara.llm.prompts (intent-aware), and
+qara.llm.context_history (ConversationContext).
 
 Coverage:
 - detect_answer_intent: all 6 intents + priority ordering + default

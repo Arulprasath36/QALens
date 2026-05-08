@@ -1,4 +1,4 @@
-"""Extraction warning model for ARI.
+"""Extraction warning model for QARA.
 
 When a parser encounters a missing, malformed, or unexpected field during
 report extraction, it records an ``ExtractionWarning`` instead of raising

@@ -1,4 +1,4 @@
-"""Incident-centric presentation model for ARI.
+"""Incident-centric presentation model for QARA.
 
 An *incident* is a group of related test failures that share a probable root
 cause.  It is the primary triage unit surfaced to the user rather than
@@ -14,8 +14,8 @@ from dataclasses import dataclass, field
 class IncidentSummary:
     """Presentation-layer view model for a single detected incident.
 
-    Instances are assembled by :func:`~ari.analyzers.incidents.assemble_incidents`
-    from persisted :class:`~ari.db.models.TestCaseRow` failure data and are
+    Instances are assembled by :func:`~qara.analyzers.incidents.assemble_incidents`
+    from persisted :class:`~qara.db.models.TestCaseRow` failure data and are
     never stored in the database — they are computed on-demand per request.
     """
 
@@ -41,7 +41,7 @@ class IncidentSummary:
     """Short phrase describing the probable root cause."""
 
     root_cause_category: str
-    """:class:`~ari.analyzers.categorizer.FailureCategory` value string."""
+    """:class:`~qara.analyzers.categorizer.FailureCategory` value string."""
 
     confidence: str
     """Qualitative confidence: ``"high"`` | ``"medium"`` | ``"low"``."""
@@ -53,7 +53,7 @@ class IncidentSummary:
     """Concrete, specific recommended action for the on-call SDET."""
 
     signature: str | None
-    """16-char failure fingerprint from :mod:`ari.analyzers.fingerprint`,
+    """16-char failure fingerprint from :mod:`qara.analyzers.fingerprint`,
     present when the group is fingerprint-based."""
 
     error_type: str | None

@@ -1,4 +1,4 @@
-"""Extent HTML report parser for ARI.
+"""Extent HTML report parser for QARA.
 
 Supports Extent Reports v4 and v5 (single-file and multi-file layouts).
 
@@ -131,7 +131,7 @@ class ExtentHtmlParser(BaseParser):
             report_path: Path to a report directory or HTML file.
 
         Returns:
-            A :class:`~ari.parsers.base.DetectionResult` with confidence
+            A :class:`~qara.parsers.base.DetectionResult` with confidence
             and evidence reasons.
         """
         try:
@@ -244,8 +244,8 @@ class ExtentHtmlParser(BaseParser):
             report_path: Path to the Extent report directory or HTML file.
 
         Returns:
-            A :class:`~ari.models.run.TestRun` with all extractable data.
-            Partial results with :class:`~ari.models.warnings.ExtractionWarning`
+            A :class:`~qara.models.run.TestRun` with all extractable data.
+            Partial results with :class:`~qara.models.warnings.ExtractionWarning`
             entries are returned rather than raising on missing optional fields.
 
         Raises:
@@ -496,7 +496,7 @@ class ExtentHtmlParser(BaseParser):
         report_config: dict | None,
         test_data: dict | None,
     ) -> RunMetadata:
-        """Build :class:`~ari.models.run.RunMetadata` from available sources.
+        """Build :class:`~qara.models.run.RunMetadata` from available sources.
 
         Tries (in order): ``reportConfig`` JSON blob, ``<title>`` tag,
         and timestamps derived from min/max of test start/end times.
@@ -509,7 +509,7 @@ class ExtentHtmlParser(BaseParser):
             test_data: Parsed ``testdata`` dict, or ``None``.
 
         Returns:
-            Populated :class:`~ari.models.run.RunMetadata`.
+            Populated :class:`~qara.models.run.RunMetadata`.
         """
         project = self._extract_project_name(soup, report_config)
         report_version = self._extract_report_version(soup)
@@ -527,6 +527,7 @@ class ExtentHtmlParser(BaseParser):
             )
 
         return RunMetadata(
+            run_id=self._stable_run_id(root, html_content),
             report_format=self.parser_key,
             report_version=report_version,
             report_path=str(root.resolve()),
@@ -535,6 +536,12 @@ class ExtentHtmlParser(BaseParser):
             finished_at=finished_at,
             total_duration_ms=total_duration_ms,
         )
+
+    def _stable_run_id(self, root: Path, html_content: str) -> str:
+        """Return a deterministic id for idempotent Extent re-ingestion."""
+        payload = f"{root.resolve()}\0{html_content}"
+        digest = hashlib.sha256(payload.encode("utf-8", errors="replace")).hexdigest()
+        return f"extent-{digest[:16]}"
 
     def _extract_project_name(
         self, soup: BeautifulSoup, report_config: dict | None
@@ -607,7 +614,7 @@ class ExtentHtmlParser(BaseParser):
             source_format: Parser key for ``source_format`` field.
 
         Returns:
-            A populated :class:`~ari.models.test_case.TestCaseResult`.
+            A populated :class:`~qara.models.test_case.TestCaseResult`.
         """
         name: str = truncate(str(node.get("name") or "Unnamed Test"), _MAX_FIELD_LEN)
         status = TestStatus.from_string(node.get("status") or "")
@@ -718,8 +725,8 @@ class ExtentHtmlParser(BaseParser):
 
         Returns:
             ``(steps, step_artifact_refs)`` — ordered
-            :class:`~ari.models.test_case.StepResult` list plus any
-            :class:`~ari.models.artifact_ref.ArtifactRef` objects extracted
+            :class:`~qara.models.test_case.StepResult` list plus any
+            :class:`~qara.models.artifact_ref.ArtifactRef` objects extracted
             from step-level screenshot details.
         """
         steps: list[StepResult] = []
@@ -786,7 +793,7 @@ class ExtentHtmlParser(BaseParser):
         return steps, all_step_refs
 
     def _extract_failure(self, node: dict, test_name: str) -> FailureInfo | None:
-        """Extract :class:`~ari.models.failure.FailureInfo` from a test node.
+        """Extract :class:`~qara.models.failure.FailureInfo` from a test node.
 
         Checks ``node.exception`` first, then falls back to ``node.details``
         entries with ``type == "fail"``.
@@ -796,7 +803,7 @@ class ExtentHtmlParser(BaseParser):
             test_name: The test name (used in warning messages).
 
         Returns:
-            A :class:`~ari.models.failure.FailureInfo`, or ``None`` if
+            A :class:`~qara.models.failure.FailureInfo`, or ``None`` if
             the test has no failure information.
         """
         status = TestStatus.from_string(node.get("status") or "")
@@ -916,7 +923,7 @@ class ExtentHtmlParser(BaseParser):
                 ``testdata.tests[].nodes[].details``.
             source_format: Parser key (used only for legacy ``Attachment`` creation).
             base_sequence: Starting ``sequence_no`` for emitted
-                :class:`~ari.models.artifact_ref.ArtifactRef` objects.
+                :class:`~qara.models.artifact_ref.ArtifactRef` objects.
             is_from_failed_step: Forward to ``ArtifactRef.is_from_failed_step``
                 for every ref produced here.
             step_name: Name of the enclosing step, forwarded to
@@ -981,7 +988,7 @@ class ExtentHtmlParser(BaseParser):
         is_from_failed_step: bool = False,
         base_sequence: int = 0,
     ) -> list[ArtifactRef]:
-        """Convert Extent ``media`` entries to :class:`~ari.models.artifact_ref.ArtifactRef`.
+        """Convert Extent ``media`` entries to :class:`~qara.models.artifact_ref.ArtifactRef`.
 
         ``media`` entries in the Extent JSON blob reference screenshots via file
         paths (relative to the report root) or embedded ``data:`` URIs.  Only
@@ -994,7 +1001,7 @@ class ExtentHtmlParser(BaseParser):
             base_sequence: Starting sequence number.
 
         Returns:
-            List of :class:`~ari.models.artifact_ref.ArtifactRef` for image
+            List of :class:`~qara.models.artifact_ref.ArtifactRef` for image
             entries whose paths resolve to existing files (or are valid data URIs).
             Non-image entries and missing files are silently skipped.
         """
@@ -1045,7 +1052,7 @@ class ExtentHtmlParser(BaseParser):
     def _extract_attachments(
         self, media_entries: list, root: Path, source_format: str
     ) -> list[Attachment]:
-        """Build :class:`~ari.models.attachment.Attachment` objects from
+        """Build :class:`~qara.models.attachment.Attachment` objects from
         Extent media entries.
 
         Args:
@@ -1054,7 +1061,7 @@ class ExtentHtmlParser(BaseParser):
             source_format: Parser key.
 
         Returns:
-            List of :class:`~ari.models.attachment.Attachment` objects.
+            List of :class:`~qara.models.attachment.Attachment` objects.
         """
         attachments: list[Attachment] = []
         for entry in media_entries:
@@ -1109,7 +1116,7 @@ class ExtentHtmlParser(BaseParser):
             source_format: Parser key.
 
         Returns:
-            List of :class:`~ari.models.test_case.TestCaseResult`.
+            List of :class:`~qara.models.test_case.TestCaseResult`.
         """
         test_cases: list[TestCaseResult] = []
 

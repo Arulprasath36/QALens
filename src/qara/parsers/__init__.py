@@ -2,19 +2,19 @@
 
 Contains the report detector and format-specific parsers for Extent and Allure.
 All parsers implement :class:`BaseParser` and return a canonical
-:class:`~ari.models.run.TestRun`.
+:class:`~qara.models.run.TestRun`.
 
 Public API
 ----------
-- :class:`~ari.parsers.base.BaseParser` — abstract base for all parsers.
-- :class:`~ari.parsers.base.DetectionResult` — result of format detection.
-- :class:`~ari.parsers.base.QARAError` — base exception.
-- :class:`~ari.parsers.base.ReportNotSupportedError` — raised when no parser matched.
-- :class:`~ari.parsers.base.ReportMalformedError` — raised on corrupt/incomplete reports.
-- :class:`~ari.parsers.base.ParserNotFoundError` — raised for unknown parser keys.
-- :class:`~ari.parsers.detector.Detector` — multi-parser registry & dispatcher.
-- :class:`~ari.parsers.extent.ExtentHtmlParser` — Extent Reports v4/v5.
-- :class:`~ari.parsers.allure.AllureHtmlParser` — Allure Report v2.
+- :class:`~qara.parsers.base.BaseParser` — abstract base for all parsers.
+- :class:`~qara.parsers.base.DetectionResult` — result of format detection.
+- :class:`~qara.parsers.base.QARAError` — base exception.
+- :class:`~qara.parsers.base.ReportNotSupportedError` — raised when no parser matched.
+- :class:`~qara.parsers.base.ReportMalformedError` — raised on corrupt/incomplete reports.
+- :class:`~qara.parsers.base.ParserNotFoundError` — raised for unknown parser keys.
+- :class:`~qara.parsers.detector.Detector` — multi-parser registry & dispatcher.
+- :class:`~qara.parsers.extent.ExtentHtmlParser` — Extent Reports v4/v5.
+- :class:`~qara.parsers.allure.AllureHtmlParser` — Allure Report v2.
 """
 
 from qara.parsers.allure import AllureHtmlParser

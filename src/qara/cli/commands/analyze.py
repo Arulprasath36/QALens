@@ -23,7 +23,7 @@ def analyze(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     flaky: bool = typer.Option(True, "--flaky/--no-flaky", help="Show flaky test analysis."),
     failures: bool = typer.Option(True, "--failures/--no-failures", help="Show grouped failure analysis."),
@@ -180,7 +180,7 @@ def digest(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     format: str = typer.Option(  # noqa: A002
         "html",
@@ -212,9 +212,9 @@ def digest(
 
     Examples::
 
-        ari digest --project "Allure Report" --out digest.html
-        ari digest --project "Allure Report" --format markdown --out digest.md
-        ari digest --project "Allure Report" --format json --out digest.json
+        qara digest --project "Allure Report" --out digest.html
+        qara digest --project "Allure Report" --format markdown --out digest.md
+        qara digest --project "Allure Report" --format json --out digest.json
     """
     from qara.outputs.digest import build_digest, render_html, render_json, render_markdown
 
@@ -340,13 +340,13 @@ def summarize(
 
     [bold]CI gate[/bold]: use threshold flags to fail the build when failure
     counts exceed a limit.  Exit code [bold]2[/bold] means a gate was breached
-    (distinct from exit code 1 which means an QARA error).
+    (distinct from exit code 1 which means a QARA error).
 
     Examples::
 
-        ari summarize ./reports/allure-report --format json
-        ari summarize ./reports/allure-report --fail-on-defects 0
-        ari summarize ./reports/allure-report --strict
+        qara summarize ./reports/allure-report --format json
+        qara summarize ./reports/allure-report --fail-on-defects 0
+        qara summarize ./reports/allure-report --strict
     """
     valid_formats = {"markdown", "json", "console"}
     if format.lower() not in valid_formats:
@@ -482,8 +482,8 @@ def clusters(
 
     Examples::
 
-        ari clusters ./reports/allure-report
-        ari clusters ./reports/allure-report --out clusters.json
+        qara clusters ./reports/allure-report
+        qara clusters ./reports/allure-report --out clusters.json
     """
     import json
 

@@ -1,4 +1,4 @@
-"""Tests for ari.db.repository — RunRepository persistence and queries."""
+"""Tests for qara.db.repository — RunRepository persistence and queries."""
 
 from __future__ import annotations
 

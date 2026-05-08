@@ -1,4 +1,4 @@
-"""Flaky test detection for ARI.
+"""Flaky test detection for QARA.
 
 :class:`FlakyScorer` queries the QARA database to compute a stability
 profile for every test across its run history.  No ML is required —
@@ -251,7 +251,7 @@ class FlakyScorer:
 
         Args:
             canonical_name: Normalised test name (use
-                :func:`~ari.analyzers.canonical.to_canonical_name` first).
+                :func:`~qara.analyzers.canonical.to_canonical_name` first).
             project: Restrict history to this project, or ``None`` for all.
             limit: Maximum run history depth to consider.
 

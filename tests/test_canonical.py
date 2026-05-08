@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.canonical."""
+"""Tests for qara.analyzers.canonical."""
 
 from __future__ import annotations
 

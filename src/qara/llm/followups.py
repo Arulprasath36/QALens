@@ -369,8 +369,8 @@ def generate_follow_ups(
     Parameters
     ----------
     answer_plan_or_intent:
-        An :class:`~ari.llm.answer_plan.AnswerPlan` (preferred) or a bare
-        :class:`~ari.llm.answer_types.AnswerIntent` (backward-compatible).
+        An :class:`~qara.llm.answer_plan.AnswerPlan` (preferred) or a bare
+        :class:`~qara.llm.answer_types.AnswerIntent` (backward-compatible).
         When an ``AnswerPlan`` is supplied, its ``answer_type``, ``scope``,
         and ``payload`` drive follow-up generation.
     sources:

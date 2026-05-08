@@ -56,7 +56,7 @@ class RunRepository:
     # ------------------------------------------------------------------
 
     def save_run(self, test_run: Any, *, skip_if_exists: bool = True) -> bool:
-        """Persist a :class:`~ari.models.run.TestRun` to the database.
+        """Persist a :class:`~qara.models.run.TestRun` to the database.
 
         Computes ``run_sequence`` automatically (max existing sequence for
         the same project + 1, starting at 1).
@@ -221,8 +221,8 @@ class RunRepository:
     def list_tc_ids_for_run(self, run_id: str) -> list[str]:
         """Return the stored ``tc_id`` values for *run_id* in insertion order.
 
-        Used by :meth:`~ari.api.library.QARAClient.ingest_report` to match
-        :class:`~ari.models.test_case.TestCaseResult` objects (whose
+        Used by :meth:`~qara.api.library.QARAClient.ingest_report` to match
+        :class:`~qara.models.test_case.TestCaseResult` objects (whose
         ``raw_artifact_refs`` carry the parsed refs) to their DB ``tc_id``
         keys after :meth:`save_run` returns.
 
@@ -239,7 +239,7 @@ class RunRepository:
         return [row["tc_id"] for row in rows]
 
     def save_artifacts(self, records: "list[Any]") -> None:
-        """Bulk-insert :class:`~ari.artifacts.models.ArtifactRecord` objects.
+        """Bulk-insert :class:`~qara.artifacts.models.ArtifactRecord` objects.
 
         All records are committed in a single transaction.  Existing records
         for the same ``tc_id`` are **not** replaced — callers should only call
@@ -247,9 +247,9 @@ class RunRepository:
 
         Args:
             records: List of
-                :class:`~ari.artifacts.models.ArtifactRecord` dataclass
+                :class:`~qara.artifacts.models.ArtifactRecord` dataclass
                 instances produced by
-                :class:`~ari.artifacts.policy.ArtifactIngestionPolicy`.
+                :class:`~qara.artifacts.policy.ArtifactIngestionPolicy`.
         """
         if not records:
             return
@@ -547,7 +547,7 @@ class RunRepository:
 
         Args:
             canonical_name: The normalised test name (use
-                :func:`~ari.analyzers.canonical.to_canonical_name` first).
+                :func:`~qara.analyzers.canonical.to_canonical_name` first).
             project: Restrict to runs belonging to this project.
             limit: Maximum number of history entries to return.
 

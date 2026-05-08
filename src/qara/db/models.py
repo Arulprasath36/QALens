@@ -1,7 +1,7 @@
 """Lightweight data-transfer objects for the QARA database layer.
 
-Extracted from :mod:`ari.db.repository` for cohesion.
-All public names are re-exported from :mod:`ari.db.repository` for
+Extracted from :mod:`qara.db.repository` for cohesion.
+All public names are re-exported from :mod:`qara.db.repository` for
 backward compatibility.
 """
 

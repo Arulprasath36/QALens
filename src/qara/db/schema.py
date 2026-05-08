@@ -1,4 +1,4 @@
-"""SQLite schema definition and connection management for ARI.
+"""SQLite schema definition and connection management for QARA.
 
 The default database lives at ``~/.qara/qara.db``.  Every function that
 needs a connection should call :func:`get_connection` so the path can

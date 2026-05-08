@@ -1,4 +1,4 @@
-"""Tests for ari.db.schema — table creation and connection helpers."""
+"""Tests for qara.db.schema — table creation and connection helpers."""
 
 from __future__ import annotations
 

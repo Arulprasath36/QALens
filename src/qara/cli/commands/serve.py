@@ -26,7 +26,7 @@ def serve(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database (default: ~/.qara/ari.db).",
+        help="Path to QARA SQLite database (default: ~/.qara/qara.db).",
     ),
     config: Path | None = typer.Option(
         None,
@@ -57,16 +57,16 @@ def serve(
 
     Examples::
 
-        ari serve
-        ari serve --port 9090 --project "Allure Report"
-        ari serve --no-open --host 0.0.0.0 --allow-public-bind
+        qara serve
+        qara serve --port 9090 --project "Allure Report"
+        qara serve --no-open --host 0.0.0.0 --allow-public-bind
     """
     try:
         import uvicorn  # noqa: PLC0415
     except ImportError:  # pragma: no cover
         err_console.print(
             "[red]uvicorn is not installed.[/red]  "
-            "Run: [bold]pip install 'ari-insights[serve]'[/bold]"
+            "Run: [bold]pip install 'qara-insights[serve]'[/bold]"
         )
         raise typer.Exit(code=1)
 
@@ -90,7 +90,7 @@ def serve(
 
     url = f"http://{host}:{port}"
     console.print(
-        f"[bold]ARI[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
+        f"[bold]QARA[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
     )
     console.print("Press [bold]Ctrl+C[/bold] to stop.\n")
 

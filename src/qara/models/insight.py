@@ -1,4 +1,4 @@
-"""Insight, cluster, and analysis summary models for ARI.
+"""Insight, cluster, and analysis summary models for QARA.
 
 These models carry the output of the QARA analysis pipeline.
 Every insight is fully explainable — it includes the category,

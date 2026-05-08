@@ -1,7 +1,7 @@
 """Risk-prediction context builder for QARA LLM queries.
 
-Extracted from :mod:`ari.llm.context` for cohesion.
-All public names are re-exported from :mod:`ari.llm.context` for backward
+Extracted from :mod:`qara.llm.context` for cohesion.
+All public names are re-exported from :mod:`qara.llm.context` for backward
 compatibility.
 """
 
@@ -71,7 +71,7 @@ def gather_risk_context(
     db_path: str | Path | None = None,
     min_runs: int = 2,
 ) -> tuple[str, list[dict]]:
-    """Build a context block driven by :class:`~ari.analyzers.predictor.RiskPredictor`.
+    """Build a context block driven by :class:`~qara.analyzers.predictor.RiskPredictor`.
 
     Used for questions asking which tests are likely to fail on the next run.
     Returns risk-tier source cards that link to the Risk page instead of run

@@ -5,7 +5,7 @@ Two public helpers are provided:
 * :func:`build_prompt` — assembles the user message sent to the LLM.
 * :func:`build_system_prompt` — returns an intent-aware system prompt.
 
-When an :class:`~ari.llm.answer_plan.AnswerPlan` is supplied, the prompt is
+When an :class:`~qara.llm.answer_plan.AnswerPlan` is supplied, the prompt is
 structured into four labelled sections::
 
     [QUESTION INTENT]   ← what type of answer is expected
@@ -55,7 +55,7 @@ Keep your answer focused and technical. Do not speculate beyond the data."""
 
 
 _PROJECT_QUESTION_TEMPLATE = """The following is a summary of automated test health for a project, extracted \
-from an QARA test report database. Use it to answer the question below.
+from a QARA test report database. Use it to answer the question below.
 
 If a [QUERY SIGNALS] block is present at the top of the context, it lists which \
 aspects of the data are relevant and any guardrails that apply. Follow those \
@@ -340,8 +340,8 @@ def build_system_prompt(answer_plan=None) -> str:
     """Return an intent-aware system prompt for the LLM.
 
     Args:
-        answer_plan: The :class:`~ari.llm.answer_plan.AnswerPlan` produced by
-            :func:`~ari.llm.answer_plan.build_answer_plan`.  When ``None`` the
+        answer_plan: The :class:`~qara.llm.answer_plan.AnswerPlan` produced by
+            :func:`~qara.llm.answer_plan.build_answer_plan`.  When ``None`` the
             base system prompt is returned unchanged.
 
     Returns:
@@ -688,7 +688,7 @@ def build_prompt(
     Args:
         question: The user's natural-language question.
         context: The structured context block produced by
-            :mod:`ari.llm.context`.
+            :mod:`qara.llm.context`.
         mode: ``"test"`` for single-test queries, ``"project"`` for
             project-wide summary queries.  Only used when *answer_plan* is
             ``None``.

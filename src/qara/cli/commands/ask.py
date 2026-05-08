@@ -25,7 +25,7 @@ def ask(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QARA SQLite database. Defaults to ~/.qara/ari.db.",
+        help="Path to QARA SQLite database. Defaults to ~/.qara/qara.db.",
     ),
     config: Path | None = typer.Option(
         None,
@@ -46,10 +46,20 @@ def ask(
 
     Examples::
 
-        ari ask "why does testCreateOrder keep failing?" --project "Allure Report"
-        ari ask "summarize all failures" --project "Allure Report"
-        ari ask "which tests are most likely flaky infrastructure issues?"
+        qara ask "why does testCreateOrder keep failing?" --project "Allure Report"
+        qara ask "summarize all failures" --project "Allure Report"
+        qara ask "which tests are most likely flaky infrastructure issues?"
     """
+    from qara.llm.deterministic_answers import answer_question
+
+    deterministic_answer = answer_question(question, project=project, db_path=db)
+    if deterministic_answer is not None:
+        console.print()
+        console.rule("[bold]Answer[/bold]")
+        console.print(deterministic_answer)
+        console.rule()
+        return
+
     from qara.llm.answer_plan import build_answer_plan, detect_answer_intent
     from qara.llm.client import LLMError
     from qara.llm.config import load_config, provider_display_name
@@ -68,7 +78,7 @@ def ask(
     except Exception as exc:  # noqa: BLE001
         err_console.print(f"[red]Config error:[/red] {exc}")
         err_console.print(
-            "Run [bold]ari llm-config[/bold] to set up your LLM provider."
+            "Run [bold]qara llm-config[/bold] to set up your LLM provider."
         )
         raise typer.Exit(code=1) from exc
 
@@ -111,7 +121,7 @@ def ask(
     if "No test matching" in context and mode == "test":
         console.print(f"[yellow]{context}[/yellow]")
         console.print(
-            "\nTip: ingest reports first with [bold]ari ingest <report>[/bold]"
+            "\nTip: ingest reports first with [bold]qara ingest <report>[/bold]"
         )
         raise typer.Exit(code=1)
 
@@ -128,7 +138,7 @@ def ask(
         err_console.print(f"[red]LLM error:[/red] {exc}")
         err_console.print(
             f"Make sure {provider_name} is running. "
-            "Run [bold]ari llm-config[/bold] to change provider settings."
+            "Run [bold]qara llm-config[/bold] to change provider settings."
         )
         raise typer.Exit(code=1) from exc
     except ImportError as exc:

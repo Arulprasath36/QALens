@@ -1,4 +1,4 @@
-"""Tests for ari.llm.client (Phase 7) — uses pytest-httpx to mock HTTP."""
+"""Tests for qara.llm.client (Phase 7) — uses pytest-httpx to mock HTTP."""
 
 from __future__ import annotations
 

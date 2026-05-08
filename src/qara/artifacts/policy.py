@@ -1,9 +1,9 @@
 """Artifact ingestion policy — the single decision-making layer for artifacts.
 
 :class:`ArtifactIngestionPolicy` is the *only* place where
-:class:`~ari.artifacts.config.ArtifactMode` controls storage decisions.
+:class:`~qara.artifacts.config.ArtifactMode` controls storage decisions.
 Parsers are completely unaware of modes; they just emit
-:class:`~ari.models.artifact_ref.ArtifactRef` objects.
+:class:`~qara.models.artifact_ref.ArtifactRef` objects.
 
 Flow
 ----
@@ -11,8 +11,8 @@ Flow
 2. **Decode** — base64-decode data URIs or read file paths.
 3. **Inspect** — compute SHA-256, size, dimensions (no Pillow needed).
 4. **Store** (full mode only) — optionally dedupe, optionally compress, write
-   to the configured :class:`~ari.artifacts.storage.ArtifactStore`.
-5. **Record** — build :class:`~ari.artifacts.models.ArtifactRecord` objects
+   to the configured :class:`~qara.artifacts.storage.ArtifactStore`.
+5. **Record** — build :class:`~qara.artifacts.models.ArtifactRecord` objects
    for bulk DB insertion.
 
 Every step is failure-tolerant: exceptions are caught, a warning is logged,
@@ -83,7 +83,7 @@ class ArtifactIngestionPolicy:
 
         Returns:
             ``(records, stats)`` where *records* are ready for
-            :meth:`~ari.db.repository.RunRepository.save_artifacts`.
+            :meth:`~qara.db.repository.RunRepository.save_artifacts`.
         """
         stats = ArtifactIngestStats(
             refs_found=len(refs),
@@ -246,7 +246,7 @@ class ArtifactIngestionPolicy:
 
 
 def _decode_ref(ref: ArtifactRef, *, max_bytes: int) -> tuple[bytes, str]:
-    """Decode a :class:`~ari.models.artifact_ref.ArtifactRef` to ``(bytes, mime_type)``.
+    """Decode a :class:`~qara.models.artifact_ref.ArtifactRef` to ``(bytes, mime_type)``.
 
     Raises:
         ValueError: When the source URI cannot be decoded (bad base64,

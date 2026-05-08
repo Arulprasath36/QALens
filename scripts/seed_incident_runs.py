@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Seed incident-scenario test runs into ~/.ari/ari.db.
+"""Seed incident-scenario test runs into ~/.qara/qara.db.
 
 Adds three new runs for the existing "ShopNow E-Commerce" project.
 Each run contains a realistic incident — one root cause causing multiple
@@ -25,13 +25,13 @@ from pathlib import Path
 # Allow running from the project root without installing the package
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from ari.db.repository import RunRepository
-from ari.db.schema import get_connection
-from ari.models.failure import FailureInfo
-from ari.models.run import RunMetadata, TestRun
-from ari.models.test_case import TestCaseResult, TestStatus
+from qara.db.repository import RunRepository
+from qara.db.schema import get_connection
+from qara.models.failure import FailureInfo
+from qara.models.run import RunMetadata, TestRun
+from qara.models.test_case import TestCaseResult, TestStatus
 
-DB_PATH = Path.home() / ".ari" / "ari.db"
+DB_PATH = Path.home() / ".qara" / "qara.db"
 PROJECT = "ShopNow E-Commerce"
 
 # Full suite — same test names that exist in every existing run
@@ -306,7 +306,7 @@ def main() -> None:
         )
 
     conn.close()
-    print("\nDone. Refresh the ARI UI to see the new runs in the Incidents tab.")
+    print("\nDone. Refresh the QARA UI to see the new runs in the Incidents tab.")
 
 
 if __name__ == "__main__":

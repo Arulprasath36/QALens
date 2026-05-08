@@ -66,7 +66,7 @@ class ArtifactStore(ABC):
             preferred_name: Human-friendly filename suggestion (may be ignored).
 
         Returns:
-            A string URI, e.g. ``"file:///home/user/.ari/artifacts/abc123.png"``.
+            A string URI, e.g. ``"file:///home/user/.qara/artifacts/abc123.png"``.
         """
 
     @abstractmethod

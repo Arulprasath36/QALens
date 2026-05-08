@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.categorizer."""
+"""Tests for qara.analyzers.categorizer."""
 
 from __future__ import annotations
 

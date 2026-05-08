@@ -1,4 +1,4 @@
-"""Failure information model for ARI.
+"""Failure information model for QARA.
 
 ``FailureInfo`` captures everything known about why a test failed —
 the raw error type, message, and stack trace as extracted from the report,
@@ -17,7 +17,7 @@ class FailureInfo(BaseModel):
     directly from the source report (Extent or Allure) and are never altered.
 
     The ``normalized_*`` fields and ``failure_signature`` are populated by
-    ``ari.analyzers.signatures.SignatureEngine`` during the analysis phase.
+    ``qara.analyzers.signatures.SignatureEngine`` during the analysis phase.
     They are ``None`` until the signature engine has processed this failure.
 
     Attributes:

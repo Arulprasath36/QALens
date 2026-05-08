@@ -1,4 +1,4 @@
-"""Provider-agnostic LLM HTTP client for ARI.
+"""Provider-agnostic LLM HTTP client for QARA.
 
 Supports three wire protocols through a unified :meth:`LLMClient.chat` method:
 
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 # System prompt used when the user hasn't overridden it
 _DEFAULT_SYSTEM_PROMPT = """\
-You are ARI, an expert test automation analyst. You help SDETs and QA engineers \
+You are QARA, an expert test automation analyst. You help SDETs and QA engineers \
 diagnose test failures, understand flaky behaviour, and identify root causes.
 
 You have access to structured data extracted from test reports: \
@@ -67,8 +67,8 @@ class LLMClient:
     """Provider-agnostic LLM client.
 
     Args:
-        config: A :class:`~ari.llm.config.LLMConfig` instance.  Use
-            :func:`~ari.llm.config.load_config` to obtain one from
+        config: A :class:`~qara.llm.config.LLMConfig` instance.  Use
+            :func:`~qara.llm.config.load_config` to obtain one from
             ``~/.qara/config.toml``.
 
     Raises:

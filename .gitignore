@@ -119,6 +119,7 @@ tmp_test_data/ShopNow_E-Commerce/*.db-shm
 tmp_test_data/ShopNow_E-Commerce/*.db-wal
 tmp_test_data/ShopNow_E-Commerce/*.db-journal
 ExtentReport.html
+!tests/fixtures/extent_sample/ExtentReport.html
 
 # Design handoff / prototype references (local only, not production code)
 Failure_Pattern_Calude_Design/
