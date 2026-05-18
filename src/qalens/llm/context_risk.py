@@ -1,4 +1,4 @@
-"""Risk-prediction context builder for QaLens LLM queries.
+"""Risk-prediction context builder for QALens LLM queries.
 
 Extracted from :mod:`qalens.llm.context` for cohesion.
 All public names are re-exported from :mod:`qalens.llm.context` for backward

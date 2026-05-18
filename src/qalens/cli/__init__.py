@@ -1,4 +1,4 @@
-"""QaLens command-line interface.
+"""QALens command-line interface.
 
 Built with Typer. Entry point registered in ``pyproject.toml`` as ``qalens``.
 
@@ -21,7 +21,7 @@ from qalens.version import __version__
 app = typer.Typer(
     name="qalens",
     help=(
-        "QaLens — Quality Assurance + Lens.\n\n"
+        "QALens — Quality Assurance + Lens.\n\n"
         "Transforms static test HTML reports into triage-ready intelligence.\n\n"
     ),
     no_args_is_help=True,
@@ -43,13 +43,13 @@ def main(
         None,
         "--version",
         "-V",
-        help="Print QaLens version and exit.",
+        help="Print QALens version and exit.",
         callback=_version_callback,
         is_eager=True,
         show_default=False,
     ),
 ) -> None:
-    """QaLens — Quality Assurance + Lens."""
+    """QALens — Quality Assurance + Lens."""
 
 
 # ---------------------------------------------------------------------------

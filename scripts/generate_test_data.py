@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Synthetic Allure report generator for QaLens load testing.
+"""Synthetic Allure report generator for QALens load testing.
 
 Creates a configurable number of Allure v2 report directories under a
-given output folder, then optionally ingests them all into a QaLens database
+given output folder, then optionally ingests them all into a QALens database
 so you can exercise the Risk, Analysis, Compare, and Chat tabs with
 realistic, varied data.
 
@@ -459,15 +459,15 @@ def build_report_dir(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generate synthetic Allure reports and optionally ingest them into QaLens.",
+        description="Generate synthetic Allure reports and optionally ingest them into QALens.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument("--runs",     type=int, default=20,   help="Number of runs to generate per project (default: 20).")
     parser.add_argument("--projects", type=int, default=1,    help="Number of projects to generate (1–3, default: 1).")
     parser.add_argument("--out",      type=Path, default=Path("tmp_test_data"), help="Output directory for report folders.")
-    parser.add_argument("--ingest",   action="store_true",    help="Ingest every generated report into QaLens after creation.")
-    parser.add_argument("--db",       type=Path, default=None, help="QaLens database path (default: ~/.qalens/qalens.db).")
+    parser.add_argument("--ingest",   action="store_true",    help="Ingest every generated report into QALens after creation.")
+    parser.add_argument("--db",       type=Path, default=None, help="QALens database path (default: ~/.qalens/qalens.db).")
     parser.add_argument("--seed",     type=int, default=42,   help="Random seed for reproducibility (default: 42).")
     parser.add_argument("--clean",    action="store_true",    help="Delete the output directory first if it exists.")
     args = parser.parse_args()
@@ -530,16 +530,16 @@ def main() -> None:
     # -----------------------------------------------------------------
     if not args.ingest:
         print()
-        print("Tip: re-run with --ingest to load everything into QaLens:")
+        print("Tip: re-run with --ingest to load everything into QALens:")
         print(f"     python {sys.argv[0]} --runs {args.runs} --projects {n_projects} --ingest")
         return
 
     print()
-    print("Ingesting into QaLens …")
+    print("Ingesting into QALens …")
     sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-    from qalens.api.library import QaLensClient  # noqa: PLC0415
+    from qalens.api.library import QALensClient  # noqa: PLC0415
 
-    client = QaLensClient()
+    client = QALensClient()
     inserted = 0
     skipped = 0
     failed  = 0

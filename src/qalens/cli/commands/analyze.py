@@ -7,7 +7,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 
 console = Console()
 err_console = Console(stderr=True)
@@ -23,7 +23,7 @@ def analyze(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     flaky: bool = typer.Option(True, "--flaky/--no-flaky", help="Show flaky test analysis."),
     failures: bool = typer.Option(True, "--failures/--no-failures", help="Show grouped failure analysis."),
@@ -33,7 +33,7 @@ def analyze(
 ) -> None:
     """Analyze test stability and failure patterns from ingested runs.
 
-    Queries the QaLens database (populated by 'qalens ingest') to produce:
+    Queries the QALens database (populated by 'qalens ingest') to produce:
 
     \b
     --flaky     Flakiness scores for all tests with sufficient history
@@ -48,7 +48,7 @@ def analyze(
     from qalens.analyzers.categorizer import categorize_failure
     from qalens.analyzers.flaky import FlakyClassification
 
-    client = QaLensClient()
+    client = QALensClient()
 
     output: dict = {"project": project, "flaky": [], "failure_groups": []}
 
@@ -180,7 +180,7 @@ def digest(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     format: str = typer.Option(  # noqa: A002
         "html",
@@ -207,7 +207,7 @@ def digest(
 ) -> None:
     """Generate a shareable failure digest report.
 
-    Reads from the QaLens database and produces a triage-ready report showing
+    Reads from the QALens database and produces a triage-ready report showing
     flaky tests, consistently broken tests, and recurring failure groups.
 
     Examples::
@@ -340,7 +340,7 @@ def summarize(
 
     [bold]CI gate[/bold]: use threshold flags to fail the build when failure
     counts exceed a limit.  Exit code [bold]2[/bold] means a gate was breached
-    (distinct from exit code 1 which means a QaLens error).
+    (distinct from exit code 1 which means a QALens error).
 
     Examples::
 
@@ -370,7 +370,7 @@ def summarize(
         if fail_on_test_data == -1:
             fail_on_test_data = 0
 
-    client = QaLensClient()
+    client = QALensClient()
 
     with console.status("[dim]Extracting and analysing report…[/dim]"):
         try:
@@ -489,7 +489,7 @@ def clusters(
 
     from rich.table import Table
 
-    client = QaLensClient()
+    client = QALensClient()
 
     with console.status("[dim]Extracting report…[/dim]"):
         try:

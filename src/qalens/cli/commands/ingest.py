@@ -8,7 +8,7 @@ from typing import Optional
 import typer
 from rich.console import Console
 
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 
 console = Console()
 err_console = Console(stderr=True)
@@ -28,7 +28,7 @@ def detect(
     Prints the detected format name (e.g. 'allure' or 'extent') and exits.
     Exits with code 1 if the format cannot be determined.
     """
-    client = QaLensClient()
+    client = QALensClient()
     result = client.detect_report(report_path)
     if result.matched:
         console.print(
@@ -63,7 +63,7 @@ def extract(
     """
     import json
 
-    client = QaLensClient()
+    client = QALensClient()
     try:
         run = client.extract_report(report_path)
     except Exception as exc:  # noqa: BLE001
@@ -101,7 +101,7 @@ def ingest(
     db: Optional[Path] = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     attachments_dir: Optional[Path] = typer.Option(
         None,
@@ -194,7 +194,7 @@ def ingest(
         ),
     ),
 ) -> None:
-    """Parse a report and store it in the local QaLens database.
+    """Parse a report and store it in the local QALens database.
 
     On subsequent calls with the same report the run is skipped (idempotent).
     Use --force to overwrite an existing run.
@@ -240,7 +240,7 @@ def ingest(
     if attachments_dir is not None and mode != ArtifactMode.FULL:
         _legacy_attachments_dir = attachments_dir
 
-    client = QaLensClient()
+    client = QALensClient()
     try:
         run, inserted, artifact_stats = client.ingest_report(
             report_path,

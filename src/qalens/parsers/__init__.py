@@ -1,4 +1,4 @@
-"""QaLens parsers package.
+"""QALens parsers package.
 
 Contains the report detector and format-specific parsers for Extent, Allure,
 JUnit XML, TestNG XML, Playwright JSON/HTML, and Cypress/Mocha JSON reports.
@@ -9,7 +9,7 @@ Public API
 ----------
 - :class:`~qalens.parsers.base.BaseParser` — abstract base for all parsers.
 - :class:`~qalens.parsers.base.DetectionResult` — result of format detection.
-- :class:`~qalens.parsers.base.QaLensError` — base exception.
+- :class:`~qalens.parsers.base.QALensError` — base exception.
 - :class:`~qalens.parsers.base.ReportNotSupportedError` — raised when no parser matched.
 - :class:`~qalens.parsers.base.ReportMalformedError` — raised on corrupt/incomplete reports.
 - :class:`~qalens.parsers.base.ParserNotFoundError` — raised for unknown parser keys.
@@ -27,7 +27,7 @@ from qalens.parsers.base import (
     BaseParser,
     DetectionResult,
     ParserNotFoundError,
-    QaLensError,
+    QALensError,
     ReportMalformedError,
     ReportNotSupportedError,
 )
@@ -39,7 +39,7 @@ from qalens.parsers.playwright import PlaywrightReportParser
 from qalens.parsers.testng import TestNGXmlParser
 
 __all__ = [
-    "QaLensError",
+    "QALensError",
     "AllureHtmlParser",
     "BaseParser",
     "CypressJsonParser",

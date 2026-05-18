@@ -1,6 +1,6 @@
-"""Decision intelligence synthesis for QaLens.
+"""Decision intelligence synthesis for QALens.
 
-This module turns existing QaLens facts into a deterministic decision surface:
+This module turns existing QALens facts into a deterministic decision surface:
 executive bullets, trend interpretation, and the top actions to fix first.
 It intentionally does not call an LLM.
 """
@@ -102,7 +102,7 @@ def _empty_payload(*, project: str | None, window: int) -> dict[str, Any]:
             "requested_window": window,
             "has_previous_run": False,
         },
-        "executive_summary": ["No QaLens runs are available for this scope."],
+        "executive_summary": ["No QALens runs are available for this scope."],
         "trend_intelligence": [
             _trend("Stability", "unknown", 0, "No runs available."),
             _trend("Failures", "unknown", 0, "No runs available."),

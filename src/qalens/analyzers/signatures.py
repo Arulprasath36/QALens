@@ -1,6 +1,6 @@
-"""Failure signature engine for QaLens — Phase 4.
+"""Failure signature engine for QALens — Phase 4.
 
-The ``SignatureEngine`` is the first analysis step in the QaLens pipeline.
+The ``SignatureEngine`` is the first analysis step in the QALens pipeline.
 It walks every ``TestCaseResult`` in a ``TestRun``, normalises the
 ``FailureInfo`` attached to each failing test (and its failed steps), and
 stamps three fields that all downstream phases depend on:
@@ -158,7 +158,7 @@ class SignatureEngine:
         ``FailureInfo`` is skipped — it will not be re-processed.
 
         Args:
-            run: A ``TestRun`` produced by any QaLens parser.
+            run: A ``TestRun`` produced by any QALens parser.
 
         Returns:
             The same *run* object (mutated in-place).

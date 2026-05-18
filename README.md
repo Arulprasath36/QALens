@@ -1,6 +1,6 @@
-# QaLens — Quality Assurance + Lens
+# QALens — Quality Assurance + Lens
 
-> QaLens turns static automation test reports into triage-ready intelligence.
+> QALens turns static automation test reports into triage-ready intelligence.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
@@ -8,23 +8,23 @@
 
 ---
 
-## What is QaLens?
+## What is QALens?
 
-**QaLens (Quality Assurance + Lens)** is an open-source Python CLI and library that reads existing automation test HTML reports — such as **Extent Reports** and **Allure Reports** — extracts structured execution data, and generates explainable root-cause insights for QA engineers and development teams.
+**QALens (Quality Assurance + Lens)** is an open-source Python CLI and library that reads existing automation test HTML reports — such as **Extent Reports** and **Allure Reports** — extracts structured execution data, and generates explainable root-cause insights for QA engineers and development teams.
 
-> QaLens stands for Quality Assurance + Lens. The project's goal is turning raw automation reports into actionable understanding.
+> QALens stands for Quality Assurance + Lens. The project's goal is turning raw automation reports into actionable understanding.
 
-QaLens is **not** a test reporting framework. It is an intelligence layer *on top of* your existing reports.
+QALens is **not** a test reporting framework. It is an intelligence layer *on top of* your existing reports.
 
 ---
 
-## Why QaLens?
+## Why QALens?
 
 Modern test suites produce hundreds or thousands of results per run. Tools like Extent Reports and Allure provide excellent visualizations of pass/fail status, logs, screenshots, and stack traces — but they stop there.
 
-**The gaps QaLens fills:**
+**The gaps QALens fills:**
 
-| Problem | What QaLens Does |
+| Problem | What QALens Does |
 |---|---|
 | Hours spent manually triaging failures | Automates root-cause classification |
 | "Is this flaky or a real bug?" | Produces explainable flaky scoring |
@@ -34,9 +34,9 @@ Modern test suites produce hundreds or thousands of results per run. Tools like 
 
 ---
 
-## How QaLens differs from Extent Reports and Allure
+## How QALens differs from Extent Reports and Allure
 
-| Feature | Extent / Allure | QaLens |
+| Feature | Extent / Allure | QALens |
 |---|---|---|
 | Test execution reporting | ✅ Core purpose | ❌ Not a reporter |
 | Pass/fail/skip status | ✅ | ✅ Reads from reports |
@@ -89,14 +89,14 @@ Modern test suites produce hundreds or thousands of results per run. Tools like 
 | Analysis | Whether suite health is improving or declining across the selected run window |
 | Risk | Which tests are most likely to fail or flip in the next run, with explainable risk signals |
 | Compare | How runs, owners, modules, or suites differ across a selected window |
-| Chat | Ask evidence-backed questions over ingested QaLens data; LLM features are optional |
+| Chat | Ask evidence-backed questions over ingested QALens data; LLM features are optional |
 | Settings | Inspect runtime paths, database status, auth mode, and safe LLM configuration |
 
 ---
 
 ## Local Setup And Run Guide
 
-This section is for someone setting up QaLens from this repository on a local
+This section is for someone setting up QALens from this repository on a local
 machine.
 
 ### 1. Prerequisites
@@ -119,8 +119,8 @@ cd ..
 ### 2. Clone The Repository
 
 ```bash
-git clone https://github.com/Arulprasath36/QaLens.git
-cd QaLens
+git clone https://github.com/Arulprasath36/QALens.git
+cd QALens
 ```
 
 ### 3. Create A Python Virtual Environment
@@ -141,7 +141,7 @@ py -m venv .venv
 python -m pip install --upgrade pip
 ```
 
-### 4. Install QaLens For Local Development
+### 4. Install QALens For Local Development
 
 ```bash
 pip install -e ".[dev]"
@@ -195,7 +195,7 @@ make build-ui
 `make build-ui` compiles the React app into `src/qalens/server/static/`, which is
 what `qalens serve` uses when serving the built UI from Python.
 
-### 7. Try QaLens With Sample Reports
+### 7. Try QALens With Sample Reports
 
 The repo includes parser fixtures under `tests/fixtures/`.
 
@@ -221,7 +221,7 @@ qalens ingest tests/fixtures/allure_sample
 The sample Allure fixture may print a warning about a missing screenshot
 attachment. That is expected for this fixture and does not block ingestion.
 
-By default QaLens stores data in `~/.qalens/qalens.db`. You can use a project-local
+By default QALens stores data in `~/.qalens/qalens.db`. You can use a project-local
 database instead:
 
 ```bash
@@ -407,7 +407,7 @@ security boundaries, and owner-mapping status are shown there as read-only
 runtime context.
 
 By default, `qalens serve` is intended for localhost and does not require a login.
-For shared team usage, QaLens supports two optional auth modes.
+For shared team usage, QALens supports two optional auth modes.
 
 For quick private sharing, require an admin token:
 
@@ -422,7 +422,7 @@ You can also pass the token for a single server session:
 qalens serve --db ./qalens.db --auth-token "replace-with-a-long-random-token"
 ```
 
-When auth is enabled, the browser prompts for the token and QaLens sends it as a
+When auth is enabled, the browser prompts for the token and QALens sends it as a
 Bearer token on API requests. The token is kept in browser session storage.
 
 For stronger team sign-in, use GitHub OAuth:
@@ -449,7 +449,7 @@ qalens serve --db ./qalens.db
 
    | Field | Value |
    |---|---|
-   | Application name | `QaLens` (or any name) |
+   | Application name | `QALens` (or any name) |
    | Homepage URL | `http://localhost:8080` |
    | Authorization callback URL | `http://localhost:8080/auth/github/callback` |
 
@@ -475,7 +475,7 @@ views but the Settings tab is hidden and the settings API returns 403.
 
 ### 10. Optional LLM Setup
 
-QaLens works without an LLM for ingestion, parsing, summaries, and deterministic
+QALens works without an LLM for ingestion, parsing, summaries, and deterministic
 analysis. LLM-powered chat uses `~/.qalens/config.toml`.
 
 Create the default config:
@@ -485,9 +485,9 @@ qalens llm-config --init
 qalens llm-config --show
 ```
 
-QaLens does not ship any LLM. The default config points to a locally-running
+QALens does not ship any LLM. The default config points to a locally-running
 [Ollama](https://ollama.com) instance, which you install and run separately.
-If Ollama is not running, LLM-powered chat will not work — all other QaLens
+If Ollama is not running, LLM-powered chat will not work — all other QALens
 features (ingestion, analysis, summaries, comparison) remain fully functional.
 
 Cloud providers require an explicit opt-in because report data may include test
@@ -538,8 +538,8 @@ qalens ask "What broke in the latest run?" --db ./qalens.db
 
 ## Shareable Report Export
 
-QaLens can export a deterministic, standalone triage report from the SQLite run
-history. The report is generated from QaLens's stored analysis data, not by an
+QALens can export a deterministic, standalone triage report from the SQLite run
+history. The report is generated from QALens's stored analysis data, not by an
 LLM, so the numbers stay consistent between CLI, CI, and the web UI.
 
 HTML report:
@@ -579,7 +579,7 @@ suitable for GitHub Actions artifacts, release handoffs, and team triage notes.
 ## Example CLI Output
 
 ```
-QaLens — Quality Assurance + Lens
+QALens — Quality Assurance + Lens
 ====================================
 Report:   allure-report/  [allure]
 Run date: 2026-03-06T08:14:33Z
@@ -619,28 +619,28 @@ Recommended Actions
 
 ## Security Defaults
 
-QaLens treats reports as untrusted input. Ingestion validates supported report
+QALens treats reports as untrusted input. Ingestion validates supported report
 file types, bounds screenshot bytes, rejects SVG artifacts, validates raster
 images by magic bytes, and redacts common secrets before report-derived text is
 sent to an LLM.
 
 LLM features default to local providers. Cloud providers require an explicit
-opt-in with `allow_external = true` in the QaLens LLM config or
+opt-in with `allow_external = true` in the QALens LLM config or
 `QALENS_ALLOW_EXTERNAL_LLM=1`.
 
 For networked deployments, review [SECURITY.md](SECURITY.md) and
 [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md). Configure `QALENS_AUTH_TOKEN`
-or `qalens serve --auth-token`, use HTTPS, and keep QaLens behind trusted network
+or `qalens serve --auth-token`, use HTTPS, and keep QALens behind trusted network
 controls when exposing it beyond localhost.
 
 ---
 
-## Using QaLens as a Python Library
+## Using QALens as a Python Library
 
 ```python
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 
-client = QaLensClient()
+client = QALensClient()
 
 # Detect report type
 report_type = client.detect_report("./reports/allure-report")
@@ -660,9 +660,9 @@ print(summary)
 
 ## Artifact Ingestion
 
-QaLens can capture screenshot artifacts from test reports at three levels of detail, controlled by the `--artifact-mode` flag when running `qalens ingest`.
+QALens can capture screenshot artifacts from test reports at three levels of detail, controlled by the `--artifact-mode` flag when running `qalens ingest`.
 
-QaLens is **text-first**. Screenshots are optional supporting evidence. The default mode stores only metadata — no image bytes — keeping the database small and portable.
+QALens is **text-first**. Screenshots are optional supporting evidence. The default mode stores only metadata — no image bytes — keeping the database small and portable.
 
 ### The 3 Modes
 
@@ -686,7 +686,7 @@ QaLens is **text-first**. Screenshots are optional supporting evidence. The defa
 
 ### Screenshot selection (when cap > available)
 
-When a failed test has more screenshots than the cap allows, QaLens applies a priority ranking before truncation:
+When a failed test has more screenshots than the cap allows, QALens applies a priority ranking before truncation:
 
 1. Screenshots from **failed or broken steps** (`is_from_failed_step=True`) — most likely to show the root cause.
 2. Screenshots with the **highest sequence number** among the remainder — nearest to the exception.
@@ -694,7 +694,7 @@ When a failed test has more screenshots than the cap allows, QaLens applies a pr
 
 ### Screenshot sources in Extent Reports
 
-QaLens extracts screenshots from three locations in an Extent HTML report:
+QALens extracts screenshots from three locations in an Extent HTML report:
 
 | Source | Description |
 |---|---|
@@ -742,7 +742,7 @@ qalens ingest ./my-extent-report \
 
 ### End-of-run ingestion summary
 
-After every `qalens ingest`, QaLens prints an artifact summary:
+After every `qalens ingest`, QALens prints an artifact summary:
 
 ```
 Artifact ingestion  (mode: metadata-only)
@@ -765,7 +765,7 @@ Image bytes are **never stored in the SQLite database**. The `artifacts` table h
 Top-level layout:
 
 ```
-QaLens/
+QALens/
 ├── src/qalens/                 # Python package
 ├── frontend/                 # React + Vite web UI
 ├── tests/                    # Python test suite and parser fixtures
@@ -784,7 +784,7 @@ Python package layout:
 
 ```
 src/qalens/
-├── api/          # Public Python API; QaLensClient lives here
+├── api/          # Public Python API; QALensClient lives here
 ├── analyzers/    # Categorization, flaky scoring, clustering, comparison, prediction
 ├── artifacts/    # Screenshot/artifact policy, image inspection, storage
 ├── cli/          # Active Typer CLI package for the `qalens` command

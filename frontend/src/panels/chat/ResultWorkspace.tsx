@@ -9,7 +9,7 @@ import type {
   OwnerTestGapResult,
   OwnerSuiteComparisonResult,
   OwnerWindowComparisonResult,
-  QaLensResult,
+  QALensResult,
   RiskRankingResult,
   RiskTier,
   ExceptionRetrievalResult,
@@ -324,7 +324,7 @@ function EvidenceDrawer({
 + 0.15 × fail_streak
 + 0.05 × duration_spike`}</pre>
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              This ranking is based on the blended QaLens risk formula, not pass rate alone.
+              This ranking is based on the blended QALens risk formula, not pass rate alone.
             </p>
           </section>
         </div>
@@ -351,7 +351,7 @@ function RiskWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Ranked by QaLens risk score across the selected run window',
+      result.subtitle ?? 'Ranked by QALens risk score across the selected run window',
       `Scope: ${result.scope.label}${result.scope.windowEnd ? ` • Ends at ${result.scope.windowEnd}` : ''}`,
       `Eligible tests: ${result.scope.eligibleTests}`,
       `High risk: ${result.summary.highRisk}`,
@@ -379,7 +379,7 @@ function RiskWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Ranked by QaLens risk score across the selected run window'}
+              {result.subtitle ?? 'Ranked by QALens risk score across the selected run window'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -503,7 +503,7 @@ function WorkspaceEmptyState() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
         <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">Structured results show up here</h2>
         <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-          Ask a question like “What tests are most likely to fail next?” and QaLens will keep the conversation on the left while rendering ranked evidence and drill-down analysis here.
+          Ask a question like “What tests are most likely to fail next?” and QALens will keep the conversation on the left while rendering ranked evidence and drill-down analysis here.
         </p>
       </div>
     </div>
@@ -1094,7 +1094,7 @@ function OwnerSuiteComparisonWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Current-owner suite overlap and unique suite ownership. Ask QaLens to narrow this to a specific run window for recent health.'}
+              {result.subtitle ?? 'Current-owner suite overlap and unique suite ownership. Ask QALens to narrow this to a specific run window for recent health.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1170,7 +1170,7 @@ function OwnerSuiteComparisonWorkspace({
 
       <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-          This view shows the current suite ownership split only. If you want to compare recent health within these suites, ask QaLens to narrow the analysis to a time window like the last 5 or 10 runs.
+          This view shows the current suite ownership split only. If you want to compare recent health within these suites, ask QALens to narrow the analysis to a time window like the last 5 or 10 runs.
         </p>
       </div>
     </div>
@@ -1784,7 +1784,7 @@ function StabilityTrendWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'QaLens stability analysis.',
+      result.subtitle ?? 'QALens stability analysis.',
       `Scope: ${result.scope.label} • ${result.scope.runCount} run${result.scope.runCount === 1 ? '' : 's'}`,
       `Matches: ${result.summary.matches} of ${result.scope.totalEvaluated} evaluated tests`,
       `Average pass rate: ${Math.round(result.summary.avgPassRate * 100)}%`,
@@ -1828,7 +1828,7 @@ function StabilityTrendWorkspace({
       case 'improved_over_time':
         return 'These tests failed earlier in the selected scope but are now back to passing, which makes them the clearest examples of recovery or improving stability.';
       default:
-        return 'These tests were selected from QaLens stability signals across the chosen scope.';
+        return 'These tests were selected from QALens stability signals across the chosen scope.';
     }
   }, [result]);
 
@@ -1842,7 +1842,7 @@ function StabilityTrendWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'QaLens stability analysis.'}
+              {result.subtitle ?? 'QALens stability analysis.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1881,8 +1881,8 @@ function StabilityTrendWorkspace({
           <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{result.query.label}</h3>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             {result.tests.length < result.summary.matches
-              ? `Showing ${result.tests.length} of ${result.summary.matches} matching tests ranked by QaLens stability signals.`
-              : `${result.summary.matches} matching test${result.summary.matches === 1 ? '' : 's'} ranked by QaLens stability signals.`}
+              ? `Showing ${result.tests.length} of ${result.summary.matches} matching tests ranked by QALens stability signals.`
+              : `${result.summary.matches} matching test${result.summary.matches === 1 ? '' : 's'} ranked by QALens stability signals.`}
           </p>
         </div>
         <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -1985,7 +1985,7 @@ function PerformanceTimingWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Execution-time analysis from QaLens.',
+      result.subtitle ?? 'Execution-time analysis from QALens.',
       `Scope: ${result.scope.label} • ${result.scope.runCount} run${result.scope.runCount === 1 ? '' : 's'}`,
       isSlowestQuery
         ? `Ranked slowest tests shown: ${result.summary.matches} of ${result.scope.totalEvaluated} evaluated tests`
@@ -2029,7 +2029,7 @@ function PerformanceTimingWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Execution-time analysis from QaLens.'}
+              {result.subtitle ?? 'Execution-time analysis from QALens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -2510,7 +2510,7 @@ function FailureTrendWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Run-by-run failure trend from QaLens.',
+      result.subtitle ?? 'Run-by-run failure trend from QALens.',
       `Scope: ${result.scope.label}`,
       `Direction: ${result.summary.direction}`,
       `${result.scope.baselineRun ?? 'Baseline'} failed: ${result.summary.baselineFailed}`,
@@ -2546,7 +2546,7 @@ function FailureTrendWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Run-by-run failure trend from QaLens.'}
+              {result.subtitle ?? 'Run-by-run failure trend from QALens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -2638,7 +2638,7 @@ function RootCauseInsightWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Evidence-backed root cause analysis from QaLens.',
+      result.subtitle ?? 'Evidence-backed root cause analysis from QALens.',
       `Scope: ${result.scope.label}`,
       `Total failures analyzed: ${result.summary.totalFailures}`,
       `Affected tests: ${result.summary.affectedTests}`,
@@ -2658,13 +2658,13 @@ function RootCauseInsightWorkspace({
 
   const meaningText = useMemo(() => {
     if (!result.summary.dominantFamily) {
-      return 'QaLens could not isolate a dominant failure cause from the available evidence, so manual inspection is still required.';
+      return 'QALens could not isolate a dominant failure cause from the available evidence, so manual inspection is still required.';
     }
     if (result.scope.kind === 'test_frequency' && result.scope.targetTest) {
       return `${result.scope.targetTest} is failing repeatedly because the same cause family is showing up across its recent failing runs. The strongest evidence is grouped below so you can verify the pattern quickly.`;
     }
     if (result.scope.kind === 'cause_mix') {
-      return `QaLens compared UI/test-script style failures against product/backend style failures. The dominant family below shows which side is contributing more of the failure pressure in this scope.`;
+      return `QALens compared UI/test-script style failures against product/backend style failures. The dominant family below shows which side is contributing more of the failure pressure in this scope.`;
     }
     if (result.scope.kind === 'flaky_causes') {
       return `These cause groups are taken only from tests already classified as flaky, so the dominant family points to what is driving instability rather than just raw failure count.`;
@@ -2682,7 +2682,7 @@ function RootCauseInsightWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Evidence-backed root cause analysis from QaLens.'}
+              {result.subtitle ?? 'Evidence-backed root cause analysis from QALens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -2853,7 +2853,7 @@ function TestFixPlaybookWorkspace({
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Fix playbook</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{result.subtitle ?? 'Evidence-backed triage checklist from recent QaLens runs.'}</p>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{result.subtitle ?? 'Evidence-backed triage checklist from recent QALens runs.'}</p>
           </div>
           <button
             type="button"
@@ -3088,7 +3088,7 @@ function RunRetrievalWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Run-level retrieval from QaLens.',
+      result.subtitle ?? 'Run-level retrieval from QALens.',
       `Run: ${result.run.label}${result.run.project ? ` • ${result.run.project}` : ''}`,
       `Query: ${result.query.label}`,
       `Total: ${result.summary.total}`,
@@ -3108,8 +3108,8 @@ function RunRetrievalWorkspace({
   const focusText = useMemo(() => {
     if (result.query.kind === 'status_lookup') {
       return result.tests.length > 0
-        ? `QaLens found ${result.tests.length} matching test${result.tests.length === 1 ? '' : 's'} for this status lookup in ${result.run.label}.`
-        : `QaLens did not find a matching test for this status lookup in ${result.run.label}.`;
+        ? `QALens found ${result.tests.length} matching test${result.tests.length === 1 ? '' : 's'} for this status lookup in ${result.run.label}.`
+        : `QALens did not find a matching test for this status lookup in ${result.run.label}.`;
     }
     if (result.query.kind === 'run_counts') {
       return `This is a run-level breakdown for ${result.run.label}, with the full executed test list shown below so you can verify the counts quickly.`;
@@ -3125,7 +3125,7 @@ function RunRetrievalWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Run-level retrieval from QaLens.'}
+              {result.subtitle ?? 'Run-level retrieval from QALens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -3212,7 +3212,7 @@ function ExceptionRetrievalWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Exception-based failure retrieval from QaLens.',
+      result.subtitle ?? 'Exception-based failure retrieval from QALens.',
       `Scope: ${result.scope.label}`,
       `Query: ${result.scope.query}`,
       `Matches: ${result.summary.matches}`,
@@ -3239,7 +3239,7 @@ function ExceptionRetrievalWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Exception-based failure retrieval from QaLens.'}
+              {result.subtitle ?? 'Exception-based failure retrieval from QALens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -3271,7 +3271,7 @@ function ExceptionRetrievalWorkspace({
       <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5 dark:border-blue-500/20 dark:bg-blue-500/10">
         <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">What this shows</h3>
         <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-200">
-          QaLens matched failed tests using exception type and first-line failure message text, so this view catches both exact exception names and close message variants like timeout or element-location errors.
+          QALens matched failed tests using exception type and first-line failure message text, so this view catches both exact exception names and close message variants like timeout or element-location errors.
         </p>
       </div>
 
@@ -3358,7 +3358,7 @@ export function ResultWorkspace({
   result,
   loading = false,
 }: {
-  result: QaLensResult | null;
+  result: QALensResult | null;
   loading?: boolean;
 }) {
   if (!result) return <WorkspaceEmptyState />;

@@ -1,11 +1,11 @@
-# QaLens — Quality Assurance + Lens
+# QALens — Quality Assurance + Lens
 # Example CI workflow: run your test suite, ingest the Allure/Extent report,
-# then use QaLens's CI gate to break the build when failure counts exceed thresholds.
+# then use QALens's CI gate to break the build when failure counts exceed thresholds.
 #
 # Customise the threshold flags to match your team's quality bar.
-# Exit code 2 = gate breached; exit code 1 = QaLens error; exit code 0 = pass.
+# Exit code 2 = gate breached; exit code 1 = QALens error; exit code 0 = pass.
 
-name: QaLens Quality Gate
+name: QALens Quality Gate
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      # ── 3. Install your project + QaLens ────────────────────────────────────
+      # ── 3. Install your project + QALens ────────────────────────────────────
       - name: Install dependencies
         run: |
           pip install --upgrade pip
@@ -40,22 +40,22 @@ jobs:
       - name: Run tests (generate Allure report)
         run: |
           pip install allure-pytest
-          pytest --alluredir=allure-results || true   # don't fail here; let QaLens decide
+          pytest --alluredir=allure-results || true   # don't fail here; let QALens decide
           allure generate allure-results --clean -o allure-report
 
-      # ── 5. Ingest the report into QaLens's local database ───────────────────
+      # ── 5. Ingest the report into QALens's local database ───────────────────
       #    This step is optional but enables flaky scoring across runs.
-      - name: Ingest report into QaLens database
+      - name: Ingest report into QALens database
         run: |
           qalens ingest allure-report
 
-      # ── 6. Run the QaLens CI gate ───────────────────────────────────────────
+      # ── 6. Run the QALens CI gate ───────────────────────────────────────────
       #    Adjust thresholds to match your quality bar.
       #    --fail-on-defects 0   → fail on ANY product defect
       #    --fail-on-flaky   5   → allow up to 4 flaky tests before failing
       #    --fail-on-environment 3 → allow up to 2 environment failures
       #    --strict              → fail on any failure of any category
-      - name: QaLens quality gate
+      - name: QALens quality gate
         run: |
           qalens summarize allure-report \
             --format json \
@@ -64,8 +64,8 @@ jobs:
             --fail-on-environment 3
         # Exit code 2 = gate breached → step fails → job fails
 
-      # ── 7. Upload QaLens summary as an artifact ─────────────────────────────
-      - name: Upload QaLens summary
+      # ── 7. Upload QALens summary as an artifact ─────────────────────────────
+      - name: Upload QALens summary
         if: always()   # upload even when gate fires
         uses: actions/upload-artifact@v4
         with:
@@ -73,10 +73,10 @@ jobs:
           path: qalens-summary.json
           retention-days: 30
 
-      # ── 8. (Optional) Post QaLens summary as a PR comment ──────────────────
+      # ── 8. (Optional) Post QALens summary as a PR comment ──────────────────
       # Uncomment and add a GITHUB_TOKEN secret to enable PR comments.
       #
-      # - name: Comment QaLens summary on PR
+      # - name: Comment QALens summary on PR
       #   if: github.event_name == 'pull_request' && always()
       #   uses: actions/github-script@v7
       #   with:
@@ -86,7 +86,7 @@ jobs:
       #       const sc = summary.status_counts;
       #       const cc = summary.category_counts;
       #       const body = [
-      #         '## QaLens Quality Gate Report',
+      #         '## QALens Quality Gate Report',
       #         `**Pass rate:** ${(sc.pass_rate * 100).toFixed(1)}%  ` +
       #         `Total: ${sc.total} | Passed: ${sc.passed} | Failed: ${sc.failed}`,
       #         '',

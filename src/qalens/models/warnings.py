@@ -1,4 +1,4 @@
-"""Extraction warning model for QaLens.
+"""Extraction warning model for QALens.
 
 When a parser encounters a missing, malformed, or unexpected field during
 report extraction, it records an ``ExtractionWarning`` instead of raising

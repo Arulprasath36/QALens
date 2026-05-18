@@ -54,9 +54,9 @@ class TestFailOnDefects:
     def test_threshold_zero_fails_if_any_defect(self) -> None:
         """--fail-on-defects 0 should exit 2 whenever there is ≥1 product defect."""
         # Run a quick headless test to tell whether the fixture actually has defects.
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         run = client.extract_report(ALLURE_DIR)
         analysis = client.analyze_report(run)
         defect_count = analysis.category_counts.likely_product_defect
@@ -75,9 +75,9 @@ class TestFailOnDefects:
 
     def test_threshold_equal_to_count_breaches(self) -> None:
         """Gate fires when count >= N, so N == count should trip."""
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         run = client.extract_report(ALLURE_DIR)
         analysis = client.analyze_report(run)
         n = analysis.category_counts.likely_product_defect
@@ -90,9 +90,9 @@ class TestFailOnDefects:
 
     def test_threshold_above_count_does_not_breach(self) -> None:
         """Gate does NOT fire when count < N."""
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         run = client.extract_report(ALLURE_DIR)
         analysis = client.analyze_report(run)
         n = analysis.category_counts.likely_product_defect + 1  # one above actual
@@ -108,9 +108,9 @@ class TestFailOnDefects:
 
 class TestFailOnFlaky:
     def test_threshold_zero_behavior(self) -> None:
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         analysis = client.analyze_report(client.extract_report(ALLURE_DIR))
         flaky_count = analysis.category_counts.likely_flaky
 
@@ -130,9 +130,9 @@ class TestFailOnFlaky:
 
 class TestFailOnEnvironment:
     def test_threshold_zero_behavior(self) -> None:
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         analysis = client.analyze_report(client.extract_report(ALLURE_DIR))
         env_count = analysis.category_counts.likely_environment_issue
 
@@ -152,9 +152,9 @@ class TestFailOnEnvironment:
 
 class TestFailOnUnknown:
     def test_threshold_zero_behavior(self) -> None:
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         analysis = client.analyze_report(client.extract_report(ALLURE_DIR))
         unknown_count = analysis.category_counts.unknown
 
@@ -175,9 +175,9 @@ class TestFailOnUnknown:
 class TestStrictMode:
     def test_strict_exits_two_when_any_failure_exists(self) -> None:
         """--strict should exit 2 if there is any failure of any category."""
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         analysis = client.analyze_report(client.extract_report(ALLURE_DIR))
         cc = analysis.category_counts
         # --strict covers all 6 categories
@@ -214,9 +214,9 @@ class TestStrictMode:
         """--strict should still produce JSON output before exiting."""
         import json as _json
 
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         analysis = client.analyze_report(client.extract_report(ALLURE_DIR))
         cc = analysis.category_counts
         any_fail = (
@@ -260,9 +260,9 @@ class TestMultipleThresholds:
 
     def test_one_breached_threshold_exits_two(self) -> None:
         """Even if only one gate fires, exit code must be 2."""
-        from qalens.api.library import QaLensClient
+        from qalens.api.library import QALensClient
 
-        client = QaLensClient()
+        client = QALensClient()
         analysis = client.analyze_report(client.extract_report(ALLURE_DIR))
         total = len(analysis.insights)
 
@@ -298,7 +298,7 @@ class TestOutputOnBreach:
         result = _invoke("--format", "markdown", "--strict")
         # Even on exit 2, the markdown heading should appear
         combined = result.output + (result.stderr or "")
-        assert "QaLens Analysis Summary" in combined or len(result.output) > 0
+        assert "QALens Analysis Summary" in combined or len(result.output) > 0
 
     def test_error_exit_code_is_nonzero(self) -> None:
         """A bad report path must exit with a non-zero code."""

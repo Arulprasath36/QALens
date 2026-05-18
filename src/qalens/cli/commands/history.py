@@ -30,7 +30,7 @@ def history(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     project: str | None = typer.Option(
         None,

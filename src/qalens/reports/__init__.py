@@ -1,4 +1,4 @@
-"""Deterministic shareable report exports for QaLens."""
+"""Deterministic shareable report exports for QALens."""
 
 from qalens.reports.builder import build_report
 from qalens.reports.renderers import render_html, render_json, render_markdown

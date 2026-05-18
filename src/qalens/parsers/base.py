@@ -1,6 +1,6 @@
-"""Base parser abstractions, detection results, and QaLens exceptions.
+"""Base parser abstractions, detection results, and QALens exceptions.
 
-This module defines the contracts every QaLens parser must satisfy.
+This module defines the contracts every QALens parser must satisfy.
 It also defines the :class:`DetectionResult` model that carries
 explainable evidence from detection, and the exception hierarchy
 used throughout the parser layer.
@@ -9,7 +9,7 @@ Design notes:
 - :class:`BaseParser` is an ABC. Concrete parsers subclass it and
   implement :meth:`can_parse` and :meth:`parse`.
 - :class:`DetectionResult` is a Pydantic model so it serializes cleanly
-  to JSON alongside the rest of QaLens's output.
+  to JSON alongside the rest of QALens's output.
 - Exceptions are kept in this module to avoid a proliferation of tiny
   files; they are re-exported from :mod:`qalens.parsers`.
 """
@@ -26,15 +26,15 @@ from qalens.models.warnings import ExtractionWarning, WarningSeverity
 
 
 # ---------------------------------------------------------------------------
-# QaLens exception hierarchy
+# QALens exception hierarchy
 # ---------------------------------------------------------------------------
 
 
-class QaLensError(Exception):
-    """Base class for all QaLens errors."""
+class QALensError(Exception):
+    """Base class for all QALens errors."""
 
 
-class ReportNotSupportedError(QaLensError):
+class ReportNotSupportedError(QALensError):
     """Raised when no registered parser can handle a given report path.
 
     Args:
@@ -52,7 +52,7 @@ class ReportNotSupportedError(QaLensError):
         )
 
 
-class ReportMalformedError(QaLensError):
+class ReportMalformedError(QALensError):
     """Raised when a parser detects a structurally invalid report.
 
     This is distinct from :class:`ReportNotSupportedError`: a parser
@@ -70,7 +70,7 @@ class ReportMalformedError(QaLensError):
         super().__init__(f"Malformed report at '{path}': {detail}")
 
 
-class ParserNotFoundError(QaLensError):
+class ParserNotFoundError(QALensError):
     """Raised when a specific parser key is requested but not registered.
 
     Args:
@@ -191,7 +191,7 @@ class DetectionResult(BaseModel):
 
 
 class BaseParser(ABC):
-    """Abstract base class for all QaLens report parsers.
+    """Abstract base class for all QALens report parsers.
 
     Concrete parsers must:
 

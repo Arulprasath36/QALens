@@ -1,4 +1,4 @@
-"""Deterministic failure clustering engine for QaLens.
+"""Deterministic failure clustering engine for QALens.
 
 Groups failing tests from a single ``TestRun`` by their normalised failure
 signature.  Two failures are considered the *same root cause* when they

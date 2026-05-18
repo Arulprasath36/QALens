@@ -1,6 +1,6 @@
-"""Insight, cluster, and analysis summary models for QaLens.
+"""Insight, cluster, and analysis summary models for QALens.
 
-These models carry the output of the QaLens analysis pipeline.
+These models carry the output of the QALens analysis pipeline.
 Every insight is fully explainable — it includes the category,
 confidence, a human-readable explanation, and concrete evidence
 items that drove the classification.
@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class InsightCategory(str, Enum):
-    """The set of root-cause categories QaLens can assign to a failure.
+    """The set of root-cause categories QALens can assign to a failure.
 
     These are the canonical output categories for v1. Every failed test
     receives exactly one category assignment.
@@ -53,7 +53,7 @@ class Insight(BaseModel):
 
     Every ``Insight`` is fully explainable. The ``category``, ``confidence``,
     ``explanation``, and ``evidence`` fields must all be populated by the
-    categorizer. QaLens never produces silent black-box verdicts.
+    categorizer. QALens never produces silent black-box verdicts.
 
     Attributes:
         insight_id: Auto-generated unique ID.
@@ -61,7 +61,7 @@ class Insight(BaseModel):
             belongs to.
         test_name: Display name of the test, for convenience.
         category: The assigned root-cause category.
-        confidence: A float in [0.0, 1.0] representing how confident QaLens is
+        confidence: A float in [0.0, 1.0] representing how confident QALens is
             in this categorization. 0.8+ = high, 0.5–0.79 = medium,
             0.35–0.49 = low, < 0.35 = unknown.
         explanation: A human-readable sentence or short paragraph explaining
@@ -283,7 +283,7 @@ class CategoryCounts(BaseModel):
 
 
 class AnalysisSummary(BaseModel):
-    """The complete output of the QaLens analysis pipeline for one test run.
+    """The complete output of the QALens analysis pipeline for one test run.
 
     This is the object consumed by all output writers (JSON, Markdown,
     console). It aggregates the ``TestRun`` statistics, all per-test
@@ -300,7 +300,7 @@ class AnalysisSummary(BaseModel):
         flaky_test_ids: IDs of tests with a high flaky score.
         recommended_actions: Ordered list of actionable recommendation strings.
         extraction_warning_count: Number of parser warnings in the source run.
-        analysis_engine_version: The QaLens version that produced this summary.
+        analysis_engine_version: The QALens version that produced this summary.
     """
 
     run_id: str = Field(..., description="Run ID from the source TestRun.")
@@ -337,7 +337,7 @@ class AnalysisSummary(BaseModel):
     )
     analysis_engine_version: str = Field(
         default="",
-        description="QaLens version that produced this summary.",
+        description="QALens version that produced this summary.",
     )
 
     model_config = {"frozen": False}

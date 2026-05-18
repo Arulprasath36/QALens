@@ -160,7 +160,7 @@ def validate_report_input_path(path: Path) -> None:
 def validate_sqlite_db_path(db_path: str | Path) -> str | Path:
     """Validate a user-configured SQLite database path.
 
-    QaLens supports an explicit ``:memory:`` database for tests. File-backed
+    QALens supports an explicit ``:memory:`` database for tests. File-backed
     databases must be normal filesystem paths with SQLite-like extensions; this
     prevents accidental writes to arbitrary special URI-style locations.
     """
@@ -201,7 +201,7 @@ def prepare_llm_prompt_text(text: str, *, max_chars: int = MAX_LLM_PROMPT_CHARS)
         return cleaned
     return (
         cleaned[:max_chars]
-        + "\n\n[QaLens SECURITY NOTE: prompt text was truncated before LLM submission.]"
+        + "\n\n[QALens SECURITY NOTE: prompt text was truncated before LLM submission.]"
     )
 
 

@@ -1,4 +1,4 @@
-"""Intent-driven answer planning for QaLens LLM queries.
+"""Intent-driven answer planning for QALens LLM queries.
 
 The :class:`AnswerPlan` drives *how* the LLM should structure its reply for a
 given question type.  It is derived deterministically from heuristic keyword
@@ -242,7 +242,7 @@ def _build_answer_plan_core(
         _metric_labels: dict[RankingMetric, str] = {
             RankingMetric.FLAKINESS: "flip_score (pass↔fail transitions, higher = more unstable)",
             RankingMetric.RISK: (
-                "QaLens next-run risk score — combines volatility (flip_score), failure burden "
+                "QALens next-run risk score — combines volatility (flip_score), failure burden "
                 "(fail count), recent decline (pass-rate trend), fail streak, and duration spike. "
                 "Expressed as risk_tier: CRITICAL > HIGH > MEDIUM > LOW."
             ),
@@ -279,15 +279,15 @@ def _build_answer_plan_core(
                 "After the ranked list (and the total-count sentence), insert exactly these three sections "
                 "in this order, each starting with a markdown H3 heading on its own line:",
                 "  1. `### 📊 How I ranked them` — ONE short paragraph (no bullets) stating that tests are "
-                "ranked by QaLens next-run risk score, which combines volatility (flip_score), failure burden, "
+                "ranked by QALens next-run risk score, which combines volatility (flip_score), failure burden, "
                 "recent pass-rate decline, fail streak, and duration spike — NOT by pass rate alone.",
                 "  2. `### 🔢 What the numbers mean` — exactly three bullets:\n"
-                "    - **Risk tier** — QaLens's prediction of next-run failure likelihood (CRITICAL > HIGH > MEDIUM > LOW)\n"
+                "    - **Risk tier** — QALens's prediction of next-run failure likelihood (CRITICAL > HIGH > MEDIUM > LOW)\n"
                 "    - **Pass rate** — how often the test has passed historically\n"
                 "    - **High risk + high pass rate?** — a test can still rank high-risk if recent signals worsened sharply",
                 "  3. `### 🔬 Why these rank highly` — one bullet per top 3–5 entry. "
                 "Each bullet starts with the bold backticked test name, then an em-dash, "
-                "then ONE sentence of evidence that explicitly separates the QaLens risk basis from the pass rate. "
+                "then ONE sentence of evidence that explicitly separates the QALens risk basis from the pass rate. "
                 "Example: '- **`testFoo()`** — ranks HIGH because its recent signals worsened sharply "
                 "(fail streak + recent decline), even though its historical pass rate is 90%.'",
                 # Visual breathing room
@@ -306,7 +306,7 @@ def _build_answer_plan_core(
                 "──────────────────────────────────────────────────────────\n"
                 "### 🎯 Tests Most Likely to Fail Next Run\n"
                 "\n"
-                "Across the last 10 runs, these are the tests with the highest QaLens risk score:\n"
+                "Across the last 10 runs, these are the tests with the highest QALens risk score:\n"
                 "\n"
                 "1. **`testCheckoutCompletes()`** — 🔴 **CRITICAL** risk · pass rate: 32%\n"
                 "2. **`testDashboardLoadsInUnder3s()`** — 🟠 **HIGH** risk · pass rate: 43%\n"
@@ -318,13 +318,13 @@ def _build_answer_plan_core(
                 "\n"
                 "### 📊 How I ranked them\n"
                 "\n"
-                "Tests are ranked by QaLens next-run risk score, which combines volatility "
+                "Tests are ranked by QALens next-run risk score, which combines volatility "
                 "(flip_score), failure burden, recent pass-rate decline, fail streak, and "
                 "duration spike — NOT by pass rate alone.\n"
                 "\n"
                 "### 🔢 What the numbers mean\n"
                 "\n"
-                "- **Risk tier** — QaLens's prediction of next-run failure likelihood (CRITICAL > HIGH > MEDIUM > LOW)\n"
+                "- **Risk tier** — QALens's prediction of next-run failure likelihood (CRITICAL > HIGH > MEDIUM > LOW)\n"
                 "- **Pass rate** — how often the test has passed historically\n"
                 "- **High risk + high pass rate?** — a test can still rank high-risk if recent signals worsened sharply\n"
                 "\n"

@@ -706,7 +706,7 @@ export type TestFixPlaybookResult = {
   };
 };
 
-export type QaLensResult =
+export type QALensResult =
   | RiskRankingResult
   | OwnerFailureRateResult
   | OwnerFlakyTestsResult

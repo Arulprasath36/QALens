@@ -1,4 +1,4 @@
-"""Contract-test suite for QaLens LLM orchestration.
+"""Contract-test suite for QALens LLM orchestration.
 
 Locks down the deterministic layers of the five core answer families:
 REGRESSION_DIFF, FLAKINESS_BINARY, FLAKINESS_RANKING, RISK_RANKING, TREND.
@@ -803,7 +803,7 @@ class TestRiskRankingPlan:
         )
 
     def test_plan_distinguishes_ranking_from_pass_rate(self):
-        """Rules must clarify ranking is by QaLens risk, not by pass rate."""
+        """Rules must clarify ranking is by QALens risk, not by pass rate."""
         q = "Which tests are most likely to fail next?"
         intent = detect_answer_intent(q)
         plan = build_answer_plan(intent, question=q)

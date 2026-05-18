@@ -58,7 +58,7 @@ class ArtifactConfig:
         storage_dir: Root directory for the
             :class:`~qalens.artifacts.storage.LocalFilesystemStore`.  Required
             when ``mode == FULL``.  Defaults to ``~/.qalens/artifacts/`` in
-            :meth:`~qalens.api.library.QaLensClient.ingest_report`.
+            :meth:`~qalens.api.library.QALensClient.ingest_report`.
     """
 
     mode: ArtifactMode = ArtifactMode.METADATA_ONLY

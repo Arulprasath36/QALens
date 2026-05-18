@@ -1,6 +1,6 @@
-"""Database context fetcher for QaLens LLM queries.
+"""Database context fetcher for QALens LLM queries.
 
-Pulls structured data from the QaLens SQLite database and formats it as a
+Pulls structured data from the QALens SQLite database and formats it as a
 plain-text context block that can be injected into an LLM prompt.
 
 Usage::
@@ -411,7 +411,7 @@ def gather_owner_context(
     Args:
         owner_name: Name (or partial name) of the owner to look up.
         project:    Optional project filter.
-        db_path:    Path to the QaLens SQLite database.
+        db_path:    Path to the QALens SQLite database.
 
     Returns:
         A tuple of ``(context_text, sources)``.

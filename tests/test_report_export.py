@@ -129,7 +129,7 @@ def test_report_markdown_renderer_is_deterministic_content(tmp_path: Path) -> No
 
     markdown = render_markdown(report)
 
-    assert "# QaLens Report" in markdown
+    assert "# QALens Report" in markdown
     assert "## Latest Run" in markdown
     assert "## Fix First" in markdown
     assert "## Trend Intelligence" in markdown
@@ -195,7 +195,7 @@ def test_report_cli_writes_markdown_file(tmp_path: Path) -> None:
 
     assert result.exit_code == 0, result.output
     assert out.exists()
-    assert "QaLens Report" in out.read_text(encoding="utf-8")
+    assert "QALens Report" in out.read_text(encoding="utf-8")
 
 
 def test_report_export_api_downloads_html(tmp_path: Path) -> None:
@@ -207,4 +207,4 @@ def test_report_export_api_downloads_html(tmp_path: Path) -> None:
     assert response.status_code == 200
     assert response.headers["content-disposition"].startswith("attachment;")
     assert "text/html" in response.headers["content-type"]
-    assert "QaLens Report" in response.text
+    assert "QALens Report" in response.text

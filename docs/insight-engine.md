@@ -1,6 +1,6 @@
 # Insight Engine
 
-This document describes how QaLens transforms normalized `TestRun` data into actionable insights.
+This document describes how QALens transforms normalized `TestRun` data into actionable insights.
 
 ---
 

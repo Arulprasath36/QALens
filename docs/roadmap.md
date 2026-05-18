@@ -1,6 +1,6 @@
-# QaLens Roadmap
+# QALens Roadmap
 
-> QaLens — Quality Assurance + Lens  
+> QALens — Quality Assurance + Lens  
 > This roadmap reflects the current development direction. Priorities may shift based on community feedback.
 
 ---
@@ -107,16 +107,16 @@
 
 ## Non-Goals (Permanent)
 
-- QaLens will never be a test reporting framework
-- QaLens will never replace Extent Reports or Allure
-- QaLens v1 will never require cloud connectivity
-- QaLens will never silently discard data without an `ExtractionWarning`
+- QALens will never be a test reporting framework
+- QALens will never replace Extent Reports or Allure
+- QALens v1 will never require cloud connectivity
+- QALens will never silently discard data without an `ExtractionWarning`
 
 ---
 
 ## Contributing to the Roadmap
 
-If you have a use case that is not covered here, open a [GitHub Discussion](https://github.com/Arulprasath36/QaLens/discussions) or a feature request issue. We especially welcome:
+If you have a use case that is not covered here, open a [GitHub Discussion](https://github.com/Arulprasath36/QALens/discussions) or a feature request issue. We especially welcome:
 
 - Report format parsers for tools used in your organization
 - Heuristic categorization signals from your real-world failure patterns

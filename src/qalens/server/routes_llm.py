@@ -1,4 +1,4 @@
-"""LLM Ask route handler for the QaLens FastAPI server.
+"""LLM Ask route handler for the QALens FastAPI server.
 
 Factory function :func:`make_llm_router` registers the ``/api/ask`` endpoint.
 """
@@ -115,7 +115,7 @@ _REFUSAL_MESSAGE = (
 
 
 def _is_off_topic_or_harmful(question: str) -> bool:
-    """Return True if the question is outside QaLens's scope or requests harmful actions."""
+    """Return True if the question is outside QALens's scope or requests harmful actions."""
     # Destructive data operations
     if _DESTRUCTIVE_VERBS.search(question) and _DESTRUCTIVE_OBJECTS.search(question):
         return True
@@ -143,7 +143,7 @@ def _deterministic_context_answer(
     context_text = context.strip()
     if not context_text:
         return (
-            "I could not reach the configured LLM, and QaLens did not find enough "
+            "I could not reach the configured LLM, and QALens did not find enough "
             "deterministic context to answer this question."
         )
 
@@ -184,7 +184,7 @@ def _deterministic_context_answer(
         details = [field for field in fields if field]
         if details:
             return (
-                "I could not reach the configured LLM, so QaLens is returning the "
+                "I could not reach the configured LLM, so QALens is returning the "
                 f"deterministic test summary for: {question_text}\n\n"
                 + "\n".join(f"- {line}" for line in details)
             )
@@ -222,7 +222,7 @@ def _deterministic_context_answer(
         ][:6]
 
     return (
-        "I could not reach the configured LLM, so QaLens is returning a "
+        "I could not reach the configured LLM, so QALens is returning a "
         f"deterministic summary for: {question_text}\n\n"
         + "\n".join(f"- {line}" for line in summary_lines)
     )
@@ -268,7 +268,7 @@ def _risk_ranking_result_from_fact_bundle(
     fact_bundle: dict[str, object],
     *,
     title: str = "Most likely to fail next run",
-    subtitle: str = "Ranked by QaLens risk score across the selected run window",
+    subtitle: str = "Ranked by QALens risk score across the selected run window",
 ) -> dict:
     """Convert a risk-ranking fact bundle into the Result Workspace payload."""
     top_tests = list(fact_bundle.get("top_tests", []))
@@ -919,7 +919,7 @@ def _finalize_owner_suite_narration(answer: str) -> str:
 
     if "narrow" not in lowered and "last 5" not in lowered and "last 10" not in lowered:
         normalized = (
-            f"{normalized} If you want, QaLens can also narrow this to a particular run window like the last 5 or 10 runs."
+            f"{normalized} If you want, QALens can also narrow this to a particular run window like the last 5 or 10 runs."
         )
 
     return normalized
@@ -2986,7 +2986,7 @@ def _trend_primary_reason(result, kind: str, scope_label: str) -> str:
             if result.current_streak > 0
             else "Recovered after failing earlier in the selected scope."
         )
-    return f"Scored from QaLens stability history across {scope_label.lower()}."
+    return f"Scored from QALens stability history across {scope_label.lower()}."
 
 
 def _trend_query_label(
@@ -3133,7 +3133,7 @@ def _build_stability_trend_result(
     return {
         "type": "stability_trend",
         "title": _trend_title(kind),
-        "subtitle": f"QaLens stability analysis across {scope_label.lower()}.",
+        "subtitle": f"QALens stability analysis across {scope_label.lower()}.",
         "scope": {
             "label": scope_label,
             "runCount": run_count,
@@ -3785,7 +3785,7 @@ def _build_owner_suite_result(compare_payload: dict, owner_a: str, owner_b: str)
     return {
         "type": "owner_suite_comparison",
         "title": f"Suite differences between {owner_a} and {owner_b}",
-        "subtitle": "Compared by current owner assignment. QaLens can narrow this to a specific run window if you want recent health instead.",
+        "subtitle": "Compared by current owner assignment. QALens can narrow this to a specific run window if you want recent health instead.",
         "owners": {
             "ownerA": owner_a,
             "ownerB": owner_b,
@@ -4568,7 +4568,7 @@ def make_llm_router(
                 available_runs = repo.list_runs(project=body.project, limit=5000)
                 if not available_runs:
                     return AskResponse(
-                        answer="I could not find any runs in the available QaLens data for this project.",
+                        answer="I could not find any runs in the available QALens data for this project.",
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -4762,7 +4762,7 @@ def make_llm_router(
                 if not selected_runs:
                     scope_text = f"Run #{run_number}" if run_number is not None else "the requested run scope"
                     return AskResponse(
-                        answer=f"I could not find {scope_text} in the available QaLens data.",
+                        answer=f"I could not find {scope_text} in the available QALens data.",
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -4869,7 +4869,7 @@ def make_llm_router(
                     target_index = next((i for i, run in enumerate(available_runs) if run.run_sequence == run_number), None)
                     if target_index is None:
                         return AskResponse(
-                            answer=f"I could not find Run #{run_number} in the available QaLens data.",
+                            answer=f"I could not find Run #{run_number} in the available QALens data.",
                             context_mode="project",
                             sources=[],
                             intent=_answer_intent.value,
@@ -4948,7 +4948,7 @@ def make_llm_router(
                 available_runs = repo.list_runs(project=body.project, limit=5000)
                 if not available_runs:
                     return AskResponse(
-                        answer="I could not find any runs in the available QaLens data for this project.",
+                        answer="I could not find any runs in the available QALens data for this project.",
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -5056,7 +5056,7 @@ def make_llm_router(
                 available_runs = repo.list_runs(project=body.project, limit=5000)
                 if not available_runs:
                     return AskResponse(
-                        answer="I could not find any runs in the available QaLens data for this project.",
+                        answer="I could not find any runs in the available QALens data for this project.",
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -5125,7 +5125,7 @@ def make_llm_router(
                 available_runs = repo.list_runs(project=body.project, limit=5000)
                 if not available_runs:
                     return AskResponse(
-                        answer="I could not find any runs in the available QaLens data for this project.",
+                        answer="I could not find any runs in the available QALens data for this project.",
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -5200,7 +5200,7 @@ def make_llm_router(
                 available_runs = repo.list_runs(project=body.project, limit=5000)
                 if not available_runs:
                     return AskResponse(
-                        answer="I could not find any runs in the available QaLens data for this project.",
+                        answer="I could not find any runs in the available QALens data for this project.",
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -5215,7 +5215,7 @@ def make_llm_router(
                 owner_focus = _extract_owner_from_question(body.question, owners)
                 if explicit_owner and owner_focus is None:
                     return AskResponse(
-                        answer=f'I could not find an owner named "{explicit_owner}" in the available QaLens data for this project.',
+                        answer=f'I could not find an owner named "{explicit_owner}" in the available QALens data for this project.',
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -5258,7 +5258,7 @@ def make_llm_router(
                     latest_run_label=latest_run_label,
                 )
                 if owner_focus is not None:
-                    result["subtitle"] = f"QaLens stability analysis for {owner_focus} across {scope_label.lower()}."
+                    result["subtitle"] = f"QALens stability analysis for {owner_focus} across {scope_label.lower()}."
                     result["query"]["label"] = f'{result["query"]["label"]} owned by {owner_focus}'
                 follow_ups = [
                     "Which tests are flaky in the last 10 runs?",
@@ -5327,7 +5327,7 @@ def make_llm_router(
                     if len(selected_runs) < 2:
                         missing = [str(n) for n in run_numbers[:2] if repo.get_run_by_sequence(n, project=body.project) is None]
                         return AskResponse(
-                            answer=f"I could not find Run #{missing[0]} in the available QaLens data." if missing else "I could not find both runs in the available QaLens data.",
+                            answer=f"I could not find Run #{missing[0]} in the available QALens data." if missing else "I could not find both runs in the available QALens data.",
                             context_mode="project",
                             sources=[],
                             intent=_answer_intent.value,
@@ -5477,7 +5477,7 @@ def make_llm_router(
                 if run is None:
                     run_scope = f"Run #{run_number}" if run_number is not None else "the latest run"
                     return AskResponse(
-                        answer=f"I could not find {run_scope} in the available QaLens data.",
+                        answer=f"I could not find {run_scope} in the available QALens data.",
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,
@@ -5599,7 +5599,7 @@ def make_llm_router(
                 explicit_owner = _explicit_owner_constraint(body.question)
                 if explicit_owner and owner_focus is None:
                     return AskResponse(
-                        answer=f'I could not find an owner named "{explicit_owner}" in the available QaLens data for this project.',
+                        answer=f'I could not find an owner named "{explicit_owner}" in the available QALens data for this project.',
                         context_mode="project",
                         sources=[],
                         intent=_answer_intent.value,

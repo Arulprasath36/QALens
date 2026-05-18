@@ -1,4 +1,4 @@
-"""QaLens command-line interface.
+"""QALens command-line interface.
 
 Built with Typer. Entry point registered in ``pyproject.toml`` as ``qalens``.
 
@@ -18,13 +18,13 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 from qalens.version import __version__
 
 app = typer.Typer(
     name="qalens",
     help=(
-        "QaLens — Quality Assurance + Lens.\n\n"
+        "QALens — Quality Assurance + Lens.\n\n"
         "Transforms static test HTML reports into triage-ready intelligence.\n\n"
     ),
     no_args_is_help=True,
@@ -53,13 +53,13 @@ def main(
         None,
         "--version",
         "-V",
-        help="Print QaLens version and exit.",
+        help="Print QALens version and exit.",
         callback=_version_callback,
         is_eager=True,
         show_default=False,
     ),
 ) -> None:
-    """QaLens — Quality Assurance + Lens."""
+    """QALens — Quality Assurance + Lens."""
 
 
 @app.command()
@@ -77,7 +77,7 @@ def detect(
     Prints the detected format name (e.g. 'allure' or 'extent') and exits.
     Exits with code 1 if the format cannot be determined.
     """
-    client = QaLensClient()
+    client = QALensClient()
     result = client.detect_report(report_path)
     if result.matched:
         console.print(f"[green]Detected:[/green] [bold]{result.parser_name}[/bold] (confidence {result.confidence:.0%})")
@@ -110,7 +110,7 @@ def extract(
     """
     import json
 
-    client = QaLensClient()
+    client = QALensClient()
     try:
         run = client.extract_report(report_path)
     except Exception as exc:  # noqa: BLE001
@@ -149,18 +149,18 @@ def ingest(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output."),
 ) -> None:
-    """Parse a report and store it in the local QaLens database.
+    """Parse a report and store it in the local QALens database.
 
     On subsequent calls with the same report the run is skipped
     (idempotent). Use --db to target a project-specific database.
     """
     from qalens.models.test_case import TestStatus
 
-    client = QaLensClient()
+    client = QALensClient()
     try:
         run, inserted = client.ingest_report(report_path, db_path=db)
     except Exception as exc:  # noqa: BLE001
@@ -226,7 +226,7 @@ def analyze(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     flaky: bool = typer.Option(True, "--flaky/--no-flaky", help="Show flaky test analysis."),
     failures: bool = typer.Option(True, "--failures/--no-failures", help="Show grouped failure analysis."),
@@ -236,7 +236,7 @@ def analyze(
 ) -> None:
     """Analyze test stability and failure patterns from ingested runs.
 
-    Queries the QaLens database (populated by 'qalens ingest') to produce:
+    Queries the QALens database (populated by 'qalens ingest') to produce:
 
     \b
     --flaky     Flakiness scores for all tests with sufficient history
@@ -251,7 +251,7 @@ def analyze(
     from qalens.analyzers.categorizer import categorize_failure
     from qalens.analyzers.flaky import FlakyClassification
 
-    client = QaLensClient()
+    client = QALensClient()
 
     output: dict = {"project": project, "flaky": [], "failure_groups": []}
 
@@ -384,7 +384,7 @@ def digest(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     format: str = typer.Option(  # noqa: A002
         "html",
@@ -411,7 +411,7 @@ def digest(
 ) -> None:
     """Generate a shareable failure digest report.
 
-    Reads from the QaLens database and produces a triage-ready report showing
+    Reads from the QALens database and produces a triage-ready report showing
     flaky tests, consistently broken tests, and recurring failure groups.
 
     Examples::
@@ -488,7 +488,7 @@ def ask(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     config: Path | None = typer.Option(
         None,
@@ -504,7 +504,7 @@ def ask(
 ) -> None:
     """Ask a natural-language question about your test failures.
 
-    QaLens builds a structured context from your test database and sends it
+    QALens builds a structured context from your test database and sends it
     to the configured local or cloud LLM.
 
     Examples::
@@ -670,7 +670,7 @@ def llm_config(
 
     if init:
         path = save_default_config(config_path)
-        if path.read_text().startswith("# QaLens"):
+        if path.read_text().startswith("# QALens"):
             console.print(f"[green]Config template written:[/green] {path}")
         else:
             console.print(f"[yellow]Config already exists:[/yellow] {path}")
@@ -750,7 +750,7 @@ def _write_config(config_path: Path, cfg: object) -> None:
     from qalens.llm.config import LLMConfig
     assert isinstance(cfg, LLMConfig)
     lines = [
-        "# QaLens LLM configuration\n",
+        "# QALens LLM configuration\n",
         "\n",
         "[llm]\n",
         f'provider    = "{cfg.provider}"\n',
@@ -775,7 +775,7 @@ def serve(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QaLens SQLite database (default: ~/.qalens/qalens.db).",
+        help="Path to QALens SQLite database (default: ~/.qalens/qalens.db).",
     ),
     config: Path | None = typer.Option(
         None,
@@ -800,10 +800,10 @@ def serve(
     auth_token: str | None = typer.Option(
         None,
         "--auth-token",
-        help="Require this bearer token for QaLens API access. Can also be set with QALENS_AUTH_TOKEN.",
+        help="Require this bearer token for QALens API access. Can also be set with QALENS_AUTH_TOKEN.",
     ),
 ) -> None:
-    """Start the QaLens web UI on [bold]http://host:port[/bold].
+    """Start the QALens web UI on [bold]http://host:port[/bold].
 
     Launches a local FastAPI server with a browser-based dashboard for:
     run history, flakiness analysis, failure groups, digest reports,
@@ -829,7 +829,7 @@ def serve(
 
     if _is_public_bind_host(host) and not allow_public_bind:
         err_console.print(
-            "[red]Refusing to bind QaLens to a public interface by default.[/red] "
+            "[red]Refusing to bind QALens to a public interface by default.[/red] "
             "Use [bold]--allow-public-bind[/bold] only behind authentication or a trusted reverse proxy."
         )
         raise typer.Exit(code=2)
@@ -850,17 +850,17 @@ def serve(
         auth_hint = (
             "API authentication is enabled for this server session."
             if effective_auth_token
-            else "Set QALENS_AUTH_TOKEN or pass --auth-token before exposing QaLens."
+            else "Set QALENS_AUTH_TOKEN or pass --auth-token before exposing QALens."
         )
         err_console.print(
             "\n[bold yellow]⚠  PUBLIC BINDING WARNING[/bold yellow]\n"
-            f"   QaLens is listening on [bold]{host}:{port}[/bold] — reachable by anyone on the network.\n"
+            f"   QALens is listening on [bold]{host}:{port}[/bold] — reachable by anyone on the network.\n"
             f"   {auth_hint}\n"
-            "   Only expose QaLens on trusted networks or behind a reverse proxy.\n"
+            "   Only expose QALens on trusted networks or behind a reverse proxy.\n"
             "   See SECURITY.md → Production Deployment Checklist.\n"
         )
     console.print(
-        f"[bold]QaLens[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
+        f"[bold]QALens[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
     )
     console.print("Press [bold]Ctrl+C[/bold] to stop.\n")
 
@@ -953,7 +953,7 @@ def summarize(
 
     [bold]CI gate[/bold]: use threshold flags to fail the build when failure
     counts exceed a limit.  Exit code [bold]2[/bold] means a gate was breached
-    (distinct from exit code 1 which means a QaLens error).
+    (distinct from exit code 1 which means a QALens error).
 
     Examples::
 
@@ -983,7 +983,7 @@ def summarize(
         if fail_on_test_data == -1:
             fail_on_test_data = 0
 
-    client = QaLensClient()
+    client = QALensClient()
 
     with console.status("[dim]Extracting and analysing report…[/dim]"):
         try:
@@ -1103,7 +1103,7 @@ def clusters(
 
     from rich.table import Table
 
-    client = QaLensClient()
+    client = QALensClient()
 
     with console.status("[dim]Extracting report…[/dim]"):
         try:

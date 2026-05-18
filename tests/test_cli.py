@@ -1,4 +1,4 @@
-"""Tests for the QaLens CLI (Phase 9)."""
+"""Tests for the QALens CLI (Phase 9)."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ class TestHelpText:
     def test_root_help(self) -> None:
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
-        assert "QaLens" in result.output
+        assert "QALens" in result.output
 
     def test_detect_help(self) -> None:
         result = runner.invoke(app, ["detect", "--help"])

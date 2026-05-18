@@ -1,4 +1,4 @@
-"""One-off script: extract the QaLens frontend f-string into static files.
+"""One-off script: extract the QALens frontend f-string into static files.
 
 Reads src/qalens/server/ui.py, pulls out the giant f-string, converts
 all {{ / }} escaping back to real JS braces, and writes three files:

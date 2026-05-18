@@ -1,3 +1,3 @@
-"""QaLens version information."""
+"""QALens version information."""
 
 __version__ = "0.1.0"

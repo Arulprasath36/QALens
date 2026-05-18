@@ -1,6 +1,6 @@
 {
-  "name": "QaLens",
-  "short_name": "QaLens",
+  "name": "QALens",
+  "short_name": "QALens",
   "description": "Test Intelligence",
   "start_url": "/",
   "display": "standalone",

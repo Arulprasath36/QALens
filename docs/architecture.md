@@ -1,12 +1,12 @@
-# QaLens Architecture
+# QALens Architecture
 
-> QaLens — Quality Assurance + Lens
+> QALens — Quality Assurance + Lens
 
 ---
 
 ## Overview
 
-QaLens is structured as a **pipeline** with clearly separated concerns:
+QALens is structured as a **pipeline** with clearly separated concerns:
 
 ```
 Report on disk
@@ -174,7 +174,7 @@ a `owners.toml` file provided at ingestion time.
 
 | Module | Responsibility |
 |--------|---------------|
-| `library.py` | Public Python API: `QaLensClient` |
+| `library.py` | Public Python API: `QALensClient` |
 
 ### `src/qalens/utils/`
 
@@ -188,7 +188,7 @@ a `owners.toml` file provided at ingestion time.
 
 ## Authentication
 
-QaLens supports three auth modes configured via environment variables:
+QALens supports three auth modes configured via environment variables:
 
 | Mode | Env vars | How it works |
 |------|----------|-------------|

@@ -1,4 +1,4 @@
-"""Text processing utilities for QaLens parsers.
+"""Text processing utilities for QALens parsers.
 
 Small, pure helpers for cleaning and transforming strings extracted from
 HTML reports.  No I/O, no parsing — just string operations.

@@ -1,11 +1,11 @@
-"""QaLens FastAPI web-server application.
+"""QALens FastAPI web-server application.
 
 Factory function ``create_app`` returns a configured :class:`fastapi.FastAPI`
 instance.  Run it with *uvicorn*::
 
     uvicorn qalens.server.app:app --reload
 
-Or via the QaLens CLI::
+Or via the QALens CLI::
 
     qalens serve --port 8080
 """
@@ -60,7 +60,7 @@ def _sl(value: str) -> str:
     return _ANSI_RE.sub("?", value)
 
 # ---------------------------------------------------------------------------
-# Module-level logger — all QaLens server messages go through this
+# Module-level logger — all QALens server messages go through this
 # ---------------------------------------------------------------------------
 logger = logging.getLogger("qalens.server")
 logging.basicConfig(
@@ -80,15 +80,15 @@ def create_app(
     default_project: str | None = None,
     auth_token: str | None = None,
 ) -> FastAPI:
-    """Create and return the QaLens FastAPI application.
+    """Create and return the QALens FastAPI application.
 
     Args:
-        db_path: Path to the QaLens SQLite database.  Defaults to
+        db_path: Path to the QALens SQLite database.  Defaults to
             ``~/.qalens/qalens.db``.
         config_path: Path to the LLM ``config.toml``.  Defaults to
             ``~/.qalens/config.toml``.
         default_project: Pre-selected project name shown in the UI on load.
-        auth_token: Optional admin bearer token. When omitted, QaLens reads
+        auth_token: Optional admin bearer token. When omitted, QALens reads
             ``QALENS_AUTH_TOKEN``. If no token is configured, auth is disabled.
 
     Returns:
@@ -97,7 +97,7 @@ def create_app(
 
     """
     app = FastAPI(
-        title="QaLens — Quality Assurance + Lens",
+        title="QALens — Quality Assurance + Lens",
         version=__version__,
         docs_url="/api/docs",
         redoc_url="/api/redoc",
@@ -233,7 +233,7 @@ def create_app(
         return response
 
     logger.info(
-        "QaLens server initialised  db=%s  config=%s  auth=%s",
+        "QALens server initialised  db=%s  config=%s  auth=%s",
         _db or "~/.qalens/qalens.db",
         _cfg or "~/.qalens/config.toml",
         _auth_config.mode
@@ -247,7 +247,7 @@ def create_app(
 
     @app.get("/", response_class=HTMLResponse, include_in_schema=False)
     async def index() -> str:
-        """Serve the QaLens single-page application."""
+        """Serve the QALens single-page application."""
         return _build_index_html(default_project=default_project)
 
     @app.get("/login", response_class=HTMLResponse, include_in_schema=False)
@@ -255,11 +255,11 @@ def create_app(
         """Serve the GitHub sign-in page."""
         if _auth_config.mode != "github":
             return HTMLResponse(
-                "<!doctype html><title>QaLens</title><p>Authentication is not enabled.</p>"
+                "<!doctype html><title>QALens</title><p>Authentication is not enabled.</p>"
             )
         if request_is_authenticated(request, _auth_config):
             return HTMLResponse(
-                '<!doctype html><title>QaLens</title><meta http-equiv="refresh" content="0; url=/">'
+                '<!doctype html><title>QALens</title><meta http-equiv="refresh" content="0; url=/">'
             )
         return login_page(_auth_config, error=request.query_params.get("error"))
 
@@ -275,7 +275,7 @@ def create_app(
 
     @app.post("/auth/logout", include_in_schema=False)
     async def logout() -> Response:
-        """Clear the current QaLens session."""
+        """Clear the current QALens session."""
         return logout_response()
 
     # ------------------------------------------------------------------
@@ -368,7 +368,7 @@ def create_app(
     if not (_static_dir / "index.html").exists():
         import warnings
         warnings.warn(
-            "QaLens frontend assets not found at "
+            "QALens frontend assets not found at "
             f"{_static_dir}. Run `hatch build` or `make build-ui` to compile the UI.",
             stacklevel=2,
         )

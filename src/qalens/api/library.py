@@ -1,13 +1,13 @@
-"""QaLens public Python library API.
+"""QALens public Python library API.
 
-``QaLensClient`` is the primary entry point for programmatic use of QaLens.
+``QALensClient`` is the primary entry point for programmatic use of QALens.
 It orchestrates detection, extraction, analysis, and summarization.
 
 Example::
 
-    from qalens.api.library import QaLensClient
+    from qalens.api.library import QALensClient
 
-    client = QaLensClient()
+    client = QALensClient()
     run = client.extract_report("./reports/allure-report")
     analysis = client.analyze_report(run)
     summary_md = client.summarize_report(analysis, fmt="markdown")
@@ -34,8 +34,8 @@ if TYPE_CHECKING:
     from qalens.parsers.base import BaseParser
 
 
-class QaLensClient:
-    """High-level client for the QaLens analysis pipeline.
+class QALensClient:
+    """High-level client for the QALens analysis pipeline.
 
     All public methods are designed to be used independently or chained.
     The client is stateless — repeated calls to the same method with the
@@ -153,7 +153,7 @@ class QaLensClient:
 
         This is the primary entry point for the daily SDET workflow::
 
-            client = QaLensClient()
+            client = QALensClient()
             run, inserted, stats = client.ingest_report(
                 "./reports/ExtentReport.html",
                 artifact_config=ArtifactConfig(mode=ArtifactMode.FULL),
@@ -304,7 +304,7 @@ class QaLensClient:
                 :func:`~qalens.analyzers.canonical.to_canonical_name` to obtain
                 this from a raw display name.
             project: Restrict history to this project.
-            db_path: Path to the QaLens SQLite database.
+            db_path: Path to the QALens SQLite database.
             limit: Maximum run history depth.
 
         Returns:
@@ -333,7 +333,7 @@ class QaLensClient:
 
         Args:
             project: Project filter (``None`` = all projects).
-            db_path: Path to the QaLens SQLite database.
+            db_path: Path to the QALens SQLite database.
             min_runs: Minimum run appearances required.
 
         Returns:
@@ -363,7 +363,7 @@ class QaLensClient:
 
         Args:
             project: Project filter (``None`` = all projects).
-            db_path: Path to the QaLens SQLite database.
+            db_path: Path to the QALens SQLite database.
             min_runs: Minimum run appearances required.
 
         Returns:
@@ -393,7 +393,7 @@ class QaLensClient:
 
         Args:
             project: Project filter (``None`` = all).
-            db_path: Path to the QaLens SQLite database.
+            db_path: Path to the QALens SQLite database.
             limit: Maximum number of groups.
 
         Returns:
@@ -456,13 +456,13 @@ class QaLensClient:
     ) -> str:
         """Ask a natural-language question about test failures.
 
-        Builds a structured context from the QaLens database, constructs a prompt,
+        Builds a structured context from the QALens database, constructs a prompt,
         and sends it to the configured local LLM (or cloud provider).
 
         Args:
             question: Free-text question, e.g. ``"Why does testCreateOrder fail?"``
             project: Optional project filter for database queries.
-            db_path: Path to the QaLens SQLite database.
+            db_path: Path to the QALens SQLite database.
             config_path: Path to ``config.toml``.  ``None`` = default.
             llm_config: Pre-built :class:`~qalens.llm.config.LLMConfig`.  When
                 supplied, *config_path* is ignored.
@@ -516,7 +516,7 @@ class QaLensClient:
 
         Args:
             project: Restrict to a specific project (``None`` = all).
-            db_path: Path to the QaLens SQLite database.
+            db_path: Path to the QALens SQLite database.
             min_runs: Minimum run count required for flaky classification.
             max_failure_groups: Maximum number of recurring failure groups.
 

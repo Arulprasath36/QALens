@@ -1,4 +1,4 @@
-"""Cypress/Mocha JSON report parser for QaLens.
+"""Cypress/Mocha JSON report parser for QALens.
 
 Supports common Mochawesome JSON reports and Cypress run-result JSON payloads.
 """

@@ -1,4 +1,4 @@
-"""Artifact ingestion policy, storage, and image processing for QaLens.
+"""Artifact ingestion policy, storage, and image processing for QALens.
 
 Three ingestion modes
 ---------------------
@@ -18,10 +18,10 @@ Three ingestion modes
 Public re-exports
 -----------------
 ``ArtifactMode``, ``ArtifactConfig``
-    Configuration objects — pass to :meth:`~qalens.api.library.QaLensClient.ingest_report`.
+    Configuration objects — pass to :meth:`~qalens.api.library.QALensClient.ingest_report`.
 
 ``ArtifactIngestStats``
-    Per-run statistics returned by :meth:`~qalens.api.library.QaLensClient.ingest_report`.
+    Per-run statistics returned by :meth:`~qalens.api.library.QALensClient.ingest_report`.
 """
 
 from qalens.artifacts.config import ArtifactConfig, ArtifactMode

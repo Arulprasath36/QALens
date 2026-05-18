@@ -1,4 +1,4 @@
-"""Failure information model for QaLens.
+"""Failure information model for QALens.
 
 ``FailureInfo`` captures everything known about why a test failed —
 the raw error type, message, and stack trace as extracted from the report,

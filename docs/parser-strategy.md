@@ -1,6 +1,6 @@
 # Parser Strategy
 
-This document is the authoritative reference for QaLens's parser layer (Phase 3+).
+This document is the authoritative reference for QALens's parser layer (Phase 3+).
 It covers the abstraction contract, format detection logic, extraction strategy,
 extension points, and the reasoning behind key design decisions.
 
@@ -24,7 +24,7 @@ extension points, and the reasoning behind key design decisions.
 
 ## Parser Contract
 
-Every QaLens parser **must** subclass `BaseParser` (defined in `src/qalens/parsers/base.py`):
+Every QALens parser **must** subclass `BaseParser` (defined in `src/qalens/parsers/base.py`):
 
 ```python
 class BaseParser(ABC):

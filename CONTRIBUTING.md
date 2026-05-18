@@ -1,8 +1,8 @@
-# Contributing to QaLens
+# Contributing to QALens
 
-Thank you for your interest in contributing to QaLens — Quality Assurance + Lens!
+Thank you for your interest in contributing to QALens — Quality Assurance + Lens!
 
-QaLens is an open-source project welcoming contributions from QA engineers, platform engineers, developers, and technical writers.
+QALens is an open-source project welcoming contributions from QA engineers, platform engineers, developers, and technical writers.
 
 ---
 
@@ -148,4 +148,4 @@ See [docs/parser-strategy.md](docs/parser-strategy.md) for the parser contract.
 
 Open a [GitHub Discussion](https://github.com/your-org/qalens/discussions) or an Issue.
 
-Thank you for helping make QaLens better!
+Thank you for helping make QALens better!

@@ -1,4 +1,4 @@
-"""High-level repository for persisting and querying QaLens data.
+"""High-level repository for persisting and querying QALens data.
 
 :class:`RunRepository` wraps all SQL operations so no other module
 needs to write raw SQL.  It is intentionally narrow: it only exposes
@@ -39,7 +39,7 @@ from qalens.db.models import RunRow, TestCaseRow, TestHistoryEntry  # noqa: F401
 
 
 class RunRepository:
-    """Persists and queries QaLens run data in SQLite.
+    """Persists and queries QALens run data in SQLite.
 
     Args:
         conn: An open :class:`sqlite3.Connection`.  The caller is
@@ -221,7 +221,7 @@ class RunRepository:
     def list_tc_ids_for_run(self, run_id: str) -> list[str]:
         """Return the stored ``tc_id`` values for *run_id* in insertion order.
 
-        Used by :meth:`~qalens.api.library.QaLensClient.ingest_report` to match
+        Used by :meth:`~qalens.api.library.QALensClient.ingest_report` to match
         :class:`~qalens.models.test_case.TestCaseResult` objects (whose
         ``raw_artifact_refs`` carry the parsed refs) to their DB ``tc_id``
         keys after :meth:`save_run` returns.

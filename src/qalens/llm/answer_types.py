@@ -1,4 +1,4 @@
-"""Canonical enums and data models for the QaLens answer-planning pipeline.
+"""Canonical enums and data models for the QALens answer-planning pipeline.
 
 Contains the core type definitions that other LLM modules depend on:
 
@@ -113,9 +113,9 @@ class AnswerType(str, Enum):
 
 @dataclass
 class DefaultScopeInfo:
-    """Records that QaLens applied a default data scope because the question was underspecified.
+    """Records that QALens applied a default data scope because the question was underspecified.
 
-    When the user's question specifies no run, time window, or dataset, QaLens
+    When the user's question specifies no run, time window, or dataset, QALens
     applies a sensible default (last N runs) and attaches this object to the
     :class:`~qalens.llm.answer_plan.AnswerPlan`.  The prompt builder reads it to
     inject scope-disclosure instructions so the LLM always states what data

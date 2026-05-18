@@ -259,7 +259,7 @@ def test_build_prompt_history_block_included_in_legacy() -> None:
 
 def test_build_system_prompt_none_returns_base() -> None:
     system = build_system_prompt(None)
-    assert "QaLens" in system
+    assert "QALens" in system
     assert "test-analytics" in system
 
 

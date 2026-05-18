@@ -1,4 +1,4 @@
-"""Extent HTML report parser for QaLens.
+"""Extent HTML report parser for QALens.
 
 Supports Extent Reports v4 and v5 (single-file and multi-file layouts).
 

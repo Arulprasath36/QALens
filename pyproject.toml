@@ -5,10 +5,10 @@ build-backend = "hatchling.build"
 [project]
 name = "qalens-insights"
 dynamic = ["version"]
-description = "QaLens — Quality Assurance + Lens: turn static test reports into triage-ready intelligence"
+description = "QALens — Quality Assurance + Lens: turn static test reports into triage-ready intelligence"
 readme = "README.md"
 license = { file = "LICENSE" }
-authors = [{ name = "QaLens Contributors" }]
+authors = [{ name = "QALens Contributors" }]
 keywords = [
     "test automation",
     "root cause analysis",
@@ -75,11 +75,11 @@ dev = [
 ]
 
 [project.urls]
-Homepage      = "https://github.com/Arulprasath36/QaLens"
-Documentation = "https://github.com/Arulprasath36/QaLens/tree/main/docs"
-Repository    = "https://github.com/Arulprasath36/QaLens"
-Issues        = "https://github.com/Arulprasath36/QaLens/issues"
-Changelog     = "https://github.com/Arulprasath36/QaLens/releases"
+Homepage      = "https://github.com/Arulprasath36/QALens"
+Documentation = "https://github.com/Arulprasath36/QALens/tree/main/docs"
+Repository    = "https://github.com/Arulprasath36/QALens"
+Issues        = "https://github.com/Arulprasath36/QALens/issues"
+Changelog     = "https://github.com/Arulprasath36/QALens/releases"
 
 [project.scripts]
 qalens = "qalens.cli:app"

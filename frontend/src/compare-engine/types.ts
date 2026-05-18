@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// Core domain types for the QaLens Compare Engine
+// Core domain types for the QALens Compare Engine
 // ─────────────────────────────────────────────────────────────
 
 export type CompareDimension = 'runs' | 'owners' | 'suites';

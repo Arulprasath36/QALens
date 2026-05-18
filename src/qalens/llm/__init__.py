@@ -1,4 +1,4 @@
-"""QaLens LLM integration package.
+"""QALens LLM integration package.
 
 Provides a provider-agnostic :class:`~qalens.llm.client.LLMClient` that works
 with Ollama, OpenAI, Anthropic, Gemini, LM Studio, and any OpenAI-compatible

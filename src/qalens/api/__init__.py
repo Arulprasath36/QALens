@@ -1,8 +1,8 @@
-"""QaLens public Python API package.
+"""QALens public Python API package.
 
-Exposes ``QaLensClient`` as the primary entry point for library consumers.
+Exposes ``QALensClient`` as the primary entry point for library consumers.
 """
 
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 
-__all__ = ["QaLensClient"]
+__all__ = ["QALensClient"]

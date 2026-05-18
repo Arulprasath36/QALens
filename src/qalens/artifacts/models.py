@@ -6,7 +6,7 @@
 
 ``ArtifactIngestStats``
     Collects per-run counters and is returned by
-    :meth:`~qalens.api.library.QaLensClient.ingest_report` alongside the
+    :meth:`~qalens.api.library.QALensClient.ingest_report` alongside the
     ``(TestRun, inserted)`` tuple.
 
 Note: ``ArtifactRef`` lives in ``qalens.models.artifact_ref`` (not here) so
@@ -71,7 +71,7 @@ class ArtifactRecord:
 class ArtifactIngestStats:
     """Per-run artifact processing counters.
 
-    Returned by :meth:`~qalens.api.library.QaLensClient.ingest_report` alongside
+    Returned by :meth:`~qalens.api.library.QALensClient.ingest_report` alongside
     the ``(TestRun, inserted)`` pair.  Used by the CLI to print the
     end-of-run ingestion summary.
 

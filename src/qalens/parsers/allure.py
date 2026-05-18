@@ -1,4 +1,4 @@
-"""Allure HTML report parser for QaLens.
+"""Allure HTML report parser for QALens.
 
 Supports Allure Report v2.x (single-page-app layout) and the older
 Allure v1.x flat HTML layout.

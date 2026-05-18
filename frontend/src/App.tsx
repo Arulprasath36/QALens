@@ -300,8 +300,8 @@ function Sidebar({
           /* Collapsed: icon only, centered */
           <div className="flex flex-col items-center gap-2 py-3 px-2 border-b border-slate-200 dark:border-slate-800">
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl">
-              <img src={`${import.meta.env.BASE_URL}qalens-icon.png`}      alt="QaLens" className="h-11 w-11 object-contain dark:hidden" />
-              <img src={`${import.meta.env.BASE_URL}qalens-icon-dark.png`} alt="QaLens" className="hidden h-11 w-11 object-contain dark:block" />
+              <img src={`${import.meta.env.BASE_URL}qalens-icon.png`}      alt="QALens" className="h-11 w-11 object-contain dark:hidden" />
+              <img src={`${import.meta.env.BASE_URL}qalens-icon-dark.png`} alt="QALens" className="hidden h-11 w-11 object-contain dark:block" />
             </div>
             <button
               onClick={onToggleCollapsed}
@@ -325,7 +325,7 @@ function Sidebar({
                   event.preventDefault();
                 }}
                 className="flex min-w-0 items-center gap-2.5"
-                aria-label="QaLens"
+                aria-label="QALens"
               >
                 <img
                   src={`${import.meta.env.BASE_URL}qalens-icon.png`}
@@ -435,7 +435,7 @@ function Sidebar({
                            text-slate-500 hover:bg-slate-100 hover:text-slate-950
                            dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-white
                            transition-colors duration-150"
-                aria-label="Export QaLens report"
+                aria-label="Export QALens report"
               >
                 <FileDown aria-hidden="true" className="h-[18px] w-[18px] shrink-0" strokeWidth={2} />
               </button>
@@ -448,7 +448,7 @@ function Sidebar({
                          text-slate-600 hover:bg-slate-100 hover:text-slate-950
                          dark:text-slate-400 dark:hover:bg-slate-800/70 dark:hover:text-white
                          transition-colors duration-150"
-              aria-label="Export QaLens report"
+              aria-label="Export QALens report"
             >
               <FileDown aria-hidden="true" className="h-[18px] w-[18px] shrink-0 text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white" strokeWidth={2} />
               <span>Export report</span>
@@ -727,10 +727,10 @@ function AuthGate({ children }: { children: ReactNode }) {
           className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950"
         >
           <div className="mb-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">QaLens admin access</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">QALens admin access</p>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">Enter admin token</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              This server requires a bearer token before QaLens can read data or update settings.
+              This server requires a bearer token before QALens can read data or update settings.
             </p>
           </div>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-200" htmlFor="qalens-auth-token">
@@ -755,7 +755,7 @@ function AuthGate({ children }: { children: ReactNode }) {
             disabled={!token.trim() || submitting}
             className="mt-5 w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {submitting ? 'Checking...' : 'Unlock QaLens'}
+            {submitting ? 'Checking...' : 'Unlock QALens'}
           </button>
         </form>
       </div>

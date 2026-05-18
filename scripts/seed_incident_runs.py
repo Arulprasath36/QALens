@@ -306,7 +306,7 @@ def main() -> None:
         )
 
     conn.close()
-    print("\nDone. Refresh the QaLens UI to see the new runs in the Incidents tab.")
+    print("\nDone. Refresh the QALens UI to see the new runs in the Incidents tab.")
 
 
 if __name__ == "__main__":

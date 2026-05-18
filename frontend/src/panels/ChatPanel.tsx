@@ -13,7 +13,7 @@ import type {
   AssistantUiHints,
   HistoryState,
   OwnerFailureRateResult,
-  QaLensResult,
+  QALensResult,
   RiskRankingResult,
   RiskTier,
 } from './chat/types';
@@ -54,7 +54,7 @@ interface ApiAskResponse {
   sources:      ApiSource[];
   intent:       string;
   follow_ups:   string[];
-  result?:      QaLensResult;
+  result?:      QALensResult;
   uiHints?:     AssistantUiHints;
 }
 
@@ -105,7 +105,7 @@ interface ConvMessage {
   sources?:   ApiSource[];
   followUps?: string[];
   intent?:    string;
-  resultType?: QaLensResult['type'];
+  resultType?: QALensResult['type'];
   loading?:   boolean;
 }
 
@@ -168,7 +168,7 @@ function suggestionsFromHomepageCards(cards: ApiHomepageCard[]): SuggestedQuesti
     }));
 }
 
-function contextualSuggestions(result: QaLensResult | null, cards: ApiHomepageCard[]): SuggestedQuestion[] {
+function contextualSuggestions(result: QALensResult | null, cards: ApiHomepageCard[]): SuggestedQuestion[] {
   const homepage = suggestionsFromHomepageCards(cards);
   if (!result) return uniqueSuggestions([...homepage, ...DEFAULT_SUGGESTED_QUESTIONS], 8);
 
@@ -555,7 +555,7 @@ function provisionalRiskResult(data: ApiAskResponse, question: string): RiskRank
   return {
     type: 'risk_ranking',
     title: 'Most likely to fail next run',
-    subtitle: 'Ranked by QaLens risk score across the selected run window',
+    subtitle: 'Ranked by QALens risk score across the selected run window',
     scope: {
       label: parseScopeLabel(data.answer, data.context_mode),
       eligibleTests: parseEligibleTests(data.answer, testSources.length),
@@ -977,7 +977,7 @@ export function ChatPanel() {
   const [cards,            setCards]            = useState<ApiHomepageCard[]>([]);
   const [drawerSource,     setDrawerSource]     = useState<{ source: ApiSource; all: ApiSource[]; idx: number } | null>(null);
   const [llmInfo,          setLlmInfo]          = useState<ApiLlmInfo | null>(null);
-  const [activeResult,     setActiveResult]     = useState<QaLensResult | null>(null);
+  const [activeResult,     setActiveResult]     = useState<QALensResult | null>(null);
   const [activeResultToken, setActiveResultToken] = useState<string | null>(null);
   const [activeQuestion,   setActiveQuestion]   = useState('');
   const [activeAnswer,     setActiveAnswer]     = useState('');
@@ -1123,7 +1123,7 @@ export function ChatPanel() {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); send(input); }
   }
 
-  async function exportChatResult(result: QaLensResult, question: string, answer: string, pdf: boolean) {
+  async function exportChatResult(result: QALensResult, question: string, answer: string, pdf: boolean) {
     const res = await fetch('/api/export/chat-result', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

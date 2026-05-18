@@ -1,4 +1,4 @@
-"""Provider-agnostic LLM HTTP client for QaLens.
+"""Provider-agnostic LLM HTTP client for QALens.
 
 Supports three wire protocols through a unified :meth:`LLMClient.chat` method:
 
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 # System prompt used when the user hasn't overridden it
 _DEFAULT_SYSTEM_PROMPT = """\
-You are QaLens, an expert test automation analyst. You help SDETs and QA engineers \
+You are QALens, an expert test automation analyst. You help SDETs and QA engineers \
 diagnose test failures, understand flaky behaviour, and identify root causes.
 
 You have access to structured data extracted from test reports: \
@@ -101,7 +101,7 @@ class LLMClient:
         Args:
             user_message: The user's question or instruction.
             system_prompt: Override the system prompt for this call.
-                ``None`` uses the config value, falling back to the QaLens default.
+                ``None`` uses the config value, falling back to the QALens default.
 
         Returns:
             The assistant's text response.
@@ -115,7 +115,7 @@ class LLMClient:
         if provider not in LOCAL_LLM_PROVIDERS and not self._config.external_llm_allowed:
             raise LLMError(
                 f"External LLM provider '{self._config.provider}' is disabled. "
-                "Set allow_external = true in the QaLens LLM config or "
+                "Set allow_external = true in the QALens LLM config or "
                 f"{EXTERNAL_LLM_OPT_IN_ENV}=1 "
                 "after confirming report data may be sent to that provider."
             )

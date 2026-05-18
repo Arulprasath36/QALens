@@ -145,7 +145,7 @@ def test_index_returns_html(client: TestClient) -> None:
     assert res.status_code == 200
     assert "text/html" in res.headers["content-type"]
     body = res.text
-    assert "<title>QaLens" in body
+    assert "<title>QALens" in body
     assert '<div id="root"' in body   # React root present
 
 
@@ -286,7 +286,7 @@ def test_decision_summary_empty_database(tmp_path: Path) -> None:
     data = res.json()
     assert data["scope"]["run_id"] is None
     assert data["fix_first"] == []
-    assert "No QaLens runs" in data["executive_summary"][0]
+    assert "No QALens runs" in data["executive_summary"][0]
 
 
 # ---------------------------------------------------------------------------

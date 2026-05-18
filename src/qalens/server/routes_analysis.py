@@ -1,4 +1,4 @@
-"""Analysis route handlers for the QaLens FastAPI server.
+"""Analysis route handlers for the QALens FastAPI server.
 
 Factory function :func:`make_analysis_router` registers endpoints for
 stability, flaky-test detection, failure groups, and risk prediction.

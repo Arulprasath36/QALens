@@ -1,4 +1,4 @@
-"""Heuristic intent and answer-type detection for QaLens LLM queries.
+"""Heuristic intent and answer-type detection for QALens LLM queries.
 
 Contains keyword cue sets and detection functions extracted from
 ``answer_plan.py``.  These are pure functions with no side effects — they

@@ -247,7 +247,7 @@ def test_ask_project_mode_on_summary_question(ask_db, mock_config):
         ],
     )
     assert result.exit_code == 0
-    assert "QaLens has" in result.output
+    assert "QALens has" in result.output
     assert "Latest run" in result.output
 
 

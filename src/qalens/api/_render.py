@@ -14,7 +14,7 @@ def _render_analysis_markdown(analysis: "AnalysisSummary") -> str:  # noqa: F821
     cc = analysis.category_counts
 
     lines: list[str] = [
-        "# QaLens Analysis Summary",
+        "# QALens Analysis Summary",
         "",
         f"**Report:** `{analysis.report_path}`  ",
         f"**Run ID:** `{analysis.run_id}`  ",
@@ -108,7 +108,7 @@ def _render_analysis_console(analysis: "AnalysisSummary") -> str:  # noqa: F821
 
     # Header
     parts.append(
-        f"[bold]QaLens Analysis Summary[/bold] — "
+        f"[bold]QALens Analysis Summary[/bold] — "
         f"[dim]{analysis.report_path}[/dim]"
     )
     parts.append(

@@ -1,6 +1,6 @@
 # Plugin Guide
 
-QaLens is designed for extensibility. This guide explains how to add custom parsers, categorization rules, and output writers without forking the project.
+QALens is designed for extensibility. This guide explains how to add custom parsers, categorization rules, and output writers without forking the project.
 
 ---
 
@@ -50,10 +50,10 @@ detector.register(MyFormatParser())
 Or, if using the library API:
 
 ```python
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 from my_plugin.parsers.myformat import MyFormatParser
 
-client = QaLensClient(extra_parsers=[MyFormatParser()])
+client = QALensClient(extra_parsers=[MyFormatParser()])
 run = client.extract_report("./reports/myformat-report")
 ```
 
@@ -105,10 +105,10 @@ categorizer = Categorizer(extra_rules=[my_custom_rule])
 Or via the library API:
 
 ```python
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 from my_plugin.rules.my_rule import my_custom_rule
 
-client = QaLensClient(extra_categorizer_rules=[my_custom_rule])
+client = QALensClient(extra_categorizer_rules=[my_custom_rule])
 ```
 
 ---
@@ -119,9 +119,9 @@ client = QaLensClient(extra_categorizer_rules=[my_custom_rule])
 > is currently achieved by consuming `AnalysisSummary` directly from the library API:
 
 ```python
-from qalens.api.library import QaLensClient
+from qalens.api.library import QALensClient
 
-client = QaLensClient()
+client = QALensClient()
 run = client.extract_report("./reports/myformat-report")
 analysis = client.analyze_report(run)
 summary = analysis  # AnalysisSummary — consume however you need
@@ -137,7 +137,7 @@ A pluggable `BaseWriter` interface is planned for a future release.
 
 ## Future Plugin Discovery (Planned)
 
-In a future release, QaLens will support automatic plugin discovery via Python entry points:
+In a future release, QALens will support automatic plugin discovery via Python entry points:
 
 ```toml
 # your plugin's pyproject.toml
@@ -148,6 +148,6 @@ myformat = "my_plugin.parsers.myformat:MyFormatParser"
 my_rule = "my_plugin.rules.my_rule:my_custom_rule"
 ```
 
-This will allow `pip install qalens-myformat-plugin` to automatically extend QaLens.
+This will allow `pip install qalens-myformat-plugin` to automatically extend QALens.
 
 > **Note**: The entry-point plugin loader is not yet implemented in v1. The programmatic API above is the supported extension mechanism for now.

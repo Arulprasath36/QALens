@@ -1,4 +1,4 @@
-"""Deterministic natural-language answers backed directly by QaLens SQLite data.
+"""Deterministic natural-language answers backed directly by QALens SQLite data.
 
 These handlers cover factual aggregate questions where the database is the
 source of truth and an LLM would only add latency or risk misrouting.
@@ -245,7 +245,7 @@ def _test_fix_playbook_payload(
             "title": "No matching test found",
             "testName": target,
             "hasActiveFailure": False,
-            "summary": f"I could not find `{target}` in the QaLens database.",
+            "summary": f"I could not find `{target}` in the QALens database.",
         }
 
     window = 10
@@ -269,7 +269,7 @@ def _test_fix_playbook_payload(
             "hasActiveFailure": False,
             "summary": (
                 f"`{display_name}` has no failed or broken executions in the last "
-                f"{len(rows)} run(s). There is no active failure pattern for QaLens to triage."
+                f"{len(rows)} run(s). There is no active failure pattern for QALens to triage."
             ),
             "scope": {"windowRuns": len(rows), "failedRuns": 0},
         }
@@ -290,7 +290,7 @@ def _test_fix_playbook_payload(
     confidence = _confidence(len(failures), len(rows), primary["count"])
 
     confidence_text = (
-        f"{confidence}: QaLens is using the last {len(rows)} run(s), "
+        f"{confidence}: QALens is using the last {len(rows)} run(s), "
         f"{len(failures)} failure occurrence(s), and stored error details. "
         "It cannot inspect your application source code from this database, "
         "so treat file-level fixes as checklists rather than exact patches."
@@ -298,7 +298,7 @@ def _test_fix_playbook_payload(
     return {
         "type": "test_fix_playbook",
         "title": f"Likely fix for {display_name}",
-        "subtitle": "Evidence-backed triage checklist from recent QaLens runs",
+        "subtitle": "Evidence-backed triage checklist from recent QALens runs",
         "testName": display_name,
         "hasActiveFailure": True,
         "diagnosis": playbook["diagnosis"],
@@ -687,7 +687,7 @@ def _latest_failures_answer(
 
     latest = _latest_run(conn, project)
     if latest is None:
-        return "I could not find any runs in the QaLens database."
+        return "I could not find any runs in the QALens database."
 
     rows = conn.execute(
         """
@@ -729,7 +729,7 @@ def _new_failures_answer(
 
     latest = _latest_run(conn, project)
     if latest is None:
-        return "I could not find any runs in the QaLens database."
+        return "I could not find any runs in the QALens database."
     previous = _previous_run(conn, project, latest)
     if previous is None:
         return "I need at least two runs to identify newly failing tests."
@@ -1103,7 +1103,7 @@ def _summary_answer(
         params,
     ).fetchone()
     if not totals or not totals["runs"]:
-        return "I could not find any runs in the QaLens database."
+        return "I could not find any runs in the QALens database."
 
     latest = _latest_run(conn, project)
     latest_text = ""
@@ -1124,7 +1124,7 @@ def _summary_answer(
 
     failure_pct = 100.0 * (totals["failures"] or 0) / max(totals["total_results"] or 1, 1)
     return (
-        f"QaLens has {totals['runs']} runs and {totals['total_results']} test results in this database. "
+        f"QALens has {totals['runs']} runs and {totals['total_results']} test results in this database. "
         f"Overall failures: {totals['failures']} ({failure_pct:.1f}%), "
         f"passed: {totals['passed']}, skipped: {totals['skipped']}."
         f"{latest_text}"

@@ -1,4 +1,4 @@
-"""Authentication helpers for the QaLens web server."""
+"""Authentication helpers for the QALens web server."""
 
 from __future__ import annotations
 
@@ -57,7 +57,7 @@ def _consume_oauth_state(state: str) -> bool:
 
 @dataclass(frozen=True)
 class AuthConfig:
-    """Resolved authentication configuration for a QaLens server."""
+    """Resolved authentication configuration for a QALens server."""
 
     mode: AuthMode
     token: str | None = None
@@ -72,7 +72,7 @@ class AuthConfig:
 
 @dataclass(frozen=True)
 class GitHubUser:
-    """Authenticated GitHub user details stored in the QaLens session."""
+    """Authenticated GitHub user details stored in the QALens session."""
 
     login: str
     name: str | None
@@ -205,7 +205,7 @@ def github_start_response(request: Request, config: AuthConfig) -> RedirectRespo
 
 
 async def github_callback_response(request: Request, config: AuthConfig) -> RedirectResponse:
-    """Handle the GitHub OAuth callback and set a QaLens session cookie."""
+    """Handle the GitHub OAuth callback and set a QALens session cookie."""
     if config.mode != "github" or not github_config_ready(config):
         return RedirectResponse("/login?error=github_auth_not_configured", status_code=303)
 
@@ -246,7 +246,7 @@ async def github_callback_response(request: Request, config: AuthConfig) -> Redi
 
 
 def logout_response() -> RedirectResponse:
-    """Clear QaLens auth cookies and return to the login page."""
+    """Clear QALens auth cookies and return to the login page."""
     response = RedirectResponse("/login", status_code=303)
     response.delete_cookie(SESSION_COOKIE_NAME, path="/")
     response.delete_cookie(OAUTH_STATE_COOKIE_NAME, path="/")
@@ -281,7 +281,7 @@ def login_page(config: AuthConfig, error: str | None = None) -> HTMLResponse:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sign in — QaLens</title>
+  <title>Sign in — QALens</title>
   <style>
     *, *::before, *::after {{ box-sizing: border-box; }}
     @keyframes bg-shift {{
@@ -445,10 +445,10 @@ def login_page(config: AuthConfig, error: str | None = None) -> HTMLResponse:
         <circle cx="8"  cy="22" r="2.2" fill="white"/>
         <circle cx="24" cy="22" r="2.2" fill="white"/>
       </svg>
-      <span class="brand-name">QaLens</span>
+      <span class="brand-name">QALens</span>
     </div>
 
-    <h1>Sign in to QaLens</h1>
+    <h1>Sign in to QALens</h1>
     <p class="tagline">Test intelligence. Failure analysis. Root cause &mdash; all in one place.</p>
 
     <hr>
@@ -606,7 +606,7 @@ def _login_error_message(error: str | None) -> str:
         "invalid_oauth_state": "The GitHub sign-in session expired. Try again.",
         "missing_oauth_code": "GitHub did not return a sign-in code. Try again.",
         "github_oauth_failed": "GitHub sign-in failed. Try again.",
-        "github_user_not_allowed": "Your GitHub account is not allowed to access this QaLens server.",
+        "github_user_not_allowed": "Your GitHub account is not allowed to access this QALens server.",
     }
     return messages.get(error or "", "Sign-in failed. Try again.")
 

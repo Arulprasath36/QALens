@@ -1,4 +1,4 @@
-"""Render deterministic QaLens reports as Markdown, HTML, or JSON."""
+"""Render deterministic QALens reports as Markdown, HTML, or JSON."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ def render_json(report: ShareableReport) -> str:
 def render_markdown(report: ShareableReport) -> str:
     """Render *report* as a deterministic Markdown document."""
     lines: list[str] = [
-        "# QaLens Report",
+        "# QALens Report",
         "",
         f"Generated: {_md(report.generated_at)}",
         f"Scope: {_md(report.scope_label)}",
@@ -84,13 +84,13 @@ def render_html(report: ShareableReport) -> str:
         "<head>",
         '<meta charset="utf-8">',
         '<meta name="viewport" content="width=device-width, initial-scale=1">',
-        f"<title>QaLens Report - {escape(report.scope_label)}</title>",
+        f"<title>QALens Report - {escape(report.scope_label)}</title>",
         f"<style>{_CSS}</style>",
         "</head>",
         "<body>",
         '<main class="report">',
         '<section class="hero">',
-        "<p>QaLens Report</p>",
+        "<p>QALens Report</p>",
         f"<h1>{escape(report.scope_label)}</h1>",
         f"<span>Generated {escape(_format_timestamp(report.generated_at))}</span>",
         "</section>",
@@ -554,14 +554,14 @@ def render_chat_result_html(
 
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     r = result or {}
-    title = str(r.get("title") or "QaLens Analysis")
+    title = str(r.get("title") or "QALens Analysis")
     subtitle = str(r.get("subtitle") or "")
 
     parts: list[str] = []
 
     # Hero
     hero_inner = (
-        f'<p>QaLens — Quality Assurance Risk Analyzer</p>'
+        f'<p>QALens — Quality Assurance Risk Analyzer</p>'
         f'<h1>{escape(title)}</h1>'
         + (f'<p style="font-size:15px;color:#475569;margin:4px 0 0">{escape(subtitle)}</p>' if subtitle else "")
         + f'<span>Generated {now}</span>'

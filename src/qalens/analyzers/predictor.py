@@ -1,7 +1,7 @@
-"""Flakiness risk predictor for QaLens.
+"""Flakiness risk predictor for QALens.
 
 Computes a risk score (0–100 %) for every test using historical pass/fail
-patterns from the QaLens database.  No ML model is needed — the score is a
+patterns from the QALens database.  No ML model is needed — the score is a
 weighted combination of four deterministic signals derived from a test's
 :class:`~qalens.analyzers.flaky.FlakyResult`:
 
@@ -283,7 +283,7 @@ class RiskPredictor:
     """Predicts which tests are most likely to fail on the next run.
 
     Args:
-        conn: An open :class:`sqlite3.Connection` to an initialised QaLens DB.
+        conn: An open :class:`sqlite3.Connection` to an initialised QALens DB.
         flaky_threshold: Flip-score threshold passed to :class:`FlakyScorer`.
             Default 0.35.
     """

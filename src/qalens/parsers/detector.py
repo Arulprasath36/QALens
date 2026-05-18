@@ -1,4 +1,4 @@
-"""Format detector for QaLens.
+"""Format detector for QALens.
 
 Provides :class:`Detector` — the registry that runs all registered
 :class:`~qalens.parsers.base.BaseParser` implementations against a given
@@ -46,7 +46,7 @@ _MATCH_THRESHOLD: float = 0.30
 
 
 class Detector:
-    """Registry and dispatcher for all QaLens report parsers.
+    """Registry and dispatcher for all QALens report parsers.
 
     On construction, a default set of built-in parsers is registered
     (currently :class:`~qalens.parsers.allure.AllureHtmlParser` and
