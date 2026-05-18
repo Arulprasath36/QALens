@@ -7,10 +7,11 @@ many CI systems.
 
 from __future__ import annotations
 
-import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path  # noqa: TC003
 from uuid import uuid4
+
+from defusedxml import ElementTree as ET
 
 from qalens.models.failure import FailureInfo
 from qalens.models.run import RunMetadata, TestRun

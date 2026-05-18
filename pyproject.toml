@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "qalens-insights"
+name = "qalens"
 dynamic = ["version"]
 description = "QA Lens: turn static test reports into triage-ready intelligence"
 readme = "README.md"
@@ -50,6 +50,7 @@ dependencies = [
     "python-multipart>=0.0.27",
     "pandas>=2.0",
     "rapidfuzz>=3.0",
+    "defusedxml>=0.7.1",
 ]
 
 [project.optional-dependencies]
@@ -111,7 +112,7 @@ packages = ["src/qalens"]
 artifacts = ["src/qalens/server/static/**"]
 
 [tool.hatch.build.targets.sdist]
-# Ship the frontend source so `pip install qalens-insights --no-binary` works.
+# Ship the frontend source so `pip install qalens --no-binary` works.
 # Listing files explicitly avoids accidentally including node_modules/.
 include = [
     "/src",

@@ -4,8 +4,8 @@ Running ``hatch build`` (or ``make build``) will automatically invoke this hook,
 which runs ``npm ci && npm run build`` inside the ``frontend/`` directory to
 produce the pre-built static assets that ship inside the wheel.
 
-Node/npm are *build-time* dependencies only.  End users do ``pip install
-qalens-insights`` and never need Node installed.
+Node/npm are *build-time* dependencies only. End users do ``pip install qalens``
+and never need Node installed.
 
 Set ``QALENS_SKIP_FRONTEND_BUILD=1`` to skip the npm step when you have already
 run ``make build-ui`` manually and don't want a redundant rebuild.

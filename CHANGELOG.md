@@ -5,7 +5,7 @@ All notable changes to QA Lens will be documented in this file.
 This project follows the spirit of [Keep a Changelog](https://keepachangelog.com/)
 and uses semantic versioning once public releases begin.
 
-## Unreleased
+## 0.1.0 - 2026-05-18
 
 ### Added
 
@@ -20,7 +20,7 @@ and uses semantic versioning once public releases begin.
 ### Changed
 
 - Renamed the public product to QA Lens.
-- Renamed the Python package metadata to `qalens-insights`.
+- Renamed the Python package to `qalens`.
 - Standardized the CLI command as `qalens`.
 
 ### Security

@@ -1,204 +1,234 @@
 # QA Lens
 
-QA Lens turns existing automation test reports into local, explainable triage intelligence.
+> Turn existing test automation reports into local, explainable triage intelligence.
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
-[![CLI](https://img.shields.io/badge/cli-qalens-blue.svg)](#common-cli-commands)
+[![PyPI](https://img.shields.io/badge/pypi-qalens-blue.svg)](https://pypi.org/project/qalens/)
 
 <p align="center">
-  <img src="docs/assets/qa-lens-dashboard.png.png" alt="QA Lens logo" width="720">
+  <img src="docs/assets/qa-lens-dashboard.png" alt="QA Lens dashboard" width="720">
 </p>
 
-## What QA Lens Does
+---
 
-QA Lens reads reports that your test framework already generates, stores the results in a local SQLite database, and helps answer:
+## What is QA Lens?
 
-- What failed in the latest run?
-- What changed compared with previous runs?
-- Which failures look related?
-- Which tests are flaky or risky?
-- What should the team inspect first?
-- Is the suite getting better or worse?
+QA Lens reads the HTML or XML reports your test framework already produces, stores the results in a local SQLite database, and helps answer questions your report viewer does not:
 
-QA Lens is not a test runner and not a replacement for Allure, Extent, Playwright, Cypress, JUnit, or TestNG. It is an analysis layer on top of those reports.
+- What failed in the latest run, and why?
+- Which failures are related and share the same root cause?
+- Which tests are flaky — and is the flakiness getting worse?
+- Which tests are highest risk of failing in the next run?
+- Is the suite trending healthier or degrading over time?
+- What should the team look at first?
+
+**QA Lens is not a test runner.** It does not replace Allure, Extent, Playwright, Cypress, JUnit, or TestNG. It is an analysis and intelligence layer on top of those reports.
+
+---
+
+## Why QA Lens?
+
+Modern test suites produce hundreds or thousands of results per run. Existing report tools show pass/fail status, logs, screenshots, and stack traces — and stop there.
+
+| Problem | What QA Lens does |
+|---|---|
+| Hours spent manually triaging failures | Automates failure classification and root-cause grouping |
+| "Is this flaky or a real bug?" | Scores flakiness across multiple runs using history |
+| "Is infra to blame or the product?" | Categories: environment, test script, product defect, test data |
+| "We keep seeing the same failure pattern" | Groups failures by normalized signature across runs |
+| "What do I tell the engineering lead?" | Generates concise decision summaries and priority actions |
+| "Is the suite getting better or worse?" | Tracks trends, pass rates, and test stability over time |
+
+---
 
 ## Key Features
 
-- Local CLI: `qalens`
-- Local web UI for runs, incidents, trends, risk, comparison, chat, and settings
-- Deterministic failure classification and clustering
-- SQLite-backed run history
-- Flakiness and risk signals across multiple runs
-- Decision summary and “fix first” style prioritization
-- HTML, Markdown, and JSON report export
-- Optional LLM-assisted chat
-- Local-first defaults with no telemetry
+- **CLI:** `qalens` — ingest, analyze, compare, ask, report
+- **Web UI:** runs, incidents, analysis trends, risk, comparison, LLM chat, settings
+- **Deterministic analysis** — failure classification, clustering, risk scoring, and many answers require no LLM
+- **SQLite-backed run history** — lightweight, portable, no separate database server
+- **Owner mapping** — assign tests to teams; track failure rates per owner
+- **Multi-format parsing** — Allure, Extent, JUnit, TestNG, Playwright, Cypress/Mocha
+- **Shareable reports** — standalone HTML, Markdown, and JSON export
+- **Optional LLM chat** — local (Ollama) or cloud providers, explicitly opt-in
+- **Optional auth** — token or GitHub OAuth; off by default for local use
+
+---
 
 ## Supported Report Formats
 
 | Format | Supported input |
 |---|---|
-| Allure | Allure HTML report folders and JSON-backed report data |
-| Extent | Extent HTML reports, including common v4/v5 exports |
+| Allure | HTML report folders with JSON data (v2) |
+| Extent | HTML reports (v4, v5) |
 | JUnit | `testsuite` / `testsuites` XML |
 | TestNG | `testng-results.xml` |
 | Playwright | JSON reports and JSON-backed HTML report folders |
 | Cypress / Mocha | JSON reports, including Mochawesome-style output |
 
-## Requirements
+---
 
-For source checkout development:
+## Installation
 
-- Python 3.10+
-- Git
-- Node.js 18+ and npm, required to build the web UI from source
+### From PyPI (recommended)
 
-SQLite is built into Python. You do not need to install a separate SQLite server.
+```bash
+pip install qalens
+```
 
-LLMs are optional. QA Lens works without an LLM for ingestion, deterministic summaries, reports, risk, comparison, and many factual `qalens ask` questions.
+This installs the `qalens` CLI with the web UI already bundled. No Node.js required.
 
-## Quick Start
+Verify:
 
-Clone the repo:
+```bash
+qalens --version
+qalens --help
+```
+
+### From source
+
+Required: Python 3.10+, Node.js 18+, npm, Git.
 
 ```bash
 git clone https://github.com/Arulprasath36/QALens.git
 cd QALens
-```
 
-Create and activate a virtual environment:
-
-```bash
 python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
+source .venv/bin/activate          # macOS / Linux
+# .\.venv\Scripts\Activate.ps1    # Windows PowerShell
+
+pip install -e .
+
+# Build the web UI (required when installing from source)
+make build-ui
 ```
 
-On Windows PowerShell:
-
-```powershell
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-```
-
-Install QA Lens:
+For development (adds pytest, ruff, mypy):
 
 ```bash
 pip install -e ".[dev]"
 ```
 
-Build the web UI from source:
+Verify:
 
 ```bash
-cd frontend
-npm ci
-npm run build
-cd ..
+qalens --version
+qalens --help
 ```
 
-Ingest a sample report:
+---
+
+## Quick Start
+
+### 1 — Ingest a sample report
+
+QA Lens ships with sample fixtures for every supported format:
 
 ```bash
 qalens ingest tests/fixtures/allure_sample --db ./qalens.db
 ```
 
-Start the web UI:
+Or ingest your own report:
+
+```bash
+qalens ingest path/to/your-allure-report --db ./qalens.db
+```
+
+### 2 — Start the web UI
 
 ```bash
 qalens serve --db ./qalens.db
 ```
 
-Open:
+Open `http://127.0.0.1:8080` in your browser.
 
-```text
-http://127.0.0.1:8080
-```
-
-Ask a deterministic question:
+### 3 — Ask a question
 
 ```bash
 qalens ask "What broke in the latest run?" --db ./qalens.db
+qalens ask "Which tests are flaky?" --db ./qalens.db
 ```
 
-## Common CLI Commands
+Many questions are answered deterministically from the database — no LLM required.
 
-Detect a report type:
+---
+
+## CLI Reference
+
+### Detect report format
 
 ```bash
-qalens detect tests/fixtures/allure_sample
-qalens detect tests/fixtures/extent_sample
+qalens detect path/to/report
 ```
 
-Extract normalized JSON:
+### Extract normalized JSON (no database)
 
 ```bash
-qalens extract tests/fixtures/allure_sample --out extracted.json
+qalens extract path/to/report --out extracted.json
 ```
 
-Ingest a report:
+### Ingest a report into the database
 
 ```bash
-qalens ingest tests/fixtures/allure_sample --db ./qalens.db
+qalens ingest path/to/report --db ./qalens.db
+qalens ingest path/to/report --db ./qalens.db --owner-map owners.toml
 ```
 
-Analyze stored runs:
+If you haven't ingested any reports yet, ingest at least one so the UI has something to show.
+
+### Analyze stored runs
 
 ```bash
 qalens analyze --db ./qalens.db
 ```
 
-Compare run history:
+### Compare run history
 
 ```bash
 qalens compare --db ./qalens.db --by runs --window 10
 qalens compare --db ./qalens.db --by owners --window 10
-qalens compare --db ./qalens.db --by modules --window 10
 qalens compare --db ./qalens.db --by suites --window 10
+qalens compare --db ./qalens.db --by modules --window 10
 ```
 
-Inspect one target over time:
+Use `--run-id RUN_A --run-id RUN_B` for an explicit range.
+
+### Inspect one target over time
 
 ```bash
 qalens history test "testCreditCardPayment()" --db ./qalens.db
 qalens history owner "Checkout Team" --db ./qalens.db
 qalens history suite "Payments" --db ./qalens.db
-qalens history module "checkout-module" --db ./qalens.db
 qalens history failure FINGERPRINT --db ./qalens.db
 ```
 
-Generate a one-off Markdown summary directly from a report:
+### Generate a standalone report
 
 ```bash
-qalens summarize tests/fixtures/allure_sample --format markdown --out summary.md
+qalens report --db ./qalens.db --out report.html
+qalens report --db ./qalens.db --format markdown --out report.md
+qalens report --db ./qalens.db --format json --out report.json
 ```
 
-Show failure clusters directly from a report:
+### One-off summary (no database)
 
 ```bash
-qalens clusters tests/fixtures/allure_sample
+qalens summarize path/to/report --format markdown --out summary.md
+qalens clusters path/to/report
 ```
 
-Export a standalone report from the database:
-
-```bash
-qalens report --db ./qalens.db --out qa-lens-report.html
-qalens report --db ./qalens.db --format markdown --out qa-lens-report.md
-qalens report --db ./qalens.db --format json --out qa-lens-report.json
-```
+---
 
 ## Demo Dataset
 
-For a richer demo, use the synthetic ShopNow dataset:
+The repo includes a synthetic 53-run ShopNow E-Commerce dataset:
 
 ```text
-tmp_test_data/ShopNow_E-Commerce/
+tmp_test_data/ShopNow_E-Commerce/run_001/ … run_053/
 ```
 
-Each `run_###/` directory is one report run.
-
-Create a demo database:
+Build a demo database:
 
 ```bash
 for report in tmp_test_data/ShopNow_E-Commerce/run_*; do
@@ -206,86 +236,92 @@ for report in tmp_test_data/ShopNow_E-Commerce/run_*; do
 done
 ```
 
-Analyze the history:
-
-```bash
-qalens analyze --db ./shopnow-demo.db
-```
-
-Open the UI:
+Explore it:
 
 ```bash
 qalens serve --db ./shopnow-demo.db
-```
-
-Export a report:
-
-```bash
+qalens analyze --db ./shopnow-demo.db
 qalens report --db ./shopnow-demo.db --out shopnow-report.html
 ```
 
+---
+
 ## Web UI
 
-The local web UI includes:
+Start the server:
 
-| View | Purpose |
+```bash
+qalens serve                        # uses ~/.qalens/qalens.db by default
+qalens serve --db ./qalens.db       # project-local database
+qalens serve --port 9090            # custom port (default: 8080)
+```
+
+| Tab | What it shows |
 |---|---|
-| Runs | Latest runs, failures, decision brief, and test details |
-| Incidents | Shared failure signatures and recurring clusters |
-| Analysis | Suite trends, pass-rate journey, owner load, and active failure clusters |
-| Risk | Tests most likely to fail or flip in future runs |
-| Compare | Compare runs, owners, modules, or suites |
-| Chat | Ask deterministic or LLM-assisted questions over stored data |
-| Settings | Runtime paths, auth mode, database status, and LLM settings |
+| Runs | Latest run results, decision brief, fix-first actions, and per-test details |
+| Incidents | Recurring failure signatures and root-cause clusters |
+| Analysis | Suite health trends, pass-rate chart, owner load, active clusters |
+| Risk | Tests most likely to fail or flip in the next run |
+| Compare | Side-by-side comparison of runs, owners, suites, or modules |
+| Chat | Ask questions — answered deterministically or via LLM |
+| Settings | Runtime paths, LLM config, authentication status (admin only) |
 
-For frontend development, run the API and Vite separately.
+### Frontend development mode
 
-Terminal 1:
+Run the API and Vite dev server in two terminals for hot-reload:
 
 ```bash
+# Terminal 1
 qalens serve --db ./qalens.db --no-open
+
+# Terminal 2
+cd frontend && npm run dev
 ```
 
-Terminal 2:
+Open `http://localhost:3000` — API requests are proxied to port 8080.
 
-```bash
-cd frontend
-npm run dev
-```
+---
 
-Open:
+## Deterministic vs LLM-Assisted
 
-```text
-http://localhost:3000
-```
+QA Lens works without an LLM for all of the following:
 
-The Vite dev server proxies `/api/*` requests to `http://localhost:8080`.
-
-## Deterministic vs LLM-Assisted Answers
-
-QA Lens has deterministic analysis by default. These features do not require an LLM:
-
-- Ingesting reports
-- Detecting formats
-- Failure classification
-- Failure clustering
-- Run comparison
-- Risk signals
+- Ingesting reports and storing results
+- Failure classification (environment / test script / product defect / test data / flaky / unknown)
+- Failure clustering by normalized signature
+- Run comparison and regression detection
+- Risk tier scoring
+- Flakiness signals
 - Shareable report export
-- Many factual `qalens ask` answers, such as “What broke in the latest run?”
+- Trend analysis and suite health in the web UI
+- Many factual `qalens ask` questions
 
-LLM-assisted answers are optional. They are useful for open-ended triage questions, but they require a configured local or cloud provider.
+LLM-assisted answers are useful for open-ended questions and explanations. They require a configured provider and are always opt-in.
 
-Create a config file:
+---
+
+## LLM Setup (Optional)
+
+QA Lens does not ship or install any LLM. It connects to one you provide.
+
+Create the config file:
 
 ```bash
 qalens llm-config --init
 qalens llm-config --show
 ```
 
-By default, QA Lens points to a local Ollama-compatible endpoint. QA Lens does not install or run Ollama for you.
+The default config points to a locally-running [Ollama](https://ollama.com) instance, which you install and run separately. If Ollama is not running, LLM-assisted chat is unavailable — all other features remain fully functional.
 
-For cloud LLM providers, explicitly allow external calls:
+LLM settings can also be changed in the web UI under **Settings → LLM** without editing the config file.
+
+### Cloud providers (opt-in)
+
+Cloud providers send report data (test names, stack traces, error messages) to an external service. Enable them explicitly only after reviewing what data may leave your machine.
+
+**Via the Settings page** (easiest): open the web UI → Settings → choose a provider → enable **Allow external LLM**.
+
+**Via `~/.qalens/config.toml`:**
 
 ```toml
 [llm]
@@ -293,73 +329,99 @@ provider = "openai"
 allow_external = true
 ```
 
-Or:
+**Via environment variable:**
 
 ```bash
 export QALENS_ALLOW_EXTERNAL_LLM=1
 ```
 
-Only enable cloud LLMs after reviewing what report data may leave your machine.
+---
 
 ## Authentication
 
-By default, `qalens serve` binds to localhost and does not require login.
+By default, `qalens serve` binds to `127.0.0.1` and requires no login.
 
-For token-based access:
+### Token-based access
 
 ```bash
 export QALENS_AUTH_TOKEN="replace-with-a-long-random-token"
 qalens serve --db ./qalens.db --host 0.0.0.0 --allow-public-bind
 ```
 
-Or for one session:
+Or for a single session:
 
 ```bash
 qalens serve --db ./qalens.db --auth-token "replace-with-a-long-random-token"
 ```
 
-For GitHub OAuth:
+### GitHub OAuth
 
 ```bash
 export QALENS_AUTH_MODE=github
-export QALENS_GITHUB_CLIENT_ID="github-oauth-client-id"
-export QALENS_GITHUB_CLIENT_SECRET="github-oauth-client-secret"
-export QALENS_SESSION_SECRET="$(openssl rand -base64 32)"
-export QALENS_ALLOWED_GITHUB_USERS="your-github-login,teammate-login"
-export QALENS_ALLOWED_GITHUB_ORGS="your-org"
-export QALENS_ADMIN_GITHUB_USERS="your-github-login"
+export QALENS_GITHUB_CLIENT_ID="your-client-id"
+export QALENS_GITHUB_CLIENT_SECRET="your-client-secret"
+export QALENS_SESSION_SECRET="$(openssl rand -base64 32)"   # keep stable across restarts
+export QALENS_ALLOWED_GITHUB_USERS="your-github-login,teammate"
+export QALENS_ALLOWED_GITHUB_ORGS="your-org"               # optional: grant whole org
+export QALENS_ADMIN_GITHUB_USERS="your-github-login"        # optional: restrict Settings tab
 
 qalens serve --db ./qalens.db
 ```
 
+**Creating the GitHub OAuth App:**
+
+1. Go to [github.com/settings/developers](https://github.com/settings/developers)
+2. Click **OAuth Apps → New OAuth App**
+3. Fill in:
+
+   | Field | Value |
+   |---|---|
+   | Application name | `QA Lens` |
+   | Homepage URL | `http://localhost:8080` |
+   | Authorization callback URL | `http://localhost:8080/auth/github/callback` |
+
+4. Click **Register application**
+5. Copy the **Client ID** → `QALENS_GITHUB_CLIENT_ID`
+6. Click **Generate a new client secret** → copy immediately (shown once) → `QALENS_GITHUB_CLIENT_SECRET`
+
+For production, replace `http://localhost:8080` with your HTTPS URL in both fields, or set `QALENS_GITHUB_CALLBACK_URL` explicitly.
+
+**Sessions and sign-out:** Sessions last 8 hours. Use the same `QALENS_SESSION_SECRET` across server restarts to avoid invalidating active sessions. Users sign out via the **Sign out** button at the bottom of the sidebar.
+
+**Admin access:** By default every authenticated GitHub user can access the Settings panel. Set `QALENS_ADMIN_GITHUB_USERS` to a comma-separated list of logins to restrict it. Non-admin users see all analysis views; the Settings tab is hidden and the settings API returns 403.
+
 For networked deployments, use HTTPS and review [SECURITY.md](SECURITY.md) and [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md).
 
-## Database Behavior
+---
 
-By default, QA Lens stores data in:
+## Database
+
+Default location:
 
 ```text
 ~/.qalens/qalens.db
 ```
 
-Use a project-local database with:
+Use a project-local database with `--db`:
 
 ```bash
-qalens ingest tests/fixtures/allure_sample --db ./qalens.db
+qalens ingest path/to/report --db ./qalens.db
 qalens serve --db ./qalens.db
 ```
 
-The SQLite database is the source of truth for the web UI, run history, comparison, trends, incidents, and report exports.
+The database is a standard SQLite file. Back it up by copying the file. The web UI, history, comparison, trends, and report export all read from it.
+
+---
 
 ## Owner Mapping
 
-If reports do not include owner metadata, provide an owner mapping file during ingestion:
+If reports do not include team ownership, provide a mapping at ingestion:
 
 ```bash
-qalens ingest tests/fixtures/allure_sample --db ./qalens.db --owner-map owners.toml
+qalens ingest path/to/report --db ./qalens.db --owner-map owners.toml
 ```
 
-Example:
+Example `owners.toml`:
 
 ```toml
 [[owners]]
@@ -377,55 +439,43 @@ owner = "Search Team"
 test_regex = ["Search.*Filter"]
 ```
 
-Existing owner labels from the report are preserved by default. Use `--override-owners` when the mapping file should replace report-provided owners.
+Rules match on `tests`, `canonical_tests`, `test_regex`, `suites`, `features`, `stories`, and `tags`. Existing owner labels from the report are preserved unless you pass `--override-owners`.
 
-## Artifact And Screenshot Handling
+---
+
+## Screenshot and Artifact Handling
 
 QA Lens is text-first. Screenshots are optional supporting evidence.
 
-Artifact modes:
-
-| Mode | Behavior |
+| Mode | What is stored |
 |---|---|
-| `text-only` | Store textual failure data only |
-| `metadata-only` | Store screenshot metadata, hashes, dimensions, and references; no image bytes |
-| `full` | Store metadata and image bytes in an artifact directory |
-
-Default mode:
-
-```text
-metadata-only
-```
-
-Examples:
+| `text-only` | Test names, statuses, errors, and stack traces only |
+| `metadata-only` *(default)* | Plus screenshot hashes, dimensions, MIME types, and references — no image bytes |
+| `full` | Plus image bytes in a configurable artifact directory |
 
 ```bash
-qalens ingest ./my-report --artifact-mode text-only
-qalens ingest ./my-report --artifact-mode metadata-only
-qalens ingest ./my-report --artifact-mode full --artifact-storage-dir ~/.qalens/artifacts
+qalens ingest ./report --artifact-mode text-only
+qalens ingest ./report --artifact-mode full --artifact-storage-dir ~/.qalens/artifacts
 ```
 
-Image bytes are never stored in SQLite. In `full` mode, image files are written to the configured artifact store directory.
+Image bytes are never stored in the SQLite database.
 
-## Security Notes
+---
 
-QA Lens treats reports as untrusted input.
+## Security Defaults
 
-Security defaults include:
+QA Lens treats reports as untrusted input:
 
-- Local-first operation
-- No telemetry
-- Report file validation
-- Raster image validation by magic bytes
+- Report file type validation
+- Raster image validation by magic bytes (not filename extension)
 - SVG artifact rejection
-- Secret redaction before LLM submission
-- Optional token or GitHub OAuth authentication
+- Common secret redaction before LLM submission
+- No telemetry or outbound calls by default
 - Cloud LLM providers disabled unless explicitly allowed
 
-Before exposing the web UI beyond localhost, review:
+See [SECURITY.md](SECURITY.md) for the full security policy and vulnerability reporting instructions.
 
-- [SECURITY.md](SECURITY.md)
-- [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md)
+---
 
 ## Python API
 
@@ -442,53 +492,115 @@ summary = client.summarize_report(analysis, fmt="markdown")
 print(summary)
 ```
 
-## Project Structure
+---
+
+## Repository Structure
 
 ```text
 QALens/
 ├── src/qalens/              # Python package
-├── frontend/                # React + Vite web UI
-├── tests/                   # Python tests and parser fixtures
-├── docs/                    # Architecture and design docs
-├── examples/                # CI examples and sample output
-├── tmp_test_data/           # Synthetic demo dataset
-├── pyproject.toml           # Python package metadata
+│   ├── api/                 # Public Python API (QALensClient)
+│   ├── analyzers/           # Classification, clustering, flaky, risk, decision
+│   ├── artifacts/           # Screenshot policy and artifact storage
+│   ├── cli/                 # CLI commands (ingest, serve, compare, …)
+│   ├── db/                  # SQLite schema and repository layer
+│   ├── llm/                 # LLM config, prompts, client
+│   ├── parsers/             # Allure, Extent, JUnit, TestNG, Playwright, Cypress
+│   ├── reports/             # HTML/Markdown/JSON report builders
+│   ├── server/              # FastAPI app, routes, auth, static UI
+│   └── utils/               # Filesystem and text helpers
+├── frontend/                # React + Vite web UI source
+├── tests/                   # Python test suite
+│   └── fixtures/            # Sample reports for all supported formats
+├── docs/                    # Architecture and design documentation
+├── tmp_test_data/           # Synthetic ShopNow demo dataset
 ├── Makefile                 # Build shortcuts
+├── pyproject.toml           # Python package metadata
 ├── SECURITY.md              # Security policy
 └── PRODUCTION_CHECKLIST.md  # Network deployment checklist
 ```
 
+### Build commands
+
+| Command | What it does |
+|---|---|
+| `make build-ui` | Compile React app into `src/qalens/server/static/` |
+| `make build` | `build-ui` + build the Python wheel |
+| `make check-package` | Build distributions and run `twine check` |
+| `make release-test` | Build, check, and publish to TestPyPI |
+| `make release` | Build, check, and publish to PyPI |
+
+### Publishing to PyPI
+
+The package name is `qalens`; the CLI command is also `qalens`.
+
+Recommended release flow:
+
+```bash
+# 1. Make sure the version in src/qalens/version.py is final.
+
+# 2. Run local verification.
+pytest
+cd frontend && npm test -- --run && npm audit --audit-level=high && cd ..
+pip-audit --desc
+bandit -r src/ -ll -x src/qalens/server/static/
+
+# 3. Build and validate distributions.
+make check-package
+
+# 4. Publish to TestPyPI first.
+make release-test
+
+# 5. Install from TestPyPI in a clean environment and smoke test.
+python -m venv /tmp/qalens-smoke
+source /tmp/qalens-smoke/bin/activate
+pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ qalens
+qalens --help
+
+# 6. Publish to PyPI.
+make release
+```
+
+For GitHub-based publishing, use the `Publish Python package` workflow and configure PyPI/TestPyPI Trusted Publishing for the matching GitHub environments.
+
+---
+
 ## Limitations
 
 - QA Lens does not execute tests.
-- Single-run data is enough for basic failure summaries, but trends, risk, and flakiness need multiple ingested runs.
-- LLM-assisted answers require a configured LLM provider.
-- Parser accuracy depends on the data exported by the report tool.
+- Single-run data is sufficient for basic failure summaries. Trends, risk scoring, and flakiness detection improve with more ingested runs.
+- LLM-assisted answers require a configured provider. Deterministic answers do not.
+- Parser accuracy depends on the data exported by the report tool. Reports that omit stack traces or error types reduce classification confidence.
 - The web server is local-first. Do not expose it publicly without authentication, HTTPS, and network controls.
-- Strict repository-wide `ruff`, `mypy`, and `bandit` cleanup is still in progress.
+- Repository-wide strict `ruff` / `mypy` / `bandit` cleanup is in progress.
+
+---
 
 ## Roadmap
 
-Near-term focus:
+Near-term:
 
-- More real-world report fixtures
-- Documentation polish and screenshots
-- CI quality gate cleanup
-- More parser edge-case coverage
-- More export formats and CI examples
+- More real-world report fixtures and edge-case coverage
+- CI quality gate cleanup (ruff, mypy, bandit)
+- Screenshots and demo video
+- More export formats and CI integration examples
 
 See [docs/roadmap.md](docs/roadmap.md).
 
+---
+
 ## Contributing
 
-Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
-Useful local checks:
+Local checks:
 
 ```bash
 pytest
 cd frontend && npm run typecheck && npm test
 ```
+
+---
 
 ## License
 

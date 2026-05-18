@@ -1,4 +1,4 @@
-.PHONY: build-ui dev build release
+.PHONY: build-ui dev build check-package release release-test
 
 build-ui:
 	cd frontend && npm ci && npm run build
@@ -9,5 +9,12 @@ dev:
 build: build-ui
 	hatch build
 
-release: build
+check-package: build
+	python -m pip install --upgrade twine
+	twine check dist/*
+
+release-test: check-package
+	hatch publish -r test
+
+release: check-package
 	hatch publish

@@ -48,7 +48,7 @@ class QALensClient:
             to run alongside the built-in heuristics.
         enable_fuzzy_clustering: When ``True``, enables TF-IDF-based fuzzy
             clustering after deterministic grouping. Requires ``scikit-learn``
-            (``pip install qalens-insights[ml]``).
+            (``pip install qalens[ml]``).
 
     """
 

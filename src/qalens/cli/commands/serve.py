@@ -71,7 +71,7 @@ def serve(
     except ImportError:  # pragma: no cover
         err_console.print(
             "[red]uvicorn is not installed.[/red]  "
-            "Run: [bold]pip install 'qalens-insights[serve]'[/bold]"
+            "Run: [bold]pip install 'qalens'[/bold]"
         )
         raise typer.Exit(code=1)
 
