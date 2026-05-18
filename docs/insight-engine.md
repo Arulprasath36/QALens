@@ -1,6 +1,6 @@
 # Insight Engine
 
-This document describes how QARA transforms normalized `TestRun` data into actionable insights.
+This document describes how QaLens transforms normalized `TestRun` data into actionable insights.
 
 ---
 
@@ -26,7 +26,7 @@ Summarizer          → AnalysisSummary
 
 ## Failure Signatures
 
-Defined in `src/qara/analyzers/signatures.py`.
+Defined in `src/qalens/analyzers/signatures.py`.
 
 A **failure signature** is a short stable string that identifies the "shape" of a failure independent of dynamic runtime noise.
 
@@ -64,7 +64,7 @@ This produces a stable deterministic ID usable for grouping.
 
 ## Categorization Rules
 
-Defined in `src/qara/analyzers/categorizer.py`.
+Defined in `src/qalens/analyzers/categorizer.py`.
 
 ### Rule evaluation
 
@@ -143,7 +143,7 @@ Confidence is computed from:
 
 ## Failure Clusters
 
-Defined in `src/qara/analyzers/clustering.py`.
+Defined in `src/qalens/analyzers/clustering.py`.
 
 ### Layer 1 — Deterministic clustering
 
@@ -154,7 +154,7 @@ Group by exact `failure_signature`. All tests sharing a signature form a cluster
 When enabled, uses TF-IDF vectorization of normalized error messages + cosine similarity to merge nearby clusters.
 
 ```python
-qara analyze ./reports/allure --fuzzy-clusters
+qalens analyze ./reports/allure --fuzzy-clusters
 ```
 
 This is disabled by default to keep v1 deterministic and explainable.
@@ -163,7 +163,7 @@ This is disabled by default to keep v1 deterministic and explainable.
 
 ## Flaky Scoring
 
-Defined in `src/qara/analyzers/flaky.py`.
+Defined in `src/qalens/analyzers/flaky.py`.
 
 The flaky score is a float in [0.0, 1.0]:
 
@@ -185,7 +185,7 @@ flaky_score = weighted_average(
 
 ## Summary Generation
 
-Defined in `src/qara/analyzers/summarizer.py`.
+Defined in `src/qalens/analyzers/summarizer.py`.
 
 Three summary types:
 

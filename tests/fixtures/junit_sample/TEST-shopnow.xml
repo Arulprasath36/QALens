@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="ShopNow JUnit" tests="4" failures="1" errors="1" skipped="1" time="4.25">
+  <testsuite name="Authentication Tests" tests="2" failures="1" errors="0" skipped="0" time="1.50" timestamp="2026-02-22T04:00:00Z">
+    <testcase classname="com.shopnow.AuthTest" name="testValidUserLogin" time="0.40">
+      <properties>
+        <property name="owner" value="Authentication Team"/>
+        <property name="feature" value="Authentication"/>
+        <property name="tags" value="auth, smoke"/>
+      </properties>
+    </testcase>
+    <testcase classname="com.shopnow.AuthTest" name="testInvalidPassword" time="1.10">
+      <failure type="java.lang.AssertionError" message="Expected validation error">
+java.lang.AssertionError: Expected validation error
+    at com.shopnow.AuthTest.testInvalidPassword(AuthTest.java:42)
+      </failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Payment Tests" tests="2" failures="0" errors="1" skipped="1" time="2.75" timestamp="2026-02-22T04:01:00Z">
+    <testcase classname="com.shopnow.PaymentTest" name="testCreditCardPayment" time="2.25">
+      <error type="org.openqa.selenium.TimeoutException" message="Timed out waiting for payment iframe">
+org.openqa.selenium.TimeoutException: Timed out waiting for payment iframe
+    at com.shopnow.PaymentTest.testCreditCardPayment(PaymentTest.java:88)
+      </error>
+    </testcase>
+    <testcase classname="com.shopnow.PaymentTest" name="testPayPalRedirect" time="0.50">
+      <skipped message="disabled in staging"/>
+    </testcase>
+  </testsuite>
+</testsuites>

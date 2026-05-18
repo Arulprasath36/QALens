@@ -21,8 +21,8 @@ from pathlib import Path
 
 import pytest
 
-from qara.parsers.extent import ExtentHtmlParser
-from qara.models.artifact_ref import ArtifactRef
+from qalens.parsers.extent import ExtentHtmlParser
+from qalens.models.artifact_ref import ArtifactRef
 
 # ---------------------------------------------------------------------------
 # Minimal PNG helper (copy from test_artifact_pipeline.py to keep tests self-contained)
@@ -102,7 +102,7 @@ def _make_step_node(
 
 
 def _parse_node(parser: ExtentHtmlParser, node: dict, root: Path) -> "TestCaseResult":  # type: ignore[name-defined]
-    from qara.parsers.extent import ExtentHtmlParser
+    from qalens.parsers.extent import ExtentHtmlParser
     return parser._extract_test_case_from_node(node, root, "extent")  # type: ignore[attr-defined]
 
 

@@ -7,9 +7,9 @@ import type { Owner } from '../../types';
 // ─────────────────────────────────────────────────────────────
 
 function failureRateBadge(rate: number): { label: string; className: string } {
-  if (rate >= 0.35) return { label: `${Math.round(rate * 100)}%`, className: 'qara-badge-danger'   };
-  if (rate >= 0.15) return { label: `${Math.round(rate * 100)}%`, className: 'qara-badge-warning' };
-  return              { label: `${Math.round(rate * 100)}%`, className: 'qara-badge-success' };
+  if (rate >= 0.35) return { label: `${Math.round(rate * 100)}%`, className: 'qalens-badge-danger'   };
+  if (rate >= 0.15) return { label: `${Math.round(rate * 100)}%`, className: 'qalens-badge-warning' };
+  return              { label: `${Math.round(rate * 100)}%`, className: 'qalens-badge-success' };
 }
 
 function FailureBadge({ rate }: { rate: number }) {
@@ -173,9 +173,9 @@ export function OwnerPicker({ owners, selected, onToggle, maxSelections }: Owner
       <button
         onClick={() => setOpen(o => !o)}
         className={[
-          'qara-control flex items-center gap-2 h-auto min-h-[2.75rem] px-3 py-2 text-sm min-w-[220px] w-full',
+          'qalens-control flex items-center gap-2 h-auto min-h-[2.75rem] px-3 py-2 text-sm min-w-[220px] w-full',
           'transition-all duration-150',
-          open ? 'qara-pill-active' : '',
+          open ? 'qalens-pill-active' : '',
         ].join(' ')}
       >
         {selectedOwners.length === 0 ? (
@@ -185,7 +185,7 @@ export function OwnerPicker({ owners, selected, onToggle, maxSelections }: Owner
             {selectedOwners.map(o => (
               <span
                 key={o.id}
-                className="inline-flex items-center gap-1 qara-pill qara-pill-active pr-1"
+                className="inline-flex items-center gap-1 qalens-pill qalens-pill-active pr-1"
               >
                 <span>{o.name.split(' ')[0]}</span>
                 <Tooltip content={`Remove ${o.name}`} className="inline-flex">
@@ -215,7 +215,7 @@ export function OwnerPicker({ owners, selected, onToggle, maxSelections }: Owner
 
       {/* ── Popover ───────────────────────────────────────────── */}
       {open && (
-        <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-[320px] qara-card-elevated qara-fade-up">
+        <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-[320px] qalens-card-elevated qalens-fade-up">
 
           {/* Search + count badge */}
           <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border-subtle">

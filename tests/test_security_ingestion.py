@@ -1,4 +1,4 @@
-"""Security tests for QARA's ingestion pipeline.
+"""Security tests for QaLens's ingestion pipeline.
 
 Covers:
 - XSS / script-injection via report-derived string fields
@@ -18,21 +18,21 @@ from pathlib import Path
 
 import pytest
 
-from qara.parsers.allure import (
+from qalens.parsers.allure import (
     AllureHtmlParser,
     _MAX_JSON_BYTES,
     _MAX_RECURSION_DEPTH,
     _MAX_TEST_CASES,
     _SAFE_UID_RE,
 )
-from qara.parsers.extent import (
+from qalens.parsers.extent import (
     ExtentHtmlParser,
     _MAX_HTML_BYTES,
     _MAX_JSON_BLOB_CHARS,
     _MAX_TEST_NODES,
 )
-from qara.security import validate_report_input_path
-from qara.utils.fs import safe_join
+from qalens.security import validate_report_input_path
+from qalens.utils.fs import safe_join
 
 
 # ---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ class TestXSSExtentFields:
     def test_name_truncated_to_max_field_len(self, tmp_path):
         """A name longer than _MAX_FIELD_LEN must be truncated, not rejected.
         truncate() appends a 1-char ellipsis, so the ceiling is _MAX_FIELD_LEN + 1."""
-        from qara.parsers.extent import _MAX_FIELD_LEN
+        from qalens.parsers.extent import _MAX_FIELD_LEN
         long_name = "A" * (_MAX_FIELD_LEN + 500)
         tc = self._parse_first_test(tmp_path, long_name)
         # +1 accounts for the ellipsis character appended by truncate()
@@ -425,7 +425,7 @@ class TestAllureTestCaseCap:
 class TestPromptInjectionGuard:
 
     def test_system_prompt_contains_untrusted_data_warning(self):
-        from qara.llm.prompts import _BASE_SYSTEM_PROMPT
+        from qalens.llm.prompts import _BASE_SYSTEM_PROMPT
 
         prompt_lower = _BASE_SYSTEM_PROMPT.lower()
         assert "untrusted" in prompt_lower, (
@@ -433,21 +433,21 @@ class TestPromptInjectionGuard:
         )
 
     def test_system_prompt_warns_about_instruction_injection(self):
-        from qara.llm.prompts import _BASE_SYSTEM_PROMPT
+        from qalens.llm.prompts import _BASE_SYSTEM_PROMPT
 
         assert "ignore" in _BASE_SYSTEM_PROMPT.lower() or "disregard" in _BASE_SYSTEM_PROMPT.lower(), (
             "_BASE_SYSTEM_PROMPT must reference the 'ignore previous instructions' injection pattern"
         )
 
     def test_build_system_prompt_includes_base(self):
-        from qara.llm.prompts import _BASE_SYSTEM_PROMPT, build_system_prompt
+        from qalens.llm.prompts import _BASE_SYSTEM_PROMPT, build_system_prompt
 
         prompt = build_system_prompt(answer_plan=None)
         assert "UNTRUSTED" in prompt or "untrusted" in prompt.lower()
 
     def test_build_prompt_wraps_report_context_as_untrusted_data(self):
-        from qara.llm.prompts import build_prompt
-        from qara.security import UNTRUSTED_DATA_END, UNTRUSTED_DATA_START
+        from qalens.llm.prompts import build_prompt
+        from qalens.security import UNTRUSTED_DATA_END, UNTRUSTED_DATA_START
 
         prompt = build_prompt(
             "What failed?",
@@ -466,7 +466,7 @@ class TestPromptInjectionGuard:
 class TestSafeReadTextSizeLimit:
 
     def test_file_within_limit_read_ok(self, tmp_path):
-        from qara.utils.fs import safe_read_text
+        from qalens.utils.fs import safe_read_text
 
         f = tmp_path / "small.txt"
         f.write_text("hello world", encoding="utf-8")
@@ -474,7 +474,7 @@ class TestSafeReadTextSizeLimit:
         assert result == "hello world"
 
     def test_file_over_limit_returns_none(self, tmp_path):
-        from qara.utils.fs import safe_read_text
+        from qalens.utils.fs import safe_read_text
 
         f = tmp_path / "big.txt"
         f.write_bytes(b"X" * 200)
@@ -482,7 +482,7 @@ class TestSafeReadTextSizeLimit:
         assert result is None
 
     def test_no_limit_reads_full_file(self, tmp_path):
-        from qara.utils.fs import safe_read_text
+        from qalens.utils.fs import safe_read_text
 
         f = tmp_path / "medium.txt"
         content = "Y" * 5000
@@ -497,7 +497,7 @@ class TestSafeReadTextSizeLimit:
 
 class TestReportInputTypeValidation:
 
-    @pytest.mark.parametrize("name", ["report.html", "report.htm", "result.json"])
+    @pytest.mark.parametrize("name", ["report.html", "report.htm", "result.json", "report.xml"])
     def test_supported_report_file_extensions_allowed(self, tmp_path, name):
         path = tmp_path / name
         path.write_text("{}", encoding="utf-8")
@@ -508,7 +508,7 @@ class TestReportInputTypeValidation:
         report_dir.mkdir()
         validate_report_input_path(report_dir)
 
-    @pytest.mark.parametrize("name", ["report.xml", "report.zip", "run.exe", "notes.txt"])
+    @pytest.mark.parametrize("name", ["report.zip", "run.exe", "notes.txt"])
     def test_unsupported_report_file_extensions_rejected(self, tmp_path, name):
         path = tmp_path / name
         path.write_text("x", encoding="utf-8")

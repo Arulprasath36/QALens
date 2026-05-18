@@ -74,6 +74,48 @@ interface ApiIncident {
   components:                 string[];
 }
 
+interface ApiDecisionAction {
+  rank:      number;
+  category:  string;
+  severity:  'critical' | 'high' | 'medium' | 'low' | string;
+  title:     string;
+  reason:    string;
+  impact:    string;
+  action:    string;
+  evidence:  string[];
+  drilldown?: {
+    type?:    string;
+    payload?: Record<string, unknown>;
+  };
+}
+
+interface ApiTrendSignal {
+  metric:    string;
+  direction: string;
+  delta:     number;
+  detail:    string;
+}
+
+interface ApiDecisionSummary {
+  scope: {
+    project:          string | null;
+    run_id:           string | null;
+    run_sequence:     number | null;
+    window:           number;
+    requested_window: number;
+    has_previous_run: boolean;
+  };
+  executive_summary:  string[];
+  trend_intelligence: ApiTrendSignal[];
+  fix_first:          ApiDecisionAction[];
+}
+
+interface PendingDecisionAction {
+  key:     string;
+  type:    string;
+  payload: Record<string, unknown>;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Config / helpers
 // ─────────────────────────────────────────────────────────────
@@ -81,10 +123,10 @@ interface ApiIncident {
 const PAGE_SIZES = [10, 25, 50];
 const INITIAL_RUN_LIMIT = 100;
 const STATUS_BADGE: Record<string, string> = {
-  passed: 'qara-badge-success',
-  failed: 'qara-badge-danger',
-  broken: 'qara-badge-danger',
-  skipped: 'qara-badge-neutral',
+  passed: 'qalens-badge-success',
+  failed: 'qalens-badge-danger',
+  broken: 'qalens-badge-danger',
+  skipped: 'qalens-badge-neutral',
 };
 
 function formatDate(ts: number | null): string {
@@ -258,6 +300,13 @@ function runSortValue(run: ApiRun) {
 
 function testKey(test: ApiTestCase) {
   return test.canonical_name || test.name;
+}
+
+function percentile(values: number[], p: number) {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil((p / 100) * sorted.length) - 1));
+  return sorted[idx];
 }
 
 function sentenceList(items: string[], max = 3) {
@@ -625,23 +674,347 @@ function RunInsightsPanel({
   );
 }
 
+function directionTone(direction: string) {
+  const d = direction.toLowerCase();
+  if (['declining', 'spiking', 'worsening', 'increasing', 'new'].includes(d)) {
+    return 'border-red-200 bg-red-50 text-red-700 dark:border-red-500/25 dark:bg-red-500/[0.08] dark:text-red-300';
+  }
+  if (['improving', 'reducing', 'recovering'].includes(d)) {
+    return 'border-green-200 bg-green-50 text-green-700 dark:border-green-500/25 dark:bg-green-500/[0.08] dark:text-green-300';
+  }
+  return 'border-border-subtle bg-subtle text-secondary';
+}
+
+function actionTone(severity: string) {
+  const s = severity.toLowerCase();
+  if (s === 'critical') return 'border-red-300 border-l-red-500 bg-surface dark:border-red-500/45 dark:border-l-red-400';
+  if (s === 'high') return 'border-amber-300 border-l-amber-500 bg-surface dark:border-amber-500/45 dark:border-l-amber-400';
+  if (s === 'medium') return 'border-orange-300 border-l-orange-500 bg-surface dark:border-orange-500/45 dark:border-l-orange-400';
+  return 'border-border-subtle border-l-info bg-surface';
+}
+
+function severityBadgeTone(severity: string) {
+  const s = severity.toLowerCase();
+  if (s === 'critical') return 'border-red-200 bg-red-50 text-red-700 dark:border-red-500/25 dark:bg-red-500/[0.08] dark:text-red-300';
+  if (s === 'high') return 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/25 dark:bg-amber-500/[0.08] dark:text-amber-300';
+  if (s === 'medium') return 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-500/25 dark:bg-orange-500/[0.08] dark:text-orange-300';
+  return 'border-border-subtle bg-subtle text-muted';
+}
+
+function runToRunChipLabel(impact: string) {
+  const clean = impact.replace(/\.$/, '');
+  const regressed = clean.match(/(\d+)\s+test\(s\)\s+regressed/i);
+  if (regressed) return `Run-to-run: ${regressed[1]} regressed`;
+  const newFailures = clean.match(/(\d+)\s+new failure/i);
+  if (newFailures) return `Run-to-run: ${newFailures[1]} new failure${newFailures[1] === '1' ? '' : 's'}`;
+  return `Run-to-run: ${clean}`;
+}
+
+function trendScopeLabel(metric: string, window: number) {
+  return metric.toLowerCase().includes('incident')
+    ? `Latest vs last ${window} runs`
+    : `Last ${window} runs`;
+}
+
+function ActionBriefDrawer({
+  decision,
+  scopeRuns,
+  onAction,
+  onClose,
+}: {
+  decision: ApiDecisionSummary;
+  scopeRuns: number;
+  onAction: (type: string, payload: Record<string, unknown>) => void;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <>
+      <button
+        type="button"
+        className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[2px]"
+        onClick={onClose}
+        aria-label="Close action brief"
+      />
+      <aside
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-2xl flex-col border-l border-border-default bg-surface shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Action brief"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-border-default px-5 py-4">
+          <div className="min-w-0">
+            <p className="type-metric-label">Action brief</p>
+            <h2 className="mt-1 text-xl font-semibold text-primary">What changed and what to inspect first</h2>
+            <p className="mt-1 text-sm text-muted">Run-to-run regressions plus trend signals over the last {scopeRuns} runs.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-8 shrink-0 items-center rounded-lg border border-border-default bg-surface px-3 text-xs font-medium text-muted transition-colors hover:border-border-strong hover:bg-subtle hover:text-primary"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 py-5">
+          {decision.executive_summary.length > 0 && (
+            <div className="rounded-xl border border-border-subtle bg-subtle px-4 py-3">
+              <p className="text-sm font-bold uppercase tracking-[0.14em] text-primary">Executive summary</p>
+              <ul className="mt-2 grid gap-1.5 text-sm leading-6 text-secondary">
+                {decision.executive_summary.slice(0, 6).map(item => (
+                  <li key={item} className="flex gap-2">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-info" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {decision.trend_intelligence.length > 0 && (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {decision.trend_intelligence.map(signal => (
+                <div key={signal.metric} className="rounded-xl border border-border-subtle bg-subtle px-4 py-3">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="text-sm font-bold uppercase tracking-[0.14em] text-primary">{signal.metric}</p>
+                    <span className="text-[11px] font-semibold text-muted">
+                      {trendScopeLabel(signal.metric, scopeRuns)}
+                    </span>
+                  </div>
+                  <span className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold capitalize ${directionTone(signal.direction)}`}>
+                    {signal.direction}
+                  </span>
+                  <p className="mt-2 text-xs leading-5 text-muted">{signal.detail}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="type-metric-label">Priority queue</p>
+                <h3 className="mt-1 text-lg font-semibold text-primary">Top prioritized actions</h3>
+              </div>
+              <span className="rounded-full border border-border-subtle bg-subtle px-3 py-1 text-xs font-medium text-muted">
+                Top {Math.min(5, decision.fix_first.length)}
+              </span>
+            </div>
+
+            {decision.fix_first.length === 0 ? (
+              <div className="rounded-xl border border-border-subtle bg-subtle px-4 py-6 text-center">
+                <p className="text-sm font-semibold text-primary">No immediate action detected</p>
+                <p className="mt-1 text-sm text-muted">QaLens did not find a high-priority action for this run.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {decision.fix_first.slice(0, 5).map(item => {
+                  const type = item.drilldown?.type ?? item.category;
+                  const payload = item.drilldown?.payload ?? {};
+                  return (
+                    <div key={`${item.rank}-${item.title}`} className={`rounded-xl border border-l-4 px-4 py-4 shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-colors hover:bg-subtle/40 ${actionTone(item.severity)}`}>
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border-subtle bg-surface text-sm font-semibold text-primary">
+                          {item.rank}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-primary">{item.title}</p>
+                            <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold capitalize ${severityBadgeTone(item.severity)}`}>
+                              {item.severity}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm leading-5 text-secondary">{item.reason}</p>
+                          <p className="mt-1 text-xs font-medium text-muted"><span className="text-secondary">Impact:</span> {item.impact}</p>
+                          <p className="mt-2 text-xs leading-5 text-secondary"><span className="font-semibold text-primary">Action:</span> {item.action}</p>
+                          <div className="mt-3 flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onClose();
+                                onAction(type, payload);
+                              }}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-info/25 bg-info/[0.06] px-3 py-1.5 text-xs font-semibold text-info transition-colors hover:border-info/40 hover:bg-info/[0.1]"
+                            >
+                              Inspect failures
+                              <svg viewBox="0 0 14 14" fill="none" className="h-3.5 w-3.5" aria-hidden="true">
+                                <path d="M5 3.5 8.5 7 5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            {item.evidence.slice(0, 2).map(evidence => (
+                              <span key={evidence} className="qalens-badge-neutral max-w-[280px] truncate" title={evidence}>
+                                {evidence}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+function DecisionIntelligencePanel({
+  decision,
+  loading,
+  onAction,
+}: {
+  decision: ApiDecisionSummary | null;
+  loading: boolean;
+  onAction: (type: string, payload: Record<string, unknown>) => void;
+}) {
+  const [briefOpen, setBriefOpen] = useState(false);
+
+  if (loading) {
+    return (
+      <section className="rounded-2xl border border-border-default bg-surface px-5 py-5 shadow-sm">
+        <div className="h-4 w-32 animate-pulse rounded bg-subtle" />
+        <div className="mt-4 grid gap-3 lg:grid-cols-3">
+          {[1, 2, 3].map(i => <div key={i} className="h-24 animate-pulse rounded-xl bg-subtle" />)}
+        </div>
+      </section>
+    );
+  }
+
+  if (!decision) return null;
+  const topAction = decision.fix_first[0] ?? null;
+  const activeSignals = decision.trend_intelligence.filter(signal => signal.direction !== 'stable' && signal.direction !== 'flat').length;
+  const scopeRuns = decision.scope.window || decision.scope.requested_window;
+  const topSeverity = topAction?.severity ?? 'healthy';
+
+  return (
+    <>
+    <section className="relative overflow-hidden rounded-2xl border border-border-default bg-surface px-5 py-5 shadow-sm">
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-1.5 bg-info" />
+      <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <button
+          type="button"
+          onClick={() => setBriefOpen(true)}
+          className="min-w-0 flex-1 text-left"
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex h-7 items-center rounded-lg border border-info/20 bg-info/[0.08] px-2.5 text-[11px] font-bold uppercase tracking-[0.14em] text-info">
+              Action brief
+            </span>
+            <span className="type-metric-label normal-case tracking-normal text-muted">
+              ranked from recent run signals
+            </span>
+          </div>
+          <div className="mt-3 flex items-start gap-3">
+            <span className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border text-sm font-bold ${topSeverity === 'critical' || topSeverity === 'high' ? 'border-danger/25 bg-danger/[0.08] text-danger' : 'border-info/25 bg-info/[0.08] text-info'}`}>
+              {topAction ? topAction.rank : '✓'}
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="h-4 w-4 shrink-0 text-muted"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <h3 className="text-xl font-semibold text-primary">
+                  {topAction ? topAction.title : 'No immediate action detected'}
+                </h3>
+              </div>
+              <p className="mt-2 max-w-4xl text-sm leading-6 text-secondary">
+                {topAction
+                  ? topAction.reason
+                  : 'QaLens did not find a high-priority action for this run window.'}
+              </p>
+            </div>
+          </div>
+          {topAction && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 pl-11">
+              <span className="inline-flex h-7 items-center rounded-lg border border-border-subtle bg-subtle px-2.5 text-xs font-medium text-muted">
+                {runToRunChipLabel(topAction.impact)}
+              </span>
+              <span className="inline-flex h-7 items-center rounded-lg border border-border-subtle bg-subtle px-2.5 text-xs font-medium text-muted">
+                Trend window: {activeSignals} signal{activeSignals === 1 ? '' : 's'}
+              </span>
+              <span className="inline-flex h-7 items-center rounded-lg border border-border-subtle bg-subtle px-2.5 text-xs font-medium text-muted">
+                Window: last {scopeRuns} runs
+              </span>
+            </div>
+          )}
+        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {topAction && (
+            <button
+              type="button"
+              onClick={() => {
+                const type = topAction.drilldown?.type ?? topAction.category;
+                const payload = topAction.drilldown?.payload ?? {};
+                onAction(type, payload);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-info/25 bg-info/[0.06] px-3 py-1.5 text-xs font-semibold text-info transition-colors hover:border-info/40 hover:bg-info/[0.1]"
+            >
+              Inspect failures
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setBriefOpen(true)}
+            className="inline-flex h-8 items-center rounded-lg border border-border-default bg-surface px-3 text-xs font-medium text-muted transition-colors hover:border-border-strong hover:bg-subtle hover:text-primary"
+          >
+            Open brief
+          </button>
+          <span className="inline-flex h-8 w-fit items-center rounded-lg border border-border-default bg-surface px-3 text-xs font-medium text-muted">
+            Window: last {scopeRuns} runs
+          </span>
+        </div>
+      </div>
+    </section>
+    {briefOpen && (
+      <ActionBriefDrawer
+        decision={decision}
+        scopeRuns={scopeRuns}
+        onAction={onAction}
+        onClose={() => setBriefOpen(false)}
+      />
+    )}
+    </>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────
 // Test case row (expandable)
 // ─────────────────────────────────────────────────────────────
 
 function TestCaseRow({ tc }: { tc: ApiTestCase }) {
   const [open, setOpen] = useState(false);
-  const statusBadge = STATUS_BADGE[tc.status] ?? 'qara-badge-neutral';
+  const statusBadge = STATUS_BADGE[tc.status] ?? 'qalens-badge-neutral';
   const serveableAttachments = tc.attachments.filter(a => a.resolved_path);
   const hasDetail = !!(tc.message || tc.stack_trace || serveableAttachments.length);
 
   return (
     <>
       <tr
-        className={`qara-table-row transition-colors ${hasDetail ? 'cursor-pointer' : ''}`}
+        className={`qalens-table-row transition-colors ${hasDetail ? 'cursor-pointer' : ''}`}
         onClick={() => hasDetail && setOpen(o => !o)}
       >
-        <td className="qara-table-cell">
+        <td className="qalens-table-cell">
           <div className="flex items-center gap-1.5">
             {hasDetail && (
               <svg className={`w-3 h-3 shrink-0 text-info transition-transform ${open ? 'rotate-90' : ''}`}
@@ -657,27 +1030,27 @@ function TestCaseRow({ tc }: { tc: ApiTestCase }) {
             </Tooltip>
           </div>
         </td>
-        <td className="qara-table-cell">
+        <td className="qalens-table-cell">
           <span className={statusBadge}>
             {tc.status}
           </span>
         </td>
-        <td className="qara-table-cell type-td-secondary truncate max-w-[140px]">
+        <td className="qalens-table-cell type-td-secondary truncate max-w-[140px]">
           {tc.suite ?? '—'}
         </td>
-        <td className="qara-table-cell type-td-secondary">
+        <td className="qalens-table-cell type-td-secondary">
           {tc.owner ?? '—'}
         </td>
-        <td className="qara-table-cell type-td-num">
+        <td className="qalens-table-cell type-td-num">
           {formatMs(tc.duration_ms)}
         </td>
-        <td className="qara-table-cell type-td-secondary truncate max-w-[200px]">
+        <td className="qalens-table-cell type-td-secondary truncate max-w-[200px]">
           {tc.message ? tc.message.slice(0, 80) : '—'}
         </td>
       </tr>
 
       {open && hasDetail && (
-        <tr className="qara-table-row" style={{ background: 'var(--bg-subtle)' }}>
+        <tr className="qalens-table-row" style={{ background: 'var(--bg-subtle)' }}>
           <td colSpan={6} className="px-8 py-5">
             {/* Meta grid */}
             {(tc.error_type || tc.failed_step || tc.feature || tc.story) && (
@@ -695,7 +1068,7 @@ function TestCaseRow({ tc }: { tc: ApiTestCase }) {
                 <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
                   Message
                 </p>
-                <pre className="qara-code-block text-xs text-zinc-400
+                <pre className="qalens-code-block text-xs text-zinc-400
                                 rounded-lg p-3 overflow-x-auto max-h-32 overflow-y-auto
                                 whitespace-pre-wrap leading-relaxed font-mono">
                   {tc.message}
@@ -709,7 +1082,7 @@ function TestCaseRow({ tc }: { tc: ApiTestCase }) {
                 <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-1">
                   Stack Trace
                 </p>
-                <pre className="qara-code-block text-xs text-zinc-500
+                <pre className="qalens-code-block text-xs text-zinc-500
                                 rounded-lg p-3 overflow-x-auto max-h-48 overflow-y-auto
                                 whitespace-pre leading-relaxed font-mono">
                   {tc.stack_trace}
@@ -740,7 +1113,7 @@ function TestCaseRow({ tc }: { tc: ApiTestCase }) {
                     }
                     return (
                       <a key={idx} href={url} target="_blank" rel="noopener noreferrer"
-                         className="qara-chip type-chip">
+                         className="qalens-chip type-chip">
                         <span>📎</span>
                         {att.name ?? att.kind ?? 'file'}
                       </a>
@@ -1040,11 +1413,15 @@ function IncidentsSection({ incidents }: { incidents: ApiIncident[] }) {
 function RunDetailView({
   run,
   runs,
+  pendingAction,
+  onPendingActionHandled,
   onSelectRun,
   onBack,
 }: {
   run:         ApiRun;
   runs:        ApiRun[];
+  pendingAction?: PendingDecisionAction | null;
+  onPendingActionHandled?: () => void;
   onSelectRun: (runId: string) => void;
   onBack:      () => void;
 }) {
@@ -1105,6 +1482,52 @@ function RunDetailView({
     return () => { cancelled = true; };
   }, [previousComparableRun?.run_id]);
 
+  const performanceSignal = useMemo(() => {
+    const previousByName = previousTests
+      ? new Map(previousTests.map(test => [testKey(test), test]))
+      : null;
+
+    if (previousByName) {
+      const spikes = tests
+        .map(test => {
+          const previous = previousByName.get(testKey(test));
+          if (!previous?.duration_ms || !test.duration_ms) return null;
+          const delta = test.duration_ms - previous.duration_ms;
+          const increase = delta / previous.duration_ms;
+          return increase >= 0.5 && delta >= 1000
+            ? { test, score: increase }
+            : null;
+        })
+        .filter(Boolean) as Array<{ test: ApiTestCase; score: number }>;
+
+      return {
+        mode: 'spike' as const,
+        label: 'Duration Spikes',
+        tableLabel: 'duration spikes',
+        helper: 'Tests that ran at least 50% and 1s slower than the previous comparable run.',
+        testKeys: new Set(spikes.map(item => testKey(item.test))),
+        count: spikes.length,
+      };
+    }
+
+    const durations = tests
+      .map(test => test.duration_ms)
+      .filter((duration): duration is number => duration != null && duration > 0);
+    const p90 = percentile(durations, 90);
+    const longest = p90 == null
+      ? []
+      : tests.filter(test => (test.duration_ms ?? 0) >= p90);
+
+    return {
+      mode: 'longest' as const,
+      label: 'Longest',
+      tableLabel: 'longest tests',
+      helper: 'No comparable run is available, so QaLens shows the longest tests in this run.',
+      testKeys: new Set(longest.map(testKey)),
+      count: longest.length,
+    };
+  }, [previousTests, tests]);
+
   const filtered = useMemo(() => {
     const suiteScoped = suiteFilter
       ? tests.filter(t => (t.suite || 'Unknown suite') === suiteFilter)
@@ -1119,16 +1542,17 @@ function RunDetailView({
       : suiteScoped;
     if (!statusFilter) return signalScoped;
     if (statusFilter === 'failed') return signalScoped.filter(t => isFailureStatus(t.status));
-    if (statusFilter === 'slow') return signalScoped.filter(t => (t.duration_ms ?? 0) >= 5000);
+    if (statusFilter === 'slow') {
+      return signalScoped.filter(t => performanceSignal.testKeys.has(testKey(t)));
+    }
     if (statusFilter === 'retry') return signalScoped.filter(t => t.is_retry || t.retry_count > 0);
     return signalScoped.filter(t => t.status === statusFilter);
-  }, [tests, statusFilter, suiteFilter, fingerprintFilter, testNameFilter]);
+  }, [tests, statusFilter, suiteFilter, fingerprintFilter, testNameFilter, performanceSignal]);
 
   const passRate = run.total_tests ? Math.round((run.passed_count ?? 0) / run.total_tests * 100) : null;
   const failedCount = tests.filter(t => t.status === 'failed' || t.status === 'broken').length || (run.failed_count ?? 0);
   const passedCount = tests.filter(t => t.status === 'passed').length || (run.passed_count ?? 0);
   const skippedCount = tests.filter(t => t.status === 'skipped').length || (run.skipped_count ?? 0);
-  const slowCount = tests.filter(t => (t.duration_ms ?? 0) >= 5000).length;
   const retryCount = tests.filter(t => t.is_retry || t.retry_count > 0).length;
   const healthLabel = runHealthLabel(passRate, failedCount);
   const healthTone = runHealthTone(passRate, failedCount);
@@ -1340,7 +1764,7 @@ function RunDetailView({
           confidence: durationSpikes.length >= 3 ? 'medium' : 'low',
           evidence: durationSpikes.slice(0, 3).map(item => `${item.test.name}: +${Math.round(item.increase)}%`),
           action: 'Investigate latency, backend performance, or environment contention for the slower tests.',
-          cta: 'View slow',
+          cta: 'View duration spikes',
           payload: { status: 'slow' },
         });
       }
@@ -1358,7 +1782,7 @@ function RunDetailView({
     { value: 'failed', label: 'Failed', count: failedCount, tone: 'text-red-400' },
     { value: 'passed', label: 'Passed', count: passedCount, tone: 'text-green-400' },
     { value: 'skipped', label: 'Skipped', count: skippedCount, tone: 'text-slate-400' },
-    { value: 'slow', label: 'Slow', count: slowCount, tone: 'text-amber-400' },
+    { value: 'slow', label: performanceSignal.label, count: performanceSignal.count, tone: 'text-amber-400' },
     { value: 'retry', label: 'Retries', count: retryCount, tone: 'text-blue-400' },
   ];
   const runOptions = useMemo(
@@ -1384,7 +1808,11 @@ function RunDetailView({
   }, [focusEvidence]);
 
   const handleInsightAction = useCallback((type: string, payload: Record<string, unknown>) => {
-    if (type === 'infra') {
+    if (type === 'suite' && typeof payload.suite === 'string') {
+      viewSuiteTests(payload.suite);
+      return;
+    }
+    if (type === 'incident' || type === 'infra' || type === 'risk') {
       setSuiteFilter('');
       setStatusFilter('failed');
       setFingerprintFilter(typeof payload.fingerprint === 'string' ? payload.fingerprint : '');
@@ -1397,6 +1825,15 @@ function RunDetailView({
       return;
     }
     if (type === 'regression') {
+      const testNames = Array.isArray(payload.testNames) ? payload.testNames.filter((name): name is string => typeof name === 'string') : [];
+      if (testNames.length > 0) {
+        setSuiteFilter('');
+        setFingerprintFilter('');
+        setTestNameFilter(testNames);
+        setStatusFilter('failed');
+        focusEvidence();
+        return;
+      }
       const previousRunId = typeof payload.previousRunId === 'string' ? payload.previousRunId : '';
       const currentRunId = typeof payload.currentRunId === 'string' ? payload.currentRunId : run.run_id;
       const params = new URLSearchParams(window.location.search);
@@ -1428,6 +1865,12 @@ function RunDetailView({
     focusEvidence();
   }, [focusEvidence, run.run_id, viewSuiteTests]);
 
+  useEffect(() => {
+    if (!pendingAction) return;
+    handleInsightAction(pendingAction.type, pendingAction.payload);
+    onPendingActionHandled?.();
+  }, [pendingAction?.key, handleInsightAction, onPendingActionHandled]);
+
   return (
     <div className="space-y-6">
       {/* Back + header */}
@@ -1441,7 +1884,7 @@ function RunDetailView({
           <div className="flex items-center gap-2">
             <button
               onClick={onBack}
-              className="qara-control px-3.5 text-sm text-muted hover:text-primary"
+              className="qalens-control px-3.5 text-sm text-muted hover:text-primary"
             >
               <svg viewBox="0 0 16 16" fill="none" className="w-4 h-4">
                 <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5"
@@ -1495,11 +1938,11 @@ function RunDetailView({
                 }
               </p>
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted">
-                {run.branch && <span className="qara-pill font-mono">{run.branch}</span>}
-                {run.build_number && <span className="qara-pill">Build #{run.build_number}</span>}
-                {run.environment && <span className="qara-pill">{run.environment}</span>}
-                {run.started_at && <span className="qara-pill">{formatDate(run.started_at)}</span>}
-                {run.total_ms && <span className="qara-pill">Duration {formatMs(run.total_ms)}</span>}
+                {run.branch && <span className="qalens-pill font-mono">{run.branch}</span>}
+                {run.build_number && <span className="qalens-pill">Build #{run.build_number}</span>}
+                {run.environment && <span className="qalens-pill">{run.environment}</span>}
+                {run.started_at && <span className="qalens-pill">{formatDate(run.started_at)}</span>}
+                {run.total_ms && <span className="qalens-pill">Duration {formatMs(run.total_ms)}</span>}
               </div>
             </div>
             <div className="grid min-w-[220px] grid-cols-2 gap-3">
@@ -1512,8 +1955,10 @@ function RunDetailView({
                 <p className="mt-2 text-2xl font-semibold text-amber-400">{fmt(incidents.length)}</p>
               </div>
               <div className="rounded-xl border border-border-subtle bg-subtle px-4 py-3">
-                <p className="type-metric-label">Slow</p>
-                <p className="mt-2 text-2xl font-semibold text-blue-400">{fmt(slowCount)}</p>
+                <Tooltip content={performanceSignal.helper} className="inline-flex">
+                  <p className="type-metric-label cursor-default">{performanceSignal.label}</p>
+                </Tooltip>
+                <p className="mt-2 text-2xl font-semibold text-blue-400">{fmt(performanceSignal.count)}</p>
               </div>
               <div className="rounded-xl border border-border-subtle bg-subtle px-4 py-3">
                 <p className="type-metric-label">Retries</p>
@@ -1564,6 +2009,15 @@ function RunDetailView({
             >
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">{filter.label}</p>
               <p className={`mt-2 text-2xl font-semibold ${filter.tone}`}>{fmt(filter.count)}</p>
+              {statusFilter === filter.value && (
+                <button
+                  type="button"
+                  onClick={e => { e.stopPropagation(); focusEvidence(); }}
+                  className="mt-2 inline-flex text-xs font-medium text-info hover:text-primary"
+                >
+                  Show {fmt(filter.count)} {filter.label.toLowerCase()} test{filter.count !== 1 ? 's' : ''} below ↓
+                </button>
+              )}
             </button>
           ))}
         </div>
@@ -1574,7 +2028,7 @@ function RunDetailView({
         <IncidentsSection incidents={incidents} />
       )}
       {incidentsLoading && !loading && (
-        <div className="qara-inline-note">Loading incident groups…</div>
+        <div className="qalens-inline-note">Loading incident groups…</div>
       )}
 
       {/* Failure concentration */}
@@ -1613,7 +2067,7 @@ function RunDetailView({
         </div>
       )}
       {error && (
-        <div className="qara-error-banner">
+        <div className="qalens-error-banner">
           Failed to load tests: {error}
         </div>
       )}
@@ -1637,7 +2091,7 @@ function RunDetailView({
                   setFingerprintFilter('');
                   setTestNameFilter([]);
                 }}
-                className="qara-control px-3 py-1.5 text-sm text-muted hover:text-primary"
+                className="qalens-control px-3 py-1.5 text-sm text-muted hover:text-primary"
               >
                 Clear filter
               </button>
@@ -1646,16 +2100,16 @@ function RunDetailView({
 
           {/* Table */}
           {filtered.length === 0 ? (
-            <div className="qara-empty-state">
-              <div className="qara-empty-icon">∅</div>
+            <div className="qalens-empty-state">
+              <div className="qalens-empty-icon">∅</div>
               <p className="type-empty-title">No tests match this filter</p>
               <p className="type-empty-subtitle">Try a broader status selection for this run.</p>
             </div>
           ) : (
-            <div className="qara-table-shell">
+            <div className="qalens-table-shell">
               <div className="overflow-x-auto">
-                <table className="qara-table w-full">
-                  <thead className="qara-table-head">
+                <table className="qalens-table w-full">
+                  <thead className="qalens-table-head">
                     <tr>
                       {['Test', 'Status', 'Suite', 'Owner', 'Duration', 'Message'].map(h => (
                         <th key={h} className="text-left">
@@ -1719,17 +2173,17 @@ function RunsListView({
   return (
     <div className="space-y-6">
       {/* Stat cards */}
-      <div className="qara-stat-grid">
-        <div className="qara-stat-card">
+      <div className="qalens-stat-grid">
+        <div className="qalens-stat-card">
           <span className="type-metric-label">Total Runs</span>
           <span className="type-metric-value text-zinc-100">{runs.length}</span>
         </div>
-        <div className="qara-stat-card">
+        <div className="qalens-stat-card">
           <span className="type-metric-label">Projects</span>
           <span className="type-metric-value text-zinc-100">{projects}</span>
         </div>
         {runs[0]?.started_at && (
-          <div className="qara-stat-card">
+          <div className="qalens-stat-card">
             <span className="type-metric-label">Latest</span>
             <span className="type-metric-value-sm text-zinc-200">{formatDate(runs[0].started_at)}</span>
           </div>
@@ -1737,7 +2191,7 @@ function RunsListView({
       </div>
 
       {/* Search + page size */}
-      <div className="qara-toolbar">
+      <div className="qalens-toolbar">
         <div className="relative flex-1 min-w-[200px] max-w-xs">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
                viewBox="0 0 16 16" fill="none">
@@ -1749,27 +2203,27 @@ function RunsListView({
             placeholder="Search by project, branch…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="qara-control qara-input type-input w-full pl-9 pr-3"
+            className="qalens-control qalens-input type-input w-full pl-9 pr-3"
           />
         </div>
         {search && (
-          <span className="qara-inline-note">{filtered.length} of {runs.length} runs</span>
+          <span className="qalens-inline-note">{filtered.length} of {runs.length} runs</span>
         )}
       </div>
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <div className="qara-empty-state">
-          <div className="qara-empty-icon">∅</div>
+        <div className="qalens-empty-state">
+          <div className="qalens-empty-icon">∅</div>
           <p className="type-empty-title">No runs match the search</p>
           <p className="type-empty-subtitle">Search by project, branch, build number, or sequence.</p>
         </div>
       ) : (
         <>
-          <div className="qara-table-shell">
+          <div className="qalens-table-shell">
             <div className="overflow-x-auto">
-              <table className="qara-table w-full">
-                <thead className="qara-table-head">
+              <table className="qalens-table w-full">
+                <thead className="qalens-table-head">
                   <tr>
                     {['#', 'Project', 'Format', 'Started', 'Duration', 'Tests', 'Passed', 'Failed', 'Skipped', 'Pass%', 'Branch', 'Build'].map(h => (
                       <th key={h} className="text-left">
@@ -1788,41 +2242,41 @@ function RunsListView({
                     return (
                       <tr key={run.run_id}
                           onClick={() => onSelect(run)}
-                          className="qara-table-row cursor-pointer">
-                        <td className="qara-table-cell type-td-num font-mono">
+                          className="qalens-table-row cursor-pointer">
+                        <td className="qalens-table-cell type-td-num font-mono">
                           {run.run_sequence ?? '—'}
                         </td>
-                        <td className="qara-table-cell type-td-primary truncate max-w-[140px]">
+                        <td className="qalens-table-cell type-td-primary truncate max-w-[140px]">
                           {run.project ?? '—'}
                         </td>
-                        <td className="qara-table-cell type-td-secondary">
+                        <td className="qalens-table-cell type-td-secondary">
                           {run.report_format}
                         </td>
-                        <td className="qara-table-cell type-td-secondary whitespace-nowrap">
+                        <td className="qalens-table-cell type-td-secondary whitespace-nowrap">
                           {formatDate(run.started_at)}
                         </td>
-                        <td className="qara-table-cell type-td-num">
+                        <td className="qalens-table-cell type-td-num">
                           {formatMs(run.total_ms)}
                         </td>
-                        <td className="qara-table-cell type-td-num text-zinc-300">
+                        <td className="qalens-table-cell type-td-num text-zinc-300">
                           {fmt(run.total_tests)}
                         </td>
-                        <td className="qara-table-cell type-td-num text-green-400">
+                        <td className="qalens-table-cell type-td-num text-green-400">
                           {fmt(run.passed_count)}
                         </td>
-                        <td className="qara-table-cell type-td-num text-red-400">
+                        <td className="qalens-table-cell type-td-num text-red-400">
                           {fmt(run.failed_count)}
                         </td>
-                        <td className="qara-table-cell type-td-num text-zinc-500">
+                        <td className="qalens-table-cell type-td-num text-zinc-500">
                           {fmt(run.skipped_count)}
                         </td>
-                        <td className={`qara-table-cell type-td-num font-semibold ${passClass}`}>
+                        <td className={`qalens-table-cell type-td-num font-semibold ${passClass}`}>
                           {passRate != null ? `${passRate}%` : '—'}
                         </td>
-                        <td className="qara-table-cell type-td-secondary font-mono truncate max-w-[100px]">
+                        <td className="qalens-table-cell type-td-secondary font-mono truncate max-w-[100px]">
                           {run.branch ?? '—'}
                         </td>
-                        <td className="qara-table-cell type-td-secondary font-mono">
+                        <td className="qalens-table-cell type-td-secondary font-mono">
                           {run.build_number ?? '—'}
                         </td>
                       </tr>
@@ -1836,7 +2290,7 @@ function RunsListView({
           {/* Pagination */}
           <div className="flex items-center justify-end gap-3">
             <div className="flex flex-wrap items-center justify-end gap-1.5">
-              <span className="qara-inline-note whitespace-nowrap">Rows per page</span>
+              <span className="qalens-inline-note whitespace-nowrap">Rows per page</span>
               <Dropdown
                 value={String(pageSize)}
                 onChange={value => setPageSize(Number(value))}
@@ -1845,7 +2299,7 @@ function RunsListView({
                 menuClassName="min-w-[82px]"
                 options={PAGE_SIZES.map(size => ({ value: String(size), label: String(size) }))}
               />
-              <span className="qara-inline-note whitespace-nowrap">
+              <span className="qalens-inline-note whitespace-nowrap">
                 {start + 1}-{Math.min(start + pageSize, filtered.length)} of {filtered.length}
               </span>
               <button
@@ -1887,6 +2341,9 @@ export function RunsPanel() {
   const [loading,      setLoading]      = useState(true);
   const [error,        setError]        = useState<string | null>(null);
   const [selectedRun,  setSelectedRun]  = useState<ApiRun | null>(null);
+  const [decision, setDecision] = useState<ApiDecisionSummary | null>(null);
+  const [decisionLoading, setDecisionLoading] = useState(false);
+  const [pendingDecisionAction, setPendingDecisionAction] = useState<PendingDecisionAction | null>(null);
 
   // Deep-link: ?run=<run_id>
   const deepLinkRunId = useMemo(() => {
@@ -1936,6 +2393,23 @@ export function RunsPanel() {
     return () => { cancelled = true; };
   }, [currentProject, deepLinkRunId]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setDecisionLoading(true);
+    setDecision(null);
+
+    const params = new URLSearchParams({ run_id: 'latest', window: '5' });
+    if (currentProject) params.set('project', currentProject);
+
+    fetch(`/api/decision-summary?${params}`)
+      .then(r => r.ok ? r.json() as Promise<ApiDecisionSummary> : Promise.reject(`API ${r.status}`))
+      .then(payload => { if (!cancelled) setDecision(payload); })
+      .catch(() => { if (!cancelled) setDecision(null); })
+      .finally(() => { if (!cancelled) setDecisionLoading(false); });
+
+    return () => { cancelled = true; };
+  }, [currentProject]);
+
   const handleBack = useCallback(() => {
     setSelectedRun(null);
     // Clean up URL deep-link param if present
@@ -1958,8 +2432,29 @@ export function RunsPanel() {
     window.history.replaceState(null, '', url.toString());
   }, [runs]);
 
+  const openLatestRunForDecision = useCallback((type: string, payload: Record<string, unknown>) => {
+    const targetRunId = decision?.scope.run_id;
+    const target = (
+      targetRunId
+        ? runs.find(item => item.run_id === targetRunId)
+        : undefined
+    ) ?? runs[0];
+    if (!target) return;
+
+    setPendingDecisionAction({
+      key: `${Date.now()}-${type}`,
+      type,
+      payload,
+    });
+    setSelectedRun(target);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('run', target.run_id);
+    window.history.replaceState(null, '', url.toString());
+  }, [decision?.scope.run_id, runs]);
+
   return (
-    <div className="qara-page">
+    <div className="qalens-page">
       {/* Page header */}
       {!selectedRun && (
         <PageHeader
@@ -1980,7 +2475,7 @@ export function RunsPanel() {
 
       {/* Error */}
       {error && !loading && (
-        <div className="qara-error-banner">
+        <div className="qalens-error-banner">
           <span>⚠️</span>
           <span>Failed to load runs: {error}</span>
         </div>
@@ -1989,18 +2484,36 @@ export function RunsPanel() {
       {/* Content */}
       {!loading && !error && (
         selectedRun
-          ? <RunDetailView run={selectedRun} runs={runs} onSelectRun={handleSelectRun} onBack={handleBack} />
+          ? (
+            <RunDetailView
+              run={selectedRun}
+              runs={runs}
+              pendingAction={pendingDecisionAction}
+              onPendingActionHandled={() => setPendingDecisionAction(null)}
+              onSelectRun={handleSelectRun}
+              onBack={handleBack}
+            />
+          )
           : runs.length === 0
           ? (
-            <div className="qara-empty-state">
-              <div className="qara-empty-icon">▶</div>
+            <div className="qalens-empty-state">
+              <div className="qalens-empty-icon">▶</div>
               <p className="type-empty-title">No runs found</p>
               <p className="type-empty-subtitle max-w-xs">
-                Ingest a test report with <code className="text-zinc-400">qara ingest</code> to see runs here.
+                Ingest a test report with <code className="text-zinc-400">qalens ingest</code> to see runs here.
               </p>
             </div>
           )
-          : <RunsListView runs={runs} onSelect={setSelectedRun} />
+          : (
+            <>
+              <DecisionIntelligencePanel
+                decision={decision}
+                loading={decisionLoading}
+                onAction={openLatestRunForDecision}
+              />
+              <RunsListView runs={runs} onSelect={setSelectedRun} />
+            </>
+          )
       )}
     </div>
   );

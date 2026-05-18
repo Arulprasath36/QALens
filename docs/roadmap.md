@@ -1,6 +1,6 @@
-# QARA Roadmap
+# QaLens Roadmap
 
-> QARA — Quality Analysis & Root Automation  
+> QaLens — Quality Assurance + Lens  
 > This roadmap reflects the current development direction. Priorities may shift based on community feedback.
 
 ---
@@ -43,7 +43,7 @@
 | GitHub Actions example workflow | ✅ Done |
 | Machine-readable analysis output | ✅ Done |
 | Demo dataset for GitHub users | ✅ Done |
-| Deterministic `qara ask` answers for factual aggregate questions | ✅ Done |
+| Deterministic `qalens ask` answers for factual aggregate questions | ✅ Done |
 | Frontend XSS sanitizer regression coverage | ✅ Done |
 | Dependency/security CI checks | ✅ Done |
 | Improved Extent v5 parser coverage | 🔄 Ongoing |
@@ -62,8 +62,8 @@
 | Run comparison API and UI | ✅ Done |
 | Trend analysis facts | ✅ Done |
 | Trend charts in Markdown | ⏳ Planned |
-| `qara history list` command | ⏳ Planned |
-| `qara compare <run1> <run2>` command | ⏳ Planned |
+| `qalens history list` command | ⏳ Planned |
+| `qalens compare <run1> <run2>` command | ⏳ Planned |
 
 ---
 
@@ -107,16 +107,16 @@
 
 ## Non-Goals (Permanent)
 
-- QARA will never be a test reporting framework
-- QARA will never replace Extent Reports or Allure
-- QARA v1 will never require cloud connectivity
-- QARA will never silently discard data without an `ExtractionWarning`
+- QaLens will never be a test reporting framework
+- QaLens will never replace Extent Reports or Allure
+- QaLens v1 will never require cloud connectivity
+- QaLens will never silently discard data without an `ExtractionWarning`
 
 ---
 
 ## Contributing to the Roadmap
 
-If you have a use case that is not covered here, open a [GitHub Discussion](https://github.com/Arulprasath36/QARA/discussions) or a feature request issue. We especially welcome:
+If you have a use case that is not covered here, open a [GitHub Discussion](https://github.com/Arulprasath36/QaLens/discussions) or a feature request issue. We especially welcome:
 
 - Report format parsers for tools used in your organization
 - Heuristic categorization signals from your real-world failure patterns

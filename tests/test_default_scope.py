@@ -14,15 +14,15 @@ from types import SimpleNamespace
 
 import pytest
 
-from qara.llm.answer_types import AnswerIntent, DefaultScopeInfo
-from qara.llm.answer_plan import build_answer_plan
-from qara.llm.intent_detection import (
+from qalens.llm.answer_types import AnswerIntent, DefaultScopeInfo
+from qalens.llm.answer_plan import build_answer_plan
+from qalens.llm.intent_detection import (
     has_explicit_scope,
     _is_threshold_filter_query,
     detect_answer_intent,
 )
-from qara.llm.prompts import build_prompt
-from qara.server.routes_llm import (
+from qalens.llm.prompts import build_prompt
+from qalens.server.routes_llm import (
     _build_stability_trend_result,
     _risk_ranking_result_from_fact_bundle,
     _trend_query_kind,
@@ -360,34 +360,36 @@ class TestScopeDisclosureInPrompt:
         )
         assert "Last 10 runs" in prompt
 
-    def test_scope_disclosure_includes_scope_used_instruction(self):
+    def test_scope_disclosure_omits_scope_used_footer_instruction(self):
         plan = self._make_plan_with_scope()
         prompt = build_prompt(
             "Which test has the highest failure frequency?",
             "some context",
             answer_plan=plan,
         )
-        assert "## Scope used" in prompt
+        assert "## Scope used" not in prompt
+        assert "Do not add 'Scope used'" in prompt
 
-    def test_scope_disclosure_includes_want_more_specific(self):
+    def test_scope_disclosure_omits_want_more_specific_footer_instruction(self):
         plan = self._make_plan_with_scope()
         prompt = build_prompt(
             "Which test has the highest failure frequency?",
             "some context",
             answer_plan=plan,
         )
-        assert "## Want something more specific?" in prompt
+        assert "## Want something more specific?" not in prompt
+        assert "Want something more specific?" in prompt
 
-    def test_scope_disclosure_includes_refinement_options(self):
+    def test_scope_disclosure_does_not_include_refinement_options(self):
         plan = self._make_plan_with_scope()
         prompt = build_prompt(
             "Which test has the highest failure frequency?",
             "some context",
             answer_plan=plan,
         )
-        assert "Run number" in prompt
-        assert "Module or owner" in prompt
-        assert "Environment" in prompt
+        assert "Run number" not in prompt
+        assert "Module or owner" not in prompt
+        assert "Environment" not in prompt
 
     def test_no_scope_disclosure_when_explicit_run_specified(self):
         plan = self._make_plan_without_scope()

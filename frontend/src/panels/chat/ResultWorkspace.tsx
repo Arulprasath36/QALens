@@ -9,7 +9,7 @@ import type {
   OwnerTestGapResult,
   OwnerSuiteComparisonResult,
   OwnerWindowComparisonResult,
-  QaraResult,
+  QaLensResult,
   RiskRankingResult,
   RiskTier,
   ExceptionRetrievalResult,
@@ -20,6 +20,7 @@ import type {
   NewFailuresIntroducedResult,
   RunComparisonResult,
   FailureTrendResult,
+  TestFixPlaybookResult,
 } from './types';
 
 const TIER_STYLES: Record<RiskTier, {
@@ -133,7 +134,7 @@ function MiniStat({
   return (
     <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{value}</p>
+      <p className="mt-2 break-words text-2xl font-semibold leading-tight tracking-tight text-slate-950 dark:text-slate-50">{value}</p>
     </div>
   );
 }
@@ -323,7 +324,7 @@ function EvidenceDrawer({
 + 0.15 × fail_streak
 + 0.05 × duration_spike`}</pre>
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              This ranking is based on the blended QARA risk formula, not pass rate alone.
+              This ranking is based on the blended QaLens risk formula, not pass rate alone.
             </p>
           </section>
         </div>
@@ -350,7 +351,7 @@ function RiskWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Ranked by QARA risk score across the selected run window',
+      result.subtitle ?? 'Ranked by QaLens risk score across the selected run window',
       `Scope: ${result.scope.label}${result.scope.windowEnd ? ` • Ends at ${result.scope.windowEnd}` : ''}`,
       `Eligible tests: ${result.scope.eligibleTests}`,
       `High risk: ${result.summary.highRisk}`,
@@ -378,7 +379,7 @@ function RiskWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Ranked by QARA risk score across the selected run window'}
+              {result.subtitle ?? 'Ranked by QaLens risk score across the selected run window'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -502,7 +503,7 @@ function WorkspaceEmptyState() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
         <h2 className="text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">Structured results show up here</h2>
         <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-          Ask a question like “What tests are most likely to fail next?” and QARA will keep the conversation on the left while rendering ranked evidence and drill-down analysis here.
+          Ask a question like “What tests are most likely to fail next?” and QaLens will keep the conversation on the left while rendering ranked evidence and drill-down analysis here.
         </p>
       </div>
     </div>
@@ -1093,7 +1094,7 @@ function OwnerSuiteComparisonWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Current-owner suite overlap and unique suite ownership. Ask QARA to narrow this to a specific run window for recent health.'}
+              {result.subtitle ?? 'Current-owner suite overlap and unique suite ownership. Ask QaLens to narrow this to a specific run window for recent health.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1169,7 +1170,7 @@ function OwnerSuiteComparisonWorkspace({
 
       <div className="rounded-2xl border border-slate-200 bg-white px-6 py-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
         <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
-          This view shows the current suite ownership split only. If you want to compare recent health within these suites, ask QARA to narrow the analysis to a time window like the last 5 or 10 runs.
+          This view shows the current suite ownership split only. If you want to compare recent health within these suites, ask QaLens to narrow the analysis to a time window like the last 5 or 10 runs.
         </p>
       </div>
     </div>
@@ -1783,7 +1784,7 @@ function StabilityTrendWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'QARA stability analysis.',
+      result.subtitle ?? 'QaLens stability analysis.',
       `Scope: ${result.scope.label} • ${result.scope.runCount} run${result.scope.runCount === 1 ? '' : 's'}`,
       `Matches: ${result.summary.matches} of ${result.scope.totalEvaluated} evaluated tests`,
       `Average pass rate: ${Math.round(result.summary.avgPassRate * 100)}%`,
@@ -1827,7 +1828,7 @@ function StabilityTrendWorkspace({
       case 'improved_over_time':
         return 'These tests failed earlier in the selected scope but are now back to passing, which makes them the clearest examples of recovery or improving stability.';
       default:
-        return 'These tests were selected from QARA stability signals across the chosen scope.';
+        return 'These tests were selected from QaLens stability signals across the chosen scope.';
     }
   }, [result]);
 
@@ -1841,7 +1842,7 @@ function StabilityTrendWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'QARA stability analysis.'}
+              {result.subtitle ?? 'QaLens stability analysis.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1880,8 +1881,8 @@ function StabilityTrendWorkspace({
           <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{result.query.label}</h3>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             {result.tests.length < result.summary.matches
-              ? `Showing ${result.tests.length} of ${result.summary.matches} matching tests ranked by QARA stability signals.`
-              : `${result.summary.matches} matching test${result.summary.matches === 1 ? '' : 's'} ranked by QARA stability signals.`}
+              ? `Showing ${result.tests.length} of ${result.summary.matches} matching tests ranked by QaLens stability signals.`
+              : `${result.summary.matches} matching test${result.summary.matches === 1 ? '' : 's'} ranked by QaLens stability signals.`}
           </p>
         </div>
         <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -1984,7 +1985,7 @@ function PerformanceTimingWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Execution-time analysis from QARA.',
+      result.subtitle ?? 'Execution-time analysis from QaLens.',
       `Scope: ${result.scope.label} • ${result.scope.runCount} run${result.scope.runCount === 1 ? '' : 's'}`,
       isSlowestQuery
         ? `Ranked slowest tests shown: ${result.summary.matches} of ${result.scope.totalEvaluated} evaluated tests`
@@ -2028,7 +2029,7 @@ function PerformanceTimingWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Execution-time analysis from QARA.'}
+              {result.subtitle ?? 'Execution-time analysis from QaLens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -2509,7 +2510,7 @@ function FailureTrendWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Run-by-run failure trend from QARA.',
+      result.subtitle ?? 'Run-by-run failure trend from QaLens.',
       `Scope: ${result.scope.label}`,
       `Direction: ${result.summary.direction}`,
       `${result.scope.baselineRun ?? 'Baseline'} failed: ${result.summary.baselineFailed}`,
@@ -2545,7 +2546,7 @@ function FailureTrendWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Run-by-run failure trend from QARA.'}
+              {result.subtitle ?? 'Run-by-run failure trend from QaLens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -2637,7 +2638,7 @@ function RootCauseInsightWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Evidence-backed root cause analysis from QARA.',
+      result.subtitle ?? 'Evidence-backed root cause analysis from QaLens.',
       `Scope: ${result.scope.label}`,
       `Total failures analyzed: ${result.summary.totalFailures}`,
       `Affected tests: ${result.summary.affectedTests}`,
@@ -2657,13 +2658,13 @@ function RootCauseInsightWorkspace({
 
   const meaningText = useMemo(() => {
     if (!result.summary.dominantFamily) {
-      return 'QARA could not isolate a dominant failure cause from the available evidence, so manual inspection is still required.';
+      return 'QaLens could not isolate a dominant failure cause from the available evidence, so manual inspection is still required.';
     }
     if (result.scope.kind === 'test_frequency' && result.scope.targetTest) {
       return `${result.scope.targetTest} is failing repeatedly because the same cause family is showing up across its recent failing runs. The strongest evidence is grouped below so you can verify the pattern quickly.`;
     }
     if (result.scope.kind === 'cause_mix') {
-      return `QARA compared UI/test-script style failures against product/backend style failures. The dominant family below shows which side is contributing more of the failure pressure in this scope.`;
+      return `QaLens compared UI/test-script style failures against product/backend style failures. The dominant family below shows which side is contributing more of the failure pressure in this scope.`;
     }
     if (result.scope.kind === 'flaky_causes') {
       return `These cause groups are taken only from tests already classified as flaky, so the dominant family points to what is driving instability rather than just raw failure count.`;
@@ -2681,7 +2682,7 @@ function RootCauseInsightWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Evidence-backed root cause analysis from QARA.'}
+              {result.subtitle ?? 'Evidence-backed root cause analysis from QaLens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -2814,6 +2815,134 @@ function RootCauseInsightWorkspace({
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function TestFixPlaybookWorkspace({
+  result,
+}: {
+  result: TestFixPlaybookResult;
+}) {
+  const summaryText = useMemo(() => {
+    const lines = [
+      result.title,
+      result.summary,
+      result.errorType ? `Error type: ${result.errorType}` : '',
+      result.evidence ? `Evidence: ${result.evidence}` : '',
+      '',
+      'Recommended fix:',
+      result.recommendedFix ?? '',
+      '',
+      'Verification:',
+      ...(result.verification ?? []).map(item => `- ${item}`),
+    ].filter(Boolean);
+    return lines.join('\n');
+  }, [result]);
+  const { copied, handleCopySummary } = useCopySummary(summaryText);
+
+  const observed = result.observedRuns ?? [];
+  const causes = result.causes ?? [];
+  const checks = result.checks ?? [];
+  const verification = result.verification ?? [];
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Fix playbook</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{result.subtitle ?? 'Evidence-backed triage checklist from recent QaLens runs.'}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleCopySummary}
+            className="w-fit rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+          >
+            {copied ? 'Copied' : 'Copy summary'}
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-4">
+        <MiniStat label="Test" value={result.testName} />
+        <MiniStat label="Failed runs" value={String(result.scope?.failedRuns ?? 0)} />
+        <MiniStat label="Window" value={`${result.scope?.windowRuns ?? 0} runs`} />
+        <MiniStat label="Confidence" value={result.confidence ?? 'NA'} />
+      </div>
+
+      {!result.hasActiveFailure ? (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5 text-sm leading-7 text-emerald-800 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200">
+          {result.summary}
+        </div>
+      ) : (
+        <>
+          <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5 dark:border-blue-500/20 dark:bg-blue-500/10">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">Diagnosis</h3>
+            <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-200">{result.summary}</p>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {result.errorType && <MiniStat label="Error type" value={result.errorType.split('.').pop() ?? result.errorType} />}
+              {observed.length > 0 && <MiniStat label="Observed in" value={observed.join(', ')} />}
+            </div>
+            {result.evidence && (
+              <p className="mt-4 rounded-xl border border-blue-100 bg-white/70 px-4 py-3 font-mono text-xs leading-6 text-slate-700 dark:border-blue-500/20 dark:bg-slate-950/40 dark:text-slate-200">
+                {result.evidence}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-2">
+            <ChecklistCard title="Most likely causes" items={causes} tone="amber" />
+            <ChecklistCard title="What to check first" items={checks} tone="blue" />
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Recommended fix</h3>
+            <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-200">{result.recommendedFix}</p>
+          </div>
+
+          <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <ChecklistCard title="Verification steps" items={verification} tone="emerald" />
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Confidence / limits</h3>
+              <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-200">{result.confidenceText}</p>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ChecklistCard({
+  title,
+  items,
+  tone,
+}: {
+  title: string;
+  items: string[];
+  tone: 'amber' | 'blue' | 'emerald';
+}) {
+  const toneClass = tone === 'amber'
+    ? 'border-amber-200 bg-amber-50/60 dark:border-amber-500/25 dark:bg-amber-500/10'
+    : tone === 'emerald'
+      ? 'border-emerald-200 bg-emerald-50/60 dark:border-emerald-500/25 dark:bg-emerald-500/10'
+      : 'border-blue-200 bg-blue-50/60 dark:border-blue-500/25 dark:bg-blue-500/10';
+
+  return (
+    <div className={`rounded-2xl border p-5 ${toneClass}`}>
+      <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-700 dark:text-slate-200">{title}</h3>
+      <ul className="mt-4 space-y-3">
+        {items.map((item, index) => (
+          <li key={`${title}-${index}`} className="flex gap-3 text-sm leading-6 text-slate-700 dark:text-slate-200">
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-slate-600 shadow-sm dark:bg-slate-950 dark:text-slate-300">
+              {index + 1}
+            </span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -2959,7 +3088,7 @@ function RunRetrievalWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Run-level retrieval from QARA.',
+      result.subtitle ?? 'Run-level retrieval from QaLens.',
       `Run: ${result.run.label}${result.run.project ? ` • ${result.run.project}` : ''}`,
       `Query: ${result.query.label}`,
       `Total: ${result.summary.total}`,
@@ -2979,8 +3108,8 @@ function RunRetrievalWorkspace({
   const focusText = useMemo(() => {
     if (result.query.kind === 'status_lookup') {
       return result.tests.length > 0
-        ? `QARA found ${result.tests.length} matching test${result.tests.length === 1 ? '' : 's'} for this status lookup in ${result.run.label}.`
-        : `QARA did not find a matching test for this status lookup in ${result.run.label}.`;
+        ? `QaLens found ${result.tests.length} matching test${result.tests.length === 1 ? '' : 's'} for this status lookup in ${result.run.label}.`
+        : `QaLens did not find a matching test for this status lookup in ${result.run.label}.`;
     }
     if (result.query.kind === 'run_counts') {
       return `This is a run-level breakdown for ${result.run.label}, with the full executed test list shown below so you can verify the counts quickly.`;
@@ -2996,7 +3125,7 @@ function RunRetrievalWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Run-level retrieval from QARA.'}
+              {result.subtitle ?? 'Run-level retrieval from QaLens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -3083,7 +3212,7 @@ function ExceptionRetrievalWorkspace({
   const summaryText = useMemo(() => {
     const lines = [
       result.title,
-      result.subtitle ?? 'Exception-based failure retrieval from QARA.',
+      result.subtitle ?? 'Exception-based failure retrieval from QaLens.',
       `Scope: ${result.scope.label}`,
       `Query: ${result.scope.query}`,
       `Matches: ${result.summary.matches}`,
@@ -3110,7 +3239,7 @@ function ExceptionRetrievalWorkspace({
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              {result.subtitle ?? 'Exception-based failure retrieval from QARA.'}
+              {result.subtitle ?? 'Exception-based failure retrieval from QaLens.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -3142,7 +3271,7 @@ function ExceptionRetrievalWorkspace({
       <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-5 dark:border-blue-500/20 dark:bg-blue-500/10">
         <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">What this shows</h3>
         <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-200">
-          QARA matched failed tests using exception type and first-line failure message text, so this view catches both exact exception names and close message variants like timeout or element-location errors.
+          QaLens matched failed tests using exception type and first-line failure message text, so this view catches both exact exception names and close message variants like timeout or element-location errors.
         </p>
       </div>
 
@@ -3229,7 +3358,7 @@ export function ResultWorkspace({
   result,
   loading = false,
 }: {
-  result: QaraResult | null;
+  result: QaLensResult | null;
   loading?: boolean;
 }) {
   if (!result) return <WorkspaceEmptyState />;
@@ -3300,6 +3429,10 @@ export function ResultWorkspace({
 
   if (result.type === 'root_cause_insight') {
     return <RootCauseInsightWorkspace result={result} />;
+  }
+
+  if (result.type === 'test_fix_playbook') {
+    return <TestFixPlaybookWorkspace result={result} />;
   }
 
   return <WorkspaceEmptyState />;

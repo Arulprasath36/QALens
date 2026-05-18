@@ -1,4 +1,4 @@
-"""Tests for the ``qara ask`` and ``qara llm-config`` CLI commands (Phase 7)."""
+"""Tests for the ``qalens ask`` and ``qalens llm-config`` CLI commands (Phase 7)."""
 
 from __future__ import annotations
 
@@ -9,13 +9,12 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from qara.cli import app
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection
-from qara.llm.config import LLMConfig
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.cli import app
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 runner = CliRunner()
 
@@ -36,12 +35,19 @@ def _make_run(run_id: str, tests: list, seq: int = 1) -> TestRun:
     return TestRun(metadata=meta, test_cases=tests)
 
 
-def _tc(name: str, status: TestStatus, *, idx: int = 1) -> TestCaseResult:
+def _tc(
+    name: str,
+    status: TestStatus,
+    *,
+    idx: int = 1,
+    error_type: str | None = None,
+    message: str | None = None,
+) -> TestCaseResult:
     failure = None
     if status in (TestStatus.FAILED, TestStatus.BROKEN):
         failure = FailureInfo(
-            error_type="org.openqa.selenium.NoSuchElementException",
-            message="no such element: Unable to locate element",
+            error_type=error_type or "org.openqa.selenium.NoSuchElementException",
+            message=message or "no such element: Unable to locate element",
             stack_trace="    at com.example.TestPage.click(TestPage.java:42)",
         )
     return TestCaseResult(test_id=f"{name}-{idx}", name=name, status=status, failure=failure)
@@ -57,6 +63,36 @@ def ask_db(tmp_path) -> Path:
             _tc("testLogin", TestStatus.PASSED if i % 2 == 0 else TestStatus.FAILED, idx=i),
             _tc("testSearch", TestStatus.PASSED, idx=i),
         ], seq=i))
+    conn.close()
+    return db
+
+
+@pytest.fixture()
+def fix_db(tmp_path) -> Path:
+    db = tmp_path / "fix.db"
+    conn = get_connection(str(db))
+    repo = RunRepository(conn)
+    for i in range(1, 5):
+        status = TestStatus.FAILED if i in {2, 4} else TestStatus.PASSED
+        repo.save_run(
+            _make_run(
+                f"run-{i:03d}",
+                [
+                    _tc(
+                        "testAddItemToCart()",
+                        status,
+                        idx=i,
+                        error_type="com.shopnow.db.ConnectionPoolException",
+                        message=(
+                            "No connections available in pool "
+                            "(pool_size=10, active=10, waiting=0)"
+                        ),
+                    ),
+                    _tc("testSearch", TestStatus.PASSED, idx=i),
+                ],
+                seq=i,
+            )
+        )
     conn.close()
     return db
 
@@ -78,7 +114,7 @@ def mock_config(tmp_path) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# qara llm-config --show
+# qalens llm-config --show
 # ---------------------------------------------------------------------------
 
 
@@ -108,7 +144,7 @@ def test_llm_config_shows_model(mock_config):
 
 
 # ---------------------------------------------------------------------------
-# qara ask — with mocked LLM via httpx_mock
+# qalens ask — with mocked LLM via httpx_mock
 # ---------------------------------------------------------------------------
 
 
@@ -125,7 +161,7 @@ def _intent_response(intents: list[str] | None = None) -> dict:
 
 
 def test_ask_exits_nonzero_when_no_db_data_and_llm_fails(ask_db, mock_config, httpx_mock):
-    """When LLM returns 500, qara ask exits non-zero."""
+    """When LLM returns 500, qalens ask exits non-zero."""
     # First call: intent parse — return a valid intent so routing proceeds
     httpx_mock.add_response(
         url="http://localhost:11434/v1/chat/completions",
@@ -150,7 +186,7 @@ def test_ask_exits_nonzero_when_no_db_data_and_llm_fails(ask_db, mock_config, ht
 
 
 def test_ask_exits_zero_with_valid_llm_response(ask_db, mock_config, httpx_mock):
-    """When LLM returns a valid response, qara ask exits 0 and prints the answer."""
+    """When LLM returns a valid response, qalens ask exits 0 and prints the answer."""
     httpx_mock.add_response(
         url="http://localhost:11434/v1/chat/completions",
         json=_intent_response(["root_cause"]),
@@ -211,8 +247,26 @@ def test_ask_project_mode_on_summary_question(ask_db, mock_config):
         ],
     )
     assert result.exit_code == 0
-    assert "QARA has" in result.output
+    assert "QaLens has" in result.output
     assert "Latest run" in result.output
+
+
+def test_ask_fix_test_uses_deterministic_playbook(fix_db, mock_config):
+    result = runner.invoke(
+        app,
+        [
+            "ask", "how can I fix testAddItemToCart()?",
+            "--db", str(fix_db),
+            "--project", "AskProject",
+            "--config", str(mock_config),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Likely fix for" in result.output
+    assert "database connection pool exhaustion" in result.output
+    assert "What to check first" in result.output
+    assert "Verification steps" in result.output
 
 
 def test_ask_no_matching_test_falls_back_to_project_context(ask_db, mock_config, httpx_mock):
@@ -244,7 +298,7 @@ def test_ask_no_matching_test_falls_back_to_project_context(ask_db, mock_config,
 
 
 def test_gather_test_context_returns_string(ask_db):
-    from qara.llm.context import gather_test_context
+    from qalens.llm.context import gather_test_context
     ctx, sources = gather_test_context("testLogin", project="AskProject", db_path=str(ask_db))
     assert isinstance(ctx, str)
     assert len(ctx) > 0
@@ -252,25 +306,25 @@ def test_gather_test_context_returns_string(ask_db):
 
 
 def test_gather_test_context_contains_test_name(ask_db):
-    from qara.llm.context import gather_test_context
+    from qalens.llm.context import gather_test_context
     ctx, _ = gather_test_context("testLogin", project="AskProject", db_path=str(ask_db))
     assert "testLogin" in ctx or "testlogin" in ctx.lower()
 
 
 def test_gather_test_context_contains_history(ask_db):
-    from qara.llm.context import gather_test_context
+    from qalens.llm.context import gather_test_context
     ctx, _ = gather_test_context("testLogin", project="AskProject", db_path=str(ask_db))
     assert "history" in ctx.lower() or "✓" in ctx or "✗" in ctx
 
 
 def test_gather_test_context_no_match_returns_message(ask_db):
-    from qara.llm.context import gather_test_context
+    from qalens.llm.context import gather_test_context
     ctx, _ = gather_test_context("testNonExistent999", project="AskProject", db_path=str(ask_db))
     assert "not found" in ctx.lower() or "no test" in ctx.lower()
 
 
 def test_gather_project_context_returns_string(ask_db):
-    from qara.llm.context import gather_project_context
+    from qalens.llm.context import gather_project_context
     ctx, sources = gather_project_context(project="AskProject", db_path=str(ask_db))
     assert isinstance(ctx, str)
     assert "AskProject" in ctx
@@ -278,7 +332,7 @@ def test_gather_project_context_returns_string(ask_db):
 
 
 def test_gather_project_context_contains_counts(ask_db):
-    from qara.llm.context import gather_project_context
+    from qalens.llm.context import gather_project_context
     ctx, _ = gather_project_context(project="AskProject", db_path=str(ask_db))
     assert "run" in ctx.lower()
 
@@ -289,7 +343,7 @@ def test_gather_project_context_contains_counts(ask_db):
 
 
 def test_build_prompt_test_mode():
-    from qara.llm.prompts import build_prompt
+    from qalens.llm.prompts import build_prompt
     prompt = build_prompt("Why does testLogin fail?", "context block", mode="test")
     assert "context block" in prompt
     assert "Why does testLogin fail?" in prompt
@@ -297,47 +351,47 @@ def test_build_prompt_test_mode():
 
 
 def test_build_prompt_project_mode():
-    from qara.llm.prompts import build_prompt
+    from qalens.llm.prompts import build_prompt
     prompt = build_prompt("Summarize failures", "project context", mode="project")
     assert "project context" in prompt
     assert "Summarize failures" in prompt
 
 
 def test_infer_mode_test():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("why does testLogin keep failing?") == "test"
 
 
 def test_infer_mode_project_summarize():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("summarize all failures") == "project"
 
 
 def test_infer_mode_project_overview():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("give me an overview of the test health") == "project"
 
 
 def test_infer_mode_project_which_tests():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("which tests are failing the most?") == "project"
 
 
 def test_infer_mode_project_which_test_singular():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("which test has less than 50% pass percentage?") == "project"
 
 
 def test_infer_mode_project_less_than():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("which tests have less than 50 percent pass rate?") == "project"
 
 
 def test_infer_mode_project_percentage():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("what is the pass percentage of all tests?") == "project"
 
 
 def test_infer_mode_project_worst():
-    from qara.llm.prompts import infer_mode
+    from qalens.llm.prompts import infer_mode
     assert infer_mode("which test has the worst pass rate?") == "project"

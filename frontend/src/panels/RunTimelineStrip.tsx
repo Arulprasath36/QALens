@@ -102,7 +102,7 @@ export function RunTimelineStrip({
       <div className="px-6 pt-4 pb-4">
         <div
           key={`${mode}-${scopeSize}-${visibleRuns.map(r => r.run_id).join('-')}`}
-          className="qara-run-timeline-frame w-full"
+          className="qalens-run-timeline-frame w-full"
           style={{ minWidth: `${count * 56}px` }}
         >
           {/* Outer flex row: nodes separated by connector lines */}
@@ -115,7 +115,7 @@ export function RunTimelineStrip({
               return (
                 <div
                   key={run.run_id}
-                  className="qara-run-timeline-item"
+                  className="qalens-run-timeline-item"
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -131,7 +131,7 @@ export function RunTimelineStrip({
                       <button
                         type="button"
                         aria-label={`Run ${run.run_sequence}${selected ? ', selected' : ''}`}
-                        className="qara-run-timeline-node focus:outline-none flex-shrink-0"
+                        className="qalens-run-timeline-node focus:outline-none flex-shrink-0"
                         style={selected ? {
                           width: 26,
                           height: 26,

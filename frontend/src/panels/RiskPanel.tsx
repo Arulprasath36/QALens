@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { Dropdown } from '../components/Dropdown';
 import { PageHeader } from '../components/PageHeader';
 import { Tooltip } from '../components/Tooltip';
@@ -39,18 +39,18 @@ interface ApiRiskEntry {
 const TIER_ORDER: Array<'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'> = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
 
 const TIER_CONFIG = {
-  CRITICAL: { label: 'Critical', text: 'text-red-400',    badgeClass: 'qara-badge-danger',  ringTone: 'text-red-400',    cardBorder: 'border-red-500/30' },
-  HIGH:     { label: 'High',     text: 'text-orange-400', badgeClass: 'qara-badge-warning', ringTone: 'text-orange-400', cardBorder: 'border-orange-500/30' },
-  MEDIUM:   { label: 'Medium',   text: 'text-amber-400',  badgeClass: 'qara-badge-warning', ringTone: 'text-amber-400',  cardBorder: 'border-amber-500/30' },
-  LOW:      { label: 'Low',      text: 'text-green-400',  badgeClass: 'qara-badge-success', ringTone: 'text-green-400',  cardBorder: 'border-green-500/30' },
+  CRITICAL: { label: 'Critical', text: 'text-red-400',    badgeClass: 'qalens-badge-danger',  ringTone: 'text-red-400',    cardBorder: 'border-red-500/30' },
+  HIGH:     { label: 'High',     text: 'text-orange-400', badgeClass: 'qalens-badge-warning', ringTone: 'text-orange-400', cardBorder: 'border-orange-500/30' },
+  MEDIUM:   { label: 'Medium',   text: 'text-amber-400',  badgeClass: 'qalens-badge-warning', ringTone: 'text-amber-400',  cardBorder: 'border-amber-500/30' },
+  LOW:      { label: 'Low',      text: 'text-green-400',  badgeClass: 'qalens-badge-success', ringTone: 'text-green-400',  cardBorder: 'border-green-500/30' },
 } as const;
 
 const SIGNAL_CONFIG: Record<string, { label: string; tooltip: string; badgeClass: string }> = {
-  volatility:     { label: 'Volatile',    tooltip: 'Frequently switches between pass and fail.',         badgeClass: 'qara-badge-warning' },
-  failure_burden: { label: 'Failing',     tooltip: 'High all-time failure rate.',                        badgeClass: 'qara-badge-danger' },
-  recent_decline: { label: 'Declining',   tooltip: 'Recent runs have higher failure rate than average.', badgeClass: 'qara-badge-warning' },
-  fail_streak:    { label: 'Fail Streak', tooltip: 'Currently on consecutive failing runs.',             badgeClass: 'qara-badge-danger' },
-  duration_spike: { label: 'Slowing',     tooltip: 'Test is steadily getting slower.',                   badgeClass: 'qara-badge-neutral' },
+  volatility:     { label: 'Volatile',    tooltip: 'Frequently switches between pass and fail.',         badgeClass: 'qalens-badge-warning' },
+  failure_burden: { label: 'Failing',     tooltip: 'High all-time failure rate.',                        badgeClass: 'qalens-badge-danger' },
+  recent_decline: { label: 'Declining',   tooltip: 'Recent runs have higher failure rate than average.', badgeClass: 'qalens-badge-warning' },
+  fail_streak:    { label: 'Fail Streak', tooltip: 'Currently on consecutive failing runs.',             badgeClass: 'qalens-badge-danger' },
+  duration_spike: { label: 'Slowing',     tooltip: 'Test is steadily getting slower.',                   badgeClass: 'qalens-badge-neutral' },
 };
 
 function clampScore(value: number) {
@@ -87,55 +87,6 @@ function nextRunTier(score: number): NextRunTier {
 // Sub-components
 // ─────────────────────────────────────────────────────────────
 
-function RiskRing({ pct, tier }: { pct: number; tier: keyof typeof TIER_CONFIG }) {
-  const r    = 14;
-  const circ = 2 * Math.PI * r;
-  const fill = Math.min((pct / 100) * circ, circ);
-  const cfg  = TIER_CONFIG[tier] ?? TIER_CONFIG.LOW;
-
-  return (
-    <div
-      className={`inline-flex h-11 w-11 items-center justify-center ${cfg.ringTone}`}
-      aria-label={`${pct}% risk score`}
-    >
-      <svg width="44" height="44" viewBox="0 0 44 44" className="overflow-visible">
-        <circle
-          cx="22"
-          cy="22"
-          r={r}
-          fill="none"
-          stroke="currentColor"
-          strokeOpacity="0.16"
-          strokeWidth="4.5"
-        />
-        <circle
-          cx="22"
-          cy="22"
-          r={r}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="4.5"
-          strokeDasharray={`${fill} ${circ}`}
-          strokeLinecap="round"
-          transform="rotate(-90 22 22)"
-        />
-        <text
-          x="22"
-          y="22"
-          textAnchor="middle"
-          dominantBaseline="central"
-          fill="currentColor"
-          fontSize="9.5"
-          fontWeight="800"
-          fontFamily="Inter, ui-sans-serif, system-ui, sans-serif"
-        >
-          {pct}
-        </text>
-      </svg>
-    </div>
-  );
-}
-
 function TierBadge({ tier }: { tier: keyof typeof TIER_CONFIG }) {
   const cfg = TIER_CONFIG[tier] ?? TIER_CONFIG.LOW;
   return (
@@ -169,6 +120,21 @@ function SignalPills({ signals }: { signals: ApiRiskEntry['signals'] }) {
       })}
     </div>
   );
+}
+
+function topSignals(signals: ApiRiskEntry['signals'], limit = 2) {
+  return Object.entries(signals)
+    .filter(([, v]) => v > 0.15)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, limit)
+    .map(([key]) => SIGNAL_CONFIG[key]?.label)
+    .filter(Boolean);
+}
+
+function whyRisky(entry: ApiRiskEntry) {
+  const signals = topSignals(entry.signals, 2);
+  if (signals.length > 0) return `${TIER_CONFIG[entry.tier].label} risk: ${signals.join(' + ')}`;
+  return `${TIER_CONFIG[entry.tier].label} risk from recent run history`;
 }
 
 function Sparkline({ sparkline }: { sparkline: string }) {
@@ -451,28 +417,82 @@ function SupportingMetric({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Stat cards
-// ─────────────────────────────────────────────────────────────
-
-function StatCards({ data }: { data: ApiRiskEntry[] }) {
+function RiskTriageSummary({
+  data,
+  activeTier,
+  onTierClick,
+}: {
+  data: ApiRiskEntry[];
+  activeTier: string;
+  onTierClick: (tier: string) => void;
+}) {
   const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
   for (const d of data) counts[d.tier] = (counts[d.tier] ?? 0) + 1;
 
+  const actionable = counts.CRITICAL + counts.HIGH;
+  const top = data[0] ?? null;
+  const topSuites = [...new Set(data.slice(0, 8).map(d => d.module || d.suite).filter(Boolean))].slice(0, 3);
+  const driverCounts = Object.entries(SIGNAL_CONFIG).map(([key, cfg]) => ({
+    key,
+    label: cfg.label,
+    count: data.filter(entry => entry.signals[key as keyof ApiRiskEntry['signals']] > 0.15).length,
+    badgeClass: cfg.badgeClass,
+  })).filter(item => item.count > 0).sort((a, b) => b.count - a.count);
+
   return (
-    <div className="qara-stat-grid">
-      {TIER_ORDER.map(tier => {
-        const cfg = TIER_CONFIG[tier];
-        return (
-          <div key={tier} className={`qara-stat-card ${cfg.cardBorder}`}>
-            <span className="type-metric-label">{cfg.label}</span>
-            <span className={`type-metric-value ${cfg.text}`}>
-              {counts[tier]}
-            </span>
+    <section className="rounded-2xl border border-border-default bg-surface px-5 py-5 shadow-sm">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div className="min-w-0">
+          <p className="type-metric-label">Risk triage</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-primary">
+            {actionable > 0
+              ? `${actionable} high-priority test${actionable === 1 ? '' : 's'} need attention`
+              : 'No high-priority next-run risk detected'}
+          </h2>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-secondary">
+            {top
+              ? `Top risk: ${top.display_name} (${top.risk_pct}% score). ${topSignals(top.signals, 1)[0] ? `Main driver: ${topSignals(top.signals, 1)[0].toLowerCase()}.` : 'Risk is based on recent run behavior.'}`
+              : 'Ingest more runs to build next-run risk predictions.'}
+            {topSuites.length > 0 ? ` Concentrated in ${topSuites.join(', ')}.` : ''}
+          </p>
+        </div>
+
+        <div className="grid min-w-[320px] grid-cols-4 gap-2">
+          {TIER_ORDER.map(tier => {
+            const cfg = TIER_CONFIG[tier];
+            const active = activeTier === tier;
+            return (
+              <button
+                key={tier}
+                type="button"
+                onClick={() => onTierClick(tier)}
+                className={[
+                  'rounded-xl border bg-surface px-3 py-3 text-left transition-colors hover:bg-subtle',
+                  cfg.cardBorder,
+                  active ? 'ring-2 ring-info/25' : '',
+                ].join(' ')}
+              >
+                <span className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{cfg.label}</span>
+                <span className={`mt-1 block text-2xl font-semibold ${cfg.text}`}>{counts[tier]}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {driverCounts.length > 0 && (
+        <div className="mt-5 border-t border-border-subtle pt-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="type-metric-label mr-1">Top drivers</span>
+            {driverCounts.slice(0, 5).map(driver => (
+              <span key={driver.key} className={`${driver.badgeClass} cursor-default`}>
+                {driver.label}: {driver.count}
+              </span>
+            ))}
           </div>
-        );
-      })}
-    </div>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -499,7 +519,7 @@ function FilterBar({
   owners:   string[];
 }) {
   return (
-    <div className="qara-toolbar">
+    <div className="qalens-toolbar">
       {/* Search */}
       <div className="relative flex-1 min-w-[200px] max-w-xs">
         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500"
@@ -512,7 +532,7 @@ function FilterBar({
           placeholder="Search tests…"
           value={filters.search}
           onChange={e => onChange({ ...filters, search: e.target.value })}
-          className="qara-control qara-input type-input w-full pl-9 pr-3"
+          className="qalens-control qalens-input type-input w-full pl-9 pr-3"
         />
       </div>
 
@@ -557,7 +577,7 @@ function FilterBar({
       {(filters.search || filters.tier || filters.module || filters.owner) && (
         <button
           onClick={() => onChange({ search: '', tier: '', module: '', owner: '' })}
-          className="qara-chip type-chip"
+          className="qalens-chip type-chip"
         >
           Clear
         </button>
@@ -570,7 +590,7 @@ function FilterBar({
 // Risk table row
 // ─────────────────────────────────────────────────────────────
 
-function RiskRow({ entry }: { entry: ApiRiskEntry }) {
+function RiskRow({ entry, rank }: { entry: ApiRiskEntry; rank: number }) {
   const [expanded, setExpanded] = useState(false);
   const nextFail = failNextRunScore(entry.signals);
   const nextFlip = flipNextRunScore(entry.signals);
@@ -580,51 +600,64 @@ function RiskRow({ entry }: { entry: ApiRiskEntry }) {
   return (
     <>
       <tr
-        className="qara-table-row cursor-pointer"
+        className="qalens-table-row cursor-pointer"
         onClick={() => setExpanded(o => !o)}
       >
-        {/* Test name */}
-        <td className="qara-table-cell">
-          <Tooltip content={entry.display_name} className="block max-w-[260px]">
-            <div className="type-td-primary truncate">
-              {entry.display_name}
+        {/* Priority + test name */}
+        <td className="qalens-table-cell">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border-subtle bg-surface text-sm font-semibold text-primary">
+              {rank}
+            </span>
+            <div className="min-w-0">
+              <Tooltip content={entry.display_name} className="block max-w-[320px]">
+                <div className="type-td-primary truncate">
+                  {entry.display_name}
+                </div>
+              </Tooltip>
+              <div className="type-td-secondary truncate">{entry.module}</div>
             </div>
-          </Tooltip>
-          <div className="type-td-secondary truncate">{entry.module}</div>
+          </div>
+        </td>
+
+        {/* Why risky */}
+        <td className="qalens-table-cell">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <TierBadge tier={entry.tier} />
+              <span className="text-xs font-semibold text-muted">Score {entry.risk_pct}</span>
+            </div>
+            <p className="max-w-md text-sm leading-5 text-secondary">{whyRisky(entry)}</p>
+            <SignalPills signals={entry.signals} />
+          </div>
         </td>
 
         {/* Owner */}
-        <td className="qara-table-cell type-td-secondary whitespace-nowrap">
+        <td className="qalens-table-cell type-td-secondary whitespace-nowrap">
           {entry.owner || '—'}
         </td>
 
-        {/* Risk ring */}
-        <td className="qara-table-cell">
-          <RiskRing pct={entry.risk_pct} tier={entry.tier} />
-        </td>
-
-        {/* Tier */}
-        <td className="qara-table-cell">
-          <TierBadge tier={entry.tier} />
-        </td>
-
-        {/* Signals */}
-        <td className="qara-table-cell">
-          <SignalPills signals={entry.signals} />
-        </td>
-
         {/* Sparkline */}
-        <td className="qara-table-cell">
+        <td className="qalens-table-cell">
           <Sparkline sparkline={entry.sparkline} />
         </td>
 
-        {/* Run count */}
-        <td className="qara-table-cell type-td-num text-right">
-          {entry.run_count}
+        {/* Action */}
+        <td className="qalens-table-cell text-right">
+          <button
+            type="button"
+            onClick={event => {
+              event.stopPropagation();
+              setExpanded(o => !o);
+            }}
+            className="inline-flex h-8 items-center rounded-lg border border-info/25 bg-info/[0.06] px-3 text-xs font-semibold text-info transition-colors hover:border-info/40 hover:bg-info/[0.1]"
+          >
+            Explain risk
+          </button>
         </td>
 
         {/* Expand chevron */}
-        <td className="qara-table-cell text-zinc-600">
+        <td className="qalens-table-cell text-zinc-600">
           <svg className={`w-4 h-4 transition-transform ${expanded ? 'rotate-90' : ''}`}
                viewBox="0 0 16 16" fill="none">
             <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5"
@@ -635,8 +668,8 @@ function RiskRow({ entry }: { entry: ApiRiskEntry }) {
 
       {/* Expanded detail */}
       {expanded && (
-        <tr className="qara-table-row">
-          <td colSpan={8} className="px-6 pb-5">
+        <tr className="qalens-table-row">
+          <td colSpan={6} className="px-6 pb-5">
             <div className="overflow-hidden rounded-b-2xl border border-t-0 border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
               <div className="grid grid-cols-1 gap-6 border-b border-slate-200 px-6 py-5 lg:grid-cols-2 lg:divide-x lg:divide-slate-200 dark:border-slate-800 dark:lg:divide-slate-800">
                 <RiskDecisionMetric
@@ -789,6 +822,7 @@ export function RiskPanel() {
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>({ search: '', tier: '', module: '', owner: '' });
+  const tableRef = useRef<HTMLDivElement>(null);
 
   // Fetch risk data
   useEffect(() => {
@@ -827,14 +861,14 @@ export function RiskPanel() {
   }, [data, filters]);
 
   return (
-    <div className="qara-page">
+    <div className="qalens-page">
 
       {/* Page header */}
       <PageHeader
         tier="full"
         kicker="Predictive Quality"
-        title="Risk"
-        description="Prioritize tests most likely to fail next using volatility, streak, burden, and slowdown signals."
+        title="Next-Run Risk"
+        description="Triage tests most likely to fail or become unstable in the next run."
         icon="🎯"
       />
 
@@ -849,7 +883,7 @@ export function RiskPanel() {
 
       {/* Error */}
       {error && !loading && (
-        <div className="qara-error-banner">
+        <div className="qalens-error-banner">
           <span>⚠️</span>
           <span>Failed to load risk data: {error}</span>
         </div>
@@ -857,8 +891,16 @@ export function RiskPanel() {
 
       {!loading && !error && (
         <>
-          {/* Stat cards */}
-          {data.length > 0 && <StatCards data={data} />}
+          {/* Triage summary */}
+          {data.length > 0 && (
+            <RiskTriageSummary
+              data={data}
+              activeTier={filters.tier}
+              onTierClick={tier =>
+                setFilters(f => ({ ...f, tier: f.tier === tier ? '' : tier }))
+              }
+            />
+          )}
 
           {/* Filter bar */}
           <FilterBar
@@ -870,8 +912,8 @@ export function RiskPanel() {
 
           {/* Empty state */}
           {filtered.length === 0 && data.length === 0 && (
-            <div className="qara-empty-state">
-              <div className="qara-empty-icon">✅</div>
+            <div className="qalens-empty-state">
+              <div className="qalens-empty-icon">✅</div>
               <p className="type-empty-title">No risk predictions available</p>
               <p className="type-empty-subtitle max-w-xs">
                 Ingest more runs to generate risk scores (minimum 2 runs per test).
@@ -880,11 +922,11 @@ export function RiskPanel() {
           )}
 
           {filtered.length === 0 && data.length > 0 && (
-            <div className="qara-empty-state">
+            <div className="qalens-empty-state">
               <p className="type-empty-title">No tests match the current filters</p>
               <button
                 onClick={() => setFilters({ search: '', tier: '', module: '', owner: '' })}
-                className="qara-chip type-chip"
+                className="qalens-chip type-chip"
               >
                 Clear filters
               </button>
@@ -893,10 +935,10 @@ export function RiskPanel() {
 
           {/* Table */}
           {filtered.length > 0 && (
-            <div className="qara-table-shell">
+            <div ref={tableRef} className="qalens-table-shell">
               {/* Result count */}
-              <div className="px-4 py-2.5 border-b border-zinc-800 bg-zinc-900">
-                <span className="qara-inline-note">
+              <div className="border-b border-border-default bg-surface px-4 py-2.5">
+                <span className="qalens-inline-note">
                   {filtered.length === data.length
                     ? `${data.length} tests`
                     : `${filtered.length} of ${data.length} tests`}
@@ -904,46 +946,35 @@ export function RiskPanel() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="qara-table w-full">
-                  <thead className="qara-table-head">
+                <table className="qalens-table w-full">
+                  <thead className="qalens-table-head">
                     <tr>
                       <th className="text-left">
-                        Test
-                      </th>
-                      <th className="text-left">
-                        Owner
-                      </th>
-                      <th className="text-left">
-                        <Tooltip
-                          content="Composite risk score used for prioritization. It is not a literal probability of failure."
-                          className="inline-flex"
-                        >
-                          <span>Risk Score</span>
-                        </Tooltip>
-                      </th>
-                      <th className="text-left">
-                        Tier
+                        Priority / Test
                       </th>
                       <th className="text-left">
                         <Tooltip
                           content="Top contributing signals. Expand a row to see the full signal breakdown and percentages."
                           className="inline-flex"
                         >
-                          <span>Signals</span>
+                          <span>Why risky</span>
                         </Tooltip>
                       </th>
                       <th className="text-left">
-                        History
+                        Owner
+                      </th>
+                      <th className="text-left">
+                        Recent history
                       </th>
                       <th className="text-right">
-                        Runs
+                        Action
                       </th>
                       <th className="w-8" />
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map(entry => (
-                      <RiskRow key={entry.canonical_name} entry={entry} />
+                    {filtered.map((entry, index) => (
+                      <RiskRow key={entry.canonical_name} entry={entry} rank={index + 1} />
                     ))}
                   </tbody>
                 </table>

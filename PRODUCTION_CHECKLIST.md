@@ -1,12 +1,18 @@
-# QARA Production Checklist
+# QaLens Production Checklist
 
-QARA is designed as a local developer tool. Before exposing `qara serve` beyond
+QaLens is designed as a local developer tool. Before exposing `qalens serve` beyond
 localhost, complete this checklist.
 
 ## Network Exposure
 
-- [ ] Bind QARA to `127.0.0.1` unless it is behind an authenticated reverse proxy.
-- [ ] Require authentication at the proxy layer, such as OAuth2, mTLS, or Basic Auth.
+- [ ] Bind QaLens to `127.0.0.1` unless QaLens auth and network controls are enabled.
+- [ ] For simple sharing, set `QALENS_AUTH_TOKEN` or pass `qalens serve --auth-token ...`.
+- [ ] For team SSO, set `QALENS_AUTH_MODE=github` and configure GitHub OAuth.
+- [ ] Restrict GitHub sign-in with `QALENS_ALLOWED_GITHUB_USERS` or
+      `QALENS_ALLOWED_GITHUB_ORGS`.
+- [ ] Use a long random `QALENS_SESSION_SECRET` and rotate it when team access changes.
+- [ ] For broader deployments, also require authentication at the proxy layer,
+      such as OAuth2 or mTLS.
 - [ ] Terminate HTTPS at the proxy.
 - [ ] Restrict access by IP allowlist or private network controls.
 
@@ -15,13 +21,13 @@ localhost, complete this checklist.
 - [ ] Keep LLM API keys in environment variables or a secrets manager.
 - [ ] Do not store tokens in git remotes, `.env` files, source code, or screenshots.
 - [ ] Rotate any credentials that may have appeared in test reports or git history.
-- [ ] Confirm QARA redaction is enabled before using LLM features.
+- [ ] Confirm QaLens redaction is enabled before using LLM features.
 
 ## LLM Boundary
 
 - [ ] Use local providers (`ollama`, `lmstudio`) by default.
 - [ ] For cloud providers, explicitly set `allow_external = true` or
-      `QARA_ALLOW_EXTERNAL_LLM=1` only after approving data egress.
+      `QALENS_ALLOW_EXTERNAL_LLM=1` only after approving data egress.
 - [ ] Review whether report data includes PII, customer data, secrets, hostnames,
       internal URLs, or proprietary stack traces.
 - [ ] Set provider-side budget and usage alerts.
@@ -30,7 +36,7 @@ localhost, complete this checklist.
 
 - [ ] Keep the default `metadata-only` artifact mode unless image bytes are required.
 - [ ] Keep screenshot byte caps enabled.
-- [ ] Do not enable SVG artifacts; QARA accepts raster image magic bytes only.
+- [ ] Do not enable SVG artifacts; QaLens accepts raster image magic bytes only.
 - [ ] Store full artifacts outside any web root.
 
 ## Database

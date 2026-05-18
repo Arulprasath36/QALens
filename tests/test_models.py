@@ -1,4 +1,4 @@
-"""Tests for QARA canonical data models (Phase 1).
+"""Tests for QaLens canonical data models (Phase 1).
 
 Covers: Attachment, ExtractionWarning, FailureInfo, StepResult,
         TestCaseResult, TestStatus, RunMetadata, TestRun,
@@ -13,9 +13,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from qara.models.attachment import Attachment, AttachmentKind
-from qara.models.failure import FailureInfo
-from qara.models.insight import (
+from qalens.models.attachment import Attachment, AttachmentKind
+from qalens.models.failure import FailureInfo
+from qalens.models.insight import (
     AnalysisSummary,
     CategoryCounts,
     FailureCluster,
@@ -23,9 +23,9 @@ from qara.models.insight import (
     InsightCategory,
     StatusCounts,
 )
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import StepResult, TestCaseResult, TestStatus
-from qara.models.warnings import ExtractionWarning, WarningSeverity
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import StepResult, TestCaseResult, TestStatus
+from qalens.models.warnings import ExtractionWarning, WarningSeverity
 
 
 # ---------------------------------------------------------------------------

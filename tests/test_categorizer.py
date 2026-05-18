@@ -1,10 +1,10 @@
-"""Tests for qara.analyzers.categorizer."""
+"""Tests for qalens.analyzers.categorizer."""
 
 from __future__ import annotations
 
 import pytest
 
-from qara.analyzers.categorizer import FailureCategory, categorize_failure
+from qalens.analyzers.categorizer import FailureCategory, categorize_failure
 
 
 # ---------------------------------------------------------------------------

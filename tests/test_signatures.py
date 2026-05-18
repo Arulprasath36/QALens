@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import pytest
 
-from qara.analyzers.fingerprint import compute_fingerprint
-from qara.analyzers.signatures import SignatureEngine, normalize_message
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import StepResult, TestCaseResult, TestStatus
+from qalens.analyzers.fingerprint import compute_fingerprint
+from qalens.analyzers.signatures import SignatureEngine, normalize_message
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import StepResult, TestCaseResult, TestStatus
 
 
 # ---------------------------------------------------------------------------

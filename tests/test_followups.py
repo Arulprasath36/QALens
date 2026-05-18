@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from qara.llm.answer_plan import AnswerIntent
-from qara.llm.followups import generate_follow_ups
+from qalens.llm.answer_plan import AnswerIntent
+from qalens.llm.followups import generate_follow_ups
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -300,9 +300,9 @@ class TestFlakinessRankingFollowUps:
 # Scope-driven follow-up contract tests (answer-scope architecture)
 # ---------------------------------------------------------------------------
 
-from qara.llm.answer_plan import AnswerPlan
-from qara.llm.answer_types import AnswerScope, AnswerType
-from qara.llm.followups import _validate_grounding
+from qalens.llm.answer_plan import AnswerPlan
+from qalens.llm.answer_types import AnswerScope, AnswerType
+from qalens.llm.followups import _validate_grounding
 
 
 def _make_plan(
@@ -506,7 +506,7 @@ class TestFallbackGenericFollowups:
     def test_safe_generics_are_relevant(self):
         """When all candidates fail validation, safe generics should still
         be relevant (not random gibberish)."""
-        from qara.llm.followups import _SAFE_GENERIC
+        from qalens.llm.followups import _SAFE_GENERIC
         for q in _SAFE_GENERIC:
             assert q.strip()
             assert len(q) > 10  # Not trivially short
@@ -654,8 +654,8 @@ class TestPlanDrivenGeneration:
 # Payload-driven follow-up tests (StructuredPayload awareness)
 # ---------------------------------------------------------------------------
 
-from qara.llm.answer_types import PayloadSection, StructuredPayload
-from qara.llm.followups import _payload_verdict_polarity, _payload_section_count
+from qalens.llm.answer_types import PayloadSection, StructuredPayload
+from qalens.llm.followups import _payload_verdict_polarity, _payload_section_count
 
 
 class TestPayloadVerdictPolarity:

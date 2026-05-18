@@ -35,30 +35,30 @@ export function PageHeader({
   return (
     <div
       className={cx(
-        'qara-page-header',
-        tier === 'compact' && 'qara-page-header-compact',
-        tier === 'minimal' && 'qara-page-header-minimal',
+        'qalens-page-header',
+        tier === 'compact' && 'qalens-page-header-compact',
+        tier === 'minimal' && 'qalens-page-header-minimal',
         className,
       )}
     >
-      <div className={cx('qara-page-heading', tier === 'minimal' && 'items-center')}>
-        {icon && <div className="qara-page-icon">{icon}</div>}
+      <div className={cx('qalens-page-heading', tier === 'minimal' && 'items-center')}>
+        {icon && <div className="qalens-page-icon">{icon}</div>}
         <div className="min-w-0">
           {kicker && tier !== 'minimal' && (
-            <p className="qara-page-kicker">{kicker}</p>
+            <p className="qalens-page-kicker">{kicker}</p>
           )}
           <div className={cx('flex flex-wrap items-baseline gap-x-2 gap-y-1', !hasBody && 'min-h-[2rem]')}>
-            <TitleTag className={cx('qara-page-title', tier === 'minimal' && 'qara-page-title-minimal')}>
+            <TitleTag className={cx('qalens-page-title', tier === 'minimal' && 'qalens-page-title-minimal')}>
               {title}
             </TitleTag>
             {meta && tier !== 'full' && (
-              <div className="qara-page-meta">
+              <div className="qalens-page-meta">
                 {meta}
               </div>
             )}
           </div>
           {description && tier === 'full' && (
-            <p className="qara-page-subtitle">{description}</p>
+            <p className="qalens-page-subtitle">{description}</p>
           )}
         </div>
       </div>

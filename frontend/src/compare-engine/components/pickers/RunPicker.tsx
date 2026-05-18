@@ -171,7 +171,7 @@ function CustomRangeTrigger({
             </span>
           )}
           <button type="button" onClick={onOpen} className={[
-            'qara-chip type-chip',
+            'qalens-chip type-chip',
             !hasSelection && 'border-info/30 text-info hover:bg-info/5',
           ].join(' ')}>
             {hasSelection ? 'Edit selection' : 'Pick runs to compare'}
@@ -294,7 +294,7 @@ function ModalRunRow({ run, selected, onToggle }: { run: Run; selected: boolean;
           {run.branch && (
             <>
               <span className="text-faint text-[10px]">·</span>
-              <span className="qara-pill">{run.branch}</span>
+              <span className="qalens-pill">{run.branch}</span>
             </>
           )}
         </div>
@@ -379,21 +379,21 @@ function CustomRangeModal({
             <button
               type="button"
               onClick={() => setDraftSelected(runs.slice(0, 2).map(r => r.id))}
-              className="qara-chip type-chip"
+              className="qalens-chip type-chip"
             >
               Latest 2
             </button>
             <button
               type="button"
               onClick={() => setDraftSelected(runs.slice(0, 5).map(r => r.id))}
-              className="qara-chip type-chip"
+              className="qalens-chip type-chip"
             >
               Last 5
             </button>
             <button
               type="button"
               onClick={() => setDraftSelected(runs.slice(0, 10).map(r => r.id))}
-              className="qara-chip type-chip"
+              className="qalens-chip type-chip"
             >
               Last 10
             </button>
@@ -401,7 +401,7 @@ function CustomRangeModal({
               <button
                 type="button"
                 onClick={() => setDraftSelected([])}
-                className="qara-chip type-chip text-muted"
+                className="qalens-chip type-chip text-muted"
               >
                 Clear all
               </button>
@@ -409,7 +409,7 @@ function CustomRangeModal({
           </div>
 
           <div className="flex items-center gap-3">
-            <button type="button" onClick={onClose} className="qara-chip type-chip">
+            <button type="button" onClick={onClose} className="qalens-chip type-chip">
               Cancel
             </button>
             <button
@@ -417,8 +417,8 @@ function CustomRangeModal({
               onClick={onApply}
               disabled={draftSelected.length === 0}
               className={[
-                'qara-chip type-chip',
-                draftSelected.length > 0 ? 'qara-chip-active' : 'opacity-40 cursor-not-allowed',
+                'qalens-chip type-chip',
+                draftSelected.length > 0 ? 'qalens-chip-active' : 'opacity-40 cursor-not-allowed',
               ].join(' ')}
             >
               {draftSelected.length > 0 ? `Apply (${draftSelected.length} runs)` : 'Apply'}
@@ -495,7 +495,7 @@ function CustomRangeModal({
         </div>
 
         {/* ── Search ─────────────────────────────────────────── */}
-        <div className="qara-control w-full px-3">
+        <div className="qalens-control w-full px-3">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="shrink-0 text-muted">
             <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
             <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -505,7 +505,7 @@ function CustomRangeModal({
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search runs…"
-            className="qara-input h-11 text-sm"
+            className="qalens-input h-11 text-sm"
           />
         </div>
 

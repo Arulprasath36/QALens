@@ -18,12 +18,12 @@ from pathlib import Path
 
 import pytest
 
-from qara.artifacts.config import ArtifactConfig, ArtifactMode
-from qara.artifacts.models import ArtifactIngestStats
-from qara.artifacts.policy import ArtifactIngestionPolicy
-from qara.artifacts.selector import select_screenshots
-from qara.artifacts.storage import LocalFilesystemStore
-from qara.models.artifact_ref import ArtifactRef
+from qalens.artifacts.config import ArtifactConfig, ArtifactMode
+from qalens.artifacts.models import ArtifactIngestStats
+from qalens.artifacts.policy import ArtifactIngestionPolicy
+from qalens.artifacts.selector import select_screenshots
+from qalens.artifacts.storage import LocalFilesystemStore
+from qalens.models.artifact_ref import ArtifactRef
 
 # ---------------------------------------------------------------------------
 # Helpers — minimal valid PNG builder

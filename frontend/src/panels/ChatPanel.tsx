@@ -13,7 +13,7 @@ import type {
   AssistantUiHints,
   HistoryState,
   OwnerFailureRateResult,
-  QaraResult,
+  QaLensResult,
   RiskRankingResult,
   RiskTier,
 } from './chat/types';
@@ -54,7 +54,7 @@ interface ApiAskResponse {
   sources:      ApiSource[];
   intent:       string;
   follow_ups:   string[];
-  result?:      QaraResult;
+  result?:      QaLensResult;
   uiHints?:     AssistantUiHints;
 }
 
@@ -93,6 +93,7 @@ interface ApiEvidenceTest {
   why_relevant:    string[];
   recent_runs:     { run_id: string; run_label: string; status: string; timestamp: string }[];
   most_frequent_error: { category: string; message: string } | null;
+  signals:         { volatility: number; recent_decline: number; fail_streak: number; duration_spike: number } | null;
 }
 
 type ApiEvidence = ApiEvidenceRun | ApiEvidenceTest;
@@ -104,7 +105,7 @@ interface ConvMessage {
   sources?:   ApiSource[];
   followUps?: string[];
   intent?:    string;
-  resultType?: QaraResult['type'];
+  resultType?: QaLensResult['type'];
   loading?:   boolean;
 }
 
@@ -115,7 +116,7 @@ interface SuggestedQuestion {
   icon?: string;
 }
 
-const CHAT_PANEL_WIDTH_KEY = 'qara-chat-panel-width';
+const CHAT_PANEL_WIDTH_KEY = 'qalens-chat-panel-width';
 const DEFAULT_CHAT_PANEL_WIDTH = 440;
 const MIN_CHAT_PANEL_WIDTH = 380;
 const MAX_CHAT_PANEL_WIDTH = 620;
@@ -167,7 +168,7 @@ function suggestionsFromHomepageCards(cards: ApiHomepageCard[]): SuggestedQuesti
     }));
 }
 
-function contextualSuggestions(result: QaraResult | null, cards: ApiHomepageCard[]): SuggestedQuestion[] {
+function contextualSuggestions(result: QaLensResult | null, cards: ApiHomepageCard[]): SuggestedQuestion[] {
   const homepage = suggestionsFromHomepageCards(cards);
   if (!result) return uniqueSuggestions([...homepage, ...DEFAULT_SUGGESTED_QUESTIONS], 8);
 
@@ -210,6 +211,15 @@ function contextualSuggestions(result: QaraResult | null, cards: ApiHomepageCard
     ], 6);
   }
 
+  if (result.type === 'test_fix_playbook') {
+    return uniqueSuggestions([
+      { id: 'fix-history', question: `Show the failure history for ${result.testName}` },
+      { id: 'fix-same-root', question: 'Are other tests failing for the same root cause?' },
+      { id: 'fix-suite-owner', question: 'Which suite owns this failure?' },
+      { id: 'fix-risk', question: 'Which tests are most likely to fail next run?' },
+    ], 6);
+  }
+
   if (
     result.type === 'owner_failure_rate'
     || result.type === 'owner_flaky_tests'
@@ -248,6 +258,7 @@ function EvidenceDrawer({
   const [evidence, setEvidence] = useState<ApiEvidence | null>(null);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -265,6 +276,15 @@ function EvidenceDrawer({
     return () => { cancelled = true; };
   }, [source]);
 
+  useEffect(() => {
+    panelRef.current?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   function openInNewTab() {
     const params = new URLSearchParams({ tab: source.run_id ? 'runs' : 'analysis' });
     if (project) params.set('project', project);
@@ -274,51 +294,57 @@ function EvidenceDrawer({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/20 z-40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
       <aside
-        className="fixed top-0 right-0 h-full w-full max-w-md z-50 flex flex-col"
-        style={{ background: 'var(--bg-surface)', borderLeft: '1px solid var(--border-default)', boxShadow: 'var(--shadow-overlay)' }}
+        ref={panelRef}
+        tabIndex={-1}
+        className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950"
         aria-label="Evidence details"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="text-base">{source.icon}</span>
-            <span className="text-sm font-semibold text-primary truncate">{source.label}</span>
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              {source.run_id ? 'Selected run' : 'Selected test'}
+            </p>
+            <h3 className="mt-2 truncate font-mono text-lg font-semibold text-slate-950 dark:text-slate-50">
+              {source.label}
+            </h3>
+            {source.meta && (
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{source.meta}</p>
+            )}
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             {allSources.length > 1 && (
               <div className="flex items-center gap-1">
                 <button onClick={() => onNavigate(currentIndex - 1)} disabled={currentIndex === 0}
-                  className="qara-control p-1.5 disabled:opacity-30 disabled:cursor-not-allowed">
+                  className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-slate-200">
                   <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3"><path d="M9 3l-4 4 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </button>
-                <span className="text-xs text-muted tabular-nums">{currentIndex + 1}/{allSources.length}</span>
+                <span className="text-xs tabular-nums text-slate-500 dark:text-slate-400">{currentIndex + 1}/{allSources.length}</span>
                 <button onClick={() => onNavigate(currentIndex + 1)} disabled={currentIndex >= allSources.length - 1}
-                  className="qara-control p-1.5 disabled:opacity-30 disabled:cursor-not-allowed">
+                  className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-30 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-slate-200">
                   <svg viewBox="0 0 14 14" fill="none" className="w-3 h-3"><path d="M5 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </button>
               </div>
             )}
             <Tooltip content="Open in panel" className="inline-flex">
-              <button onClick={openInNewTab} className="qara-control p-1.5">
+              <button onClick={openInNewTab} className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-slate-200">
                 <svg viewBox="0 0 14 14" fill="none" className="w-3.5 h-3.5"><path d="M6 2H3a1 1 0 00-1 1v8a1 1 0 001 1h8a1 1 0 001-1v-3M8 2h4m0 0v4m0-4L7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </button>
             </Tooltip>
-            <button onClick={onClose} className="qara-control p-1.5 text-muted hover:text-primary" aria-label="Close">
+            <button onClick={onClose} className="rounded-full border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-50 hover:text-slate-700 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-slate-200" aria-label="Close evidence drawer">
               <svg viewBox="0 0 14 14" fill="none" className="w-3.5 h-3.5"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
             </button>
           </div>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
           {loading && (
             <div className="space-y-3 animate-pulse">
-              {[1,2,3].map(i => <div key={i} className="h-12 rounded-xl bg-surface-subtle" />)}
+              {[1,2,3,4].map(i => <div key={i} className="h-20 rounded-2xl bg-slate-100 dark:bg-slate-900" />)}
             </div>
           )}
-          {error && <p className="text-sm text-danger">Failed to load evidence: {error}</p>}
+          {error && <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">Failed to load evidence: {error}</p>}
           {evidence?.type === 'run'  && <RunEvidenceView  data={evidence} />}
           {evidence?.type === 'test' && <TestEvidenceView data={evidence} />}
         </div>
@@ -330,80 +356,122 @@ function EvidenceDrawer({
 function RunEvidenceView({ data }: { data: ApiEvidenceRun }) {
   const passRate = data.total_tests > 0 ? Math.round(data.passed_count / data.total_tests * 100) : null;
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-2.5">
+    <div className="space-y-6">
+      <section className="space-y-3">
+        <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Run summary</h4>
+        <div className="grid gap-3 sm:grid-cols-2">
         {[
-          { label: 'Total',     value: data.total_tests,  cls: 'text-primary' },
-          { label: 'Passed',    value: data.passed_count, cls: 'text-success' },
-          { label: 'Failed',    value: data.failed_count, cls: 'text-danger'  },
-          ...(passRate != null ? [{ label: 'Pass Rate', value: `${passRate}%`, cls: passRate >= 80 ? 'text-success' : 'text-danger' }] : []),
+          { label: 'Total tests', value: data.total_tests,  cls: 'text-slate-950 dark:text-slate-50' },
+          { label: 'Passed',      value: data.passed_count, cls: 'text-emerald-600 dark:text-emerald-300' },
+          { label: 'Failed',      value: data.failed_count, cls: 'text-red-600 dark:text-red-300' },
+          ...(passRate != null ? [{ label: 'Pass rate', value: `${passRate}%`, cls: passRate >= 80 ? 'text-emerald-600 dark:text-emerald-300' : 'text-red-600 dark:text-red-300' }] : []),
         ].map(c => (
-          <div key={c.label} className="qara-card-soft px-3.5 py-2.5">
-            <p className="type-eyebrow mb-1">{c.label}</p>
-            <p className={`text-xl font-bold tabular-nums ${c.cls}`}>{c.value}</p>
+          <div key={c.label} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{c.label}</p>
+            <p className={`mt-2 text-base font-semibold tabular-nums ${c.cls}`}>{c.value}</p>
           </div>
         ))}
-      </div>
+        </div>
+      </section>
       {data.top_failed.length > 0 && (
-        <div>
-          <p className="type-eyebrow mb-2">Top Failures</p>
+        <section className="space-y-3">
+          <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Top failures</h4>
           <div className="space-y-2">
             {data.top_failed.slice(0, 5).map((t, i) => (
-              <div key={i} className="qara-card-soft px-3.5 py-2.5">
-                <p className="text-sm font-medium text-primary truncate">{t.name}</p>
-                {t.error_type && <p className="text-xs text-danger mt-0.5">{t.error_type}</p>}
-                {t.message    && <p className="text-xs text-muted mt-0.5 truncate">{t.message}</p>}
+              <div key={i} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <p className="truncate font-mono text-sm font-semibold text-slate-950 dark:text-slate-50">{t.name}</p>
+                {t.error_type && <p className="mt-2 text-xs font-medium text-red-600 dark:text-red-300">{t.error_type}</p>}
+                {t.message    && <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">{t.message}</p>}
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
 }
 
 function TestEvidenceView({ data }: { data: ApiEvidenceTest }) {
+  const signals = data.signals ?? null;
+  const recentFailures = data.recent_runs.filter(run => run.status === 'failed' || run.status === 'broken').length;
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-2.5">
+    <div className="space-y-6">
+      <section className="space-y-3">
+        <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Test summary</h4>
+        <div className="grid gap-3 sm:grid-cols-2">
         {[
-          { label: 'Classification', value: data.classification,           cls: 'text-primary text-sm' },
-          { label: 'Risk Tier',      value: data.risk_tier.toUpperCase(),  cls: 'text-warning' },
-          { label: 'Pass Rate',      value: `${Math.round(data.pass_rate * 100)}%`, cls: data.pass_rate >= 0.8 ? 'text-success' : 'text-danger' },
-          { label: 'Runs',           value: String(data.run_count),        cls: 'text-primary' },
+          { label: 'Classification', value: data.classification,           cls: 'text-slate-950 dark:text-slate-50' },
+          { label: 'Risk tier',      value: data.risk_tier.toUpperCase(),  cls: data.risk_tier.toUpperCase() === 'HIGH' || data.risk_tier.toUpperCase() === 'CRITICAL' ? 'text-red-600 dark:text-red-300' : data.risk_tier.toUpperCase() === 'MEDIUM' ? 'text-amber-600 dark:text-amber-300' : 'text-emerald-600 dark:text-emerald-300' },
+          { label: 'Pass rate',      value: `${Math.round(data.pass_rate * 100)}%`, cls: data.pass_rate >= 0.8 ? 'text-emerald-600 dark:text-emerald-300' : 'text-red-600 dark:text-red-300' },
+          { label: 'Runs',           value: String(data.run_count),        cls: 'text-slate-950 dark:text-slate-50' },
         ].map(c => (
-          <div key={c.label} className="qara-card-soft px-3.5 py-2.5">
-            <p className="type-eyebrow mb-1">{c.label}</p>
-            <p className={`font-bold ${c.cls}`}>{c.value}</p>
+          <div key={c.label} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{c.label}</p>
+            <p className={`mt-2 break-words text-base font-semibold ${c.cls}`}>{c.value}</p>
           </div>
         ))}
-      </div>
+        </div>
+      </section>
+
+      {signals && (
+        <section className="space-y-3">
+          <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Signal breakdown</h4>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              ['Volatility', `${Math.round(signals.volatility * 100)}%`],
+              ['Recent decline', `${Math.round(signals.recent_decline * 100)}%`],
+              ['Fail streak', signals.fail_streak ? `${signals.fail_streak} fail${signals.fail_streak === 1 ? '' : 's'}` : 'None'],
+              ['Duration spike', `${Math.round(signals.duration_spike * 100)}%`],
+            ].map(([label, value]) => (
+              <div key={label} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</p>
+                <p className="mt-2 text-base font-semibold text-slate-950 dark:text-slate-50">{value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {data.why_relevant.length > 0 && (
-        <div>
-          <p className="type-eyebrow mb-2">Why It's Relevant</p>
-          <ul className="space-y-1.5">
+        <section className="space-y-3">
+          <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Why it is relevant</h4>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+            <ul className="space-y-2">
             {data.why_relevant.map((w, i) => (
-              <li key={i} className="flex gap-2 text-sm text-secondary">
-                <span className="text-muted shrink-0 mt-0.5">·</span>{w}
+              <li key={i} className="flex gap-3 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                <span className="mt-0.5 text-slate-400 dark:text-slate-500">·</span>{w}
               </li>
             ))}
-          </ul>
-        </div>
+            </ul>
+          </div>
+        </section>
+      )}
+      {data.most_frequent_error && (
+        <section className="space-y-3">
+          <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Most frequent error</h4>
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <p className="text-sm font-semibold text-red-600 dark:text-red-300">{data.most_frequent_error.category}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">{data.most_frequent_error.message}</p>
+          </div>
+        </section>
       )}
       {data.recent_runs.length > 0 && (
-        <div>
-          <p className="type-eyebrow mb-2">Recent Runs</p>
+        <section className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h4 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Recent runs</h4>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{recentFailures} failing in view</span>
+          </div>
           <div className="space-y-1.5">
             {data.recent_runs.slice(0, 6).map((r, i) => (
-              <div key={i} className="flex items-center justify-between px-3.5 py-2 rounded-xl" style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)' }}>
-                <span className="text-xs text-muted">{r.run_label}</span>
-                <span className={`text-xs font-semibold ${r.status === 'passed' ? 'text-success' : r.status === 'skipped' ? 'text-muted' : 'text-danger'}`}>
+              <div key={i} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-2 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <span className="text-xs text-slate-500 dark:text-slate-400">{r.run_label}</span>
+                <span className={`text-xs font-semibold ${r.status === 'passed' ? 'text-emerald-600 dark:text-emerald-300' : r.status === 'skipped' ? 'text-slate-500 dark:text-slate-400' : 'text-red-600 dark:text-red-300'}`}>
                   {r.status}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );
@@ -444,7 +512,7 @@ function historyFromSparkline(sparkline: string): HistoryState[] {
   return [...sparkline].map(char => {
     if (char === '✓') return 'PASS';
     if (char === '✗' || char === 'x' || char === 'X') return 'FAIL';
-    if (char === '•') return 'SKIP';
+    if (char === '•' || char === '-' || char === '·') return 'SKIP';
     return 'UNKNOWN';
   });
 }
@@ -487,7 +555,7 @@ function provisionalRiskResult(data: ApiAskResponse, question: string): RiskRank
   return {
     type: 'risk_ranking',
     title: 'Most likely to fail next run',
-    subtitle: 'Ranked by QARA risk score across the selected run window',
+    subtitle: 'Ranked by QaLens risk score across the selected run window',
     scope: {
       label: parseScopeLabel(data.answer, data.context_mode),
       eligibleTests: parseEligibleTests(data.answer, testSources.length),
@@ -587,7 +655,6 @@ async function hydrateRiskResult(
       if (payload.type !== 'test') return item;
 
       const failStreak = trailingFailStreak(payload.recent_runs);
-      const recentDecline = payload.why_relevant.some(reason => /declin/i.test(reason)) ? Math.min(1, (1 - payload.pass_rate) * 0.6) : undefined;
       if (!derivedWindowEnd && payload.recent_runs[0]?.run_label) {
         derivedWindowEnd = payload.recent_runs[0].run_label;
       }
@@ -599,10 +666,11 @@ async function hydrateRiskResult(
         primaryReason: payload.why_relevant[0] ?? item.primaryReason,
         history: historyFromSparkline(payload.sparkline),
         signals: {
-          volatility: payload.flip_score,
-          failureBurden: 1 - payload.pass_rate,
-          recentDecline,
-          failStreak: failStreak > 0 ? failStreak : undefined,
+          volatility:     payload.signals?.volatility      ?? payload.flip_score,
+          failureBurden:  1 - payload.pass_rate,
+          recentDecline:  payload.signals?.recent_decline  ?? undefined,
+          failStreak:     failStreak > 0 ? failStreak : undefined,
+          durationSpike:  payload.signals?.duration_spike  ?? undefined,
         },
         evidence: [
           { label: 'Risk score', value: `${Math.round(payload.risk_pct)}%` },
@@ -852,7 +920,7 @@ function SuggestedQuestions({
               type="button"
               onClick={() => onSelect(item.question)}
               disabled={disabled}
-              className="qara-pill shrink-0 max-w-[280px] truncate text-left text-xs transition-colors hover:border-info/20 hover:bg-info/[0.06] hover:text-info disabled:cursor-not-allowed disabled:opacity-45"
+              className="qalens-pill shrink-0 max-w-[280px] truncate text-left text-xs transition-colors hover:border-info/20 hover:bg-info/[0.06] hover:text-info disabled:cursor-not-allowed disabled:opacity-45"
             >
               {item.question}
             </button>
@@ -909,8 +977,10 @@ export function ChatPanel() {
   const [cards,            setCards]            = useState<ApiHomepageCard[]>([]);
   const [drawerSource,     setDrawerSource]     = useState<{ source: ApiSource; all: ApiSource[]; idx: number } | null>(null);
   const [llmInfo,          setLlmInfo]          = useState<ApiLlmInfo | null>(null);
-  const [activeResult,     setActiveResult]     = useState<QaraResult | null>(null);
+  const [activeResult,     setActiveResult]     = useState<QaLensResult | null>(null);
   const [activeResultToken, setActiveResultToken] = useState<string | null>(null);
+  const [activeQuestion,   setActiveQuestion]   = useState('');
+  const [activeAnswer,     setActiveAnswer]     = useState('');
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [mobilePane,       setMobilePane]       = useState<'chat' | 'results'>('chat');
   const [chatPanelWidth,   setChatPanelWidth]   = useState(() => {
@@ -1022,13 +1092,17 @@ export function ChatPanel() {
       if (provisionalResult) {
         setActiveResult(provisionalResult);
         setActiveResultToken(loadingMsg.id);
+        setActiveQuestion(input);
+        setActiveAnswer(answerContent);
         setMobilePane(data.uiHints?.activeTab ?? 'results');
       } else {
         setActiveResult(null);
         setActiveResultToken(null);
+        setActiveQuestion('');
+        setActiveAnswer('');
         setMobilePane('chat');
       }
-      if (!data.result && provisionalResult?.type === 'risk_ranking') {
+      if (provisionalResult?.type === 'risk_ranking') {
         setWorkspaceLoading(true);
         void hydrateRiskResult(provisionalResult, data.sources)
           .then(hydrated => setActiveResult(hydrated))
@@ -1049,11 +1123,37 @@ export function ChatPanel() {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); send(input); }
   }
 
+  async function exportChatResult(result: QaLensResult, question: string, answer: string, pdf: boolean) {
+    const res = await fetch('/api/export/chat-result', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question, answer, result, autoprint: pdf }),
+    });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    if (pdf) {
+      const win = window.open(url, '_blank');
+      if (win) win.addEventListener('load', () => { win.print(); });
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } else {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `qalens-${(result as { title?: string }).title?.toLowerCase().replace(/\s+/g, '-') ?? 'result'}.html`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+  }
+
   function handleNewConversation() {
     setMessages([]);
     setInput('');
     setActiveResult(null);
     setActiveResultToken(null);
+    setActiveQuestion('');
+    setActiveAnswer('');
     setWorkspaceLoading(false);
     setMobilePane('chat');
     setTimeout(() => textareaRef.current?.focus(), 50);
@@ -1343,6 +1443,28 @@ export function ChatPanel() {
             'lg:flex',
           ].join(' ')}
         >
+          {activeResult && !workspaceLoading && (
+            <div className="flex shrink-0 items-center justify-end gap-2 border-b border-slate-200 px-4 py-2 dark:border-slate-800">
+              <button
+                onClick={() => void exportChatResult(activeResult, activeQuestion, activeAnswer, false)}
+                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export HTML
+              </button>
+              <button
+                onClick={() => void exportChatResult(activeResult, activeQuestion, activeAnswer, true)}
+                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                Export PDF
+              </button>
+            </div>
+          )}
           <div ref={resultScrollRef} className="min-h-0 flex-1 overflow-y-auto p-4 lg:p-5">
             <ResultWorkspace result={activeResult} loading={workspaceLoading} />
           </div>

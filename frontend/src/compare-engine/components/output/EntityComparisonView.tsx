@@ -374,7 +374,7 @@ function ErrorPreview({ msg }: { msg: string }) {
         {open ? 'Hide error' : 'Show root cause'}
       </button>
       {open && (
-        <div className="qara-insight-reveal mt-1.5 rounded-xl bg-danger/[0.035] px-3 py-2.5 ring-1 ring-danger/10">
+        <div className="qalens-insight-reveal mt-1.5 rounded-xl bg-danger/[0.035] px-3 py-2.5 ring-1 ring-danger/10">
           <p className="text-[10px] font-mono text-danger/80 leading-relaxed break-all line-clamp-5">{msg}</p>
         </div>
       )}
@@ -428,7 +428,7 @@ function EvidencePanelShell({
       {isEmpty ? (
         <div className="px-5 pb-5 pt-1 space-y-3 text-center">
           <p className="text-sm text-muted">{explanation}</p>
-          <button onClick={() => onViewAll(viewAllCls)} className="qara-insight-cta mx-auto">
+          <button onClick={() => onViewAll(viewAllCls)} className="qalens-insight-cta mx-auto">
             <span>Open full breakdown</span>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                 <path d="M2.5 6h6.5M6 3l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -440,7 +440,7 @@ function EvidencePanelShell({
           {children}
           {/* Footer */}
           <div className={`flex justify-end px-5 py-3.5 border-t ${theme.footerBorder}`}>
-            <button onClick={() => onViewAll(viewAllCls)} className="qara-insight-cta group">
+            <button onClick={() => onViewAll(viewAllCls)} className="qalens-insight-cta group">
               <span>{viewAllLabel.replace(/\s*→$/, '')}</span>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="opacity-80">
                 <path d="M2.5 6h6.5M6 3l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -1043,7 +1043,7 @@ function VerdictBanner({ ranked, runCount, onViewAll }: { ranked: RankedEntity[]
   })();
 
   return (
-    <section className="qara-fade-up space-y-4">
+    <section className="qalens-fade-up space-y-4">
 
       {/* ── Classification row ───────────────────────────────── */}
       <div className="flex flex-wrap gap-3">
@@ -1176,7 +1176,7 @@ function VerdictBanner({ ranked, runCount, onViewAll }: { ranked: RankedEntity[]
                     </button>
                     {/* Inline evidence panel — expands directly below this bullet */}
                     {isActive && (
-                      <div className="qara-insight-reveal mt-2 pl-3">
+                      <div className="qalens-insight-reveal mt-2 pl-3">
                         <EvidencePanel
                           type={r.drillType}
                           ranked={ranked}
@@ -1241,7 +1241,7 @@ function RankedCard({ entity, totalEntities }: { entity: RankedEntity; totalEnti
   const allHealthy   = failingCount === 0 && flakyCount === 0;
 
   return (
-    <article className="qara-card qara-fade-up relative overflow-hidden">
+    <article className="qalens-card qalens-fade-up relative overflow-hidden">
       {/* Left accent bar — inset so it respects border-radius at both corners */}
       <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-[1.25rem] ${accentColor}`} />
 
@@ -1507,8 +1507,8 @@ function EntityTestTable({ rows, labels, dimension, externalFilter, windowRunCou
               key={f.key}
               onClick={() => setFilterCls(f.key)}
               className={[
-                'qara-pill px-3 py-1.5',
-                filterCls === f.key ? 'qara-pill-active' : 'border-transparent bg-transparent hover:bg-hover',
+                'qalens-pill px-3 py-1.5',
+                filterCls === f.key ? 'qalens-pill-active' : 'border-transparent bg-transparent hover:bg-hover',
               ].join(' ')}
             >
               <span>{f.label}</span>
@@ -1527,7 +1527,7 @@ function EntityTestTable({ rows, labels, dimension, externalFilter, windowRunCou
           ]}
         />
 
-        <div className="qara-control relative flex-1 min-w-[180px] max-w-xs">
+        <div className="qalens-control relative flex-1 min-w-[180px] max-w-xs">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
             <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
             <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -1537,7 +1537,7 @@ function EntityTestTable({ rows, labels, dimension, externalFilter, windowRunCou
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Filter tests…"
-            className="qara-input pl-8 pr-3 py-2 text-sm"
+            className="qalens-input pl-8 pr-3 py-2 text-sm"
           />
         </div>
 
@@ -1556,10 +1556,10 @@ function EntityTestTable({ rows, labels, dimension, externalFilter, windowRunCou
         <span className="text-xs text-muted tabular-nums">{visible.length} of {rows.length} tests</span>
       </div>
 
-      <div className="qara-table-shell">
+      <div className="qalens-table-shell">
         <div className="overflow-x-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgb(203 213 225) transparent' }}>
-          <table className="qara-table w-full text-sm border-collapse" style={{ minWidth: `${400 + runsOrdered.length * 72}px` }}>
-            <thead className="qara-table-head">
+          <table className="qalens-table w-full text-sm border-collapse" style={{ minWidth: `${400 + runsOrdered.length * 72}px` }}>
+            <thead className="qalens-table-head">
               <tr>
                 {/* Sticky left: Test name */}
                 <th className="text-left px-4 py-3 bg-surface-subtle"
@@ -1603,7 +1603,7 @@ function EntityTestTable({ rows, labels, dimension, externalFilter, windowRunCou
             <tbody>
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={4 + runsOrdered.length} className="qara-table-cell text-center py-12 text-muted">
+                  <td colSpan={4 + runsOrdered.length} className="qalens-table-cell text-center py-12 text-muted">
                     No tests match the current filter
                   </td>
                 </tr>
@@ -1613,9 +1613,9 @@ function EntityTestTable({ rows, labels, dimension, externalFilter, windowRunCou
                   const fails  = failCount(row);
                   const entity = row.owner ?? row.suite_name ?? '';
                   return (
-                    <tr key={row.canonical_name} className="qara-table-row">
+                    <tr key={row.canonical_name} className="qalens-table-row">
                       {/* Sticky left: Test name */}
-                      <td className="qara-table-cell px-4 py-3 bg-surface"
+                      <td className="qalens-table-cell px-4 py-3 bg-surface"
                           style={{ position: 'sticky', left: 0, zIndex: 1 }}>
                         <div className="space-y-0.5" style={{ maxWidth: 260 }}>
                           <div className="font-medium text-primary text-xs leading-snug break-words font-mono">
@@ -1625,27 +1625,27 @@ function EntityTestTable({ rows, labels, dimension, externalFilter, windowRunCou
                         </div>
                       </td>
                       {/* Sticky left: Owner/Suite label */}
-                      <td className="qara-table-cell px-4 py-3 bg-surface border-r border-border-subtle"
+                      <td className="qalens-table-cell px-4 py-3 bg-surface border-r border-border-subtle"
                           style={{ position: 'sticky', left: 280, zIndex: 1 }}>
-                        <span className="qara-pill text-[11px]">{entity.split(' ')[0]}</span>
+                        <span className="qalens-pill text-[11px]">{entity.split(' ')[0]}</span>
                       </td>
                       {/* Run result glyphs */}
                       {runsOrdered.map(run => {
                         const pt = row.run_history.find(p => p.run_sequence === run.run_sequence);
                         const status = pt?.status ?? 'absent';
                         return (
-                          <td key={run.run_sequence} className="qara-table-cell text-center px-2 py-3">
+                          <td key={run.run_sequence} className="qalens-table-cell text-center px-2 py-3">
                             <RunStateGlyph status={status} seq={run.run_sequence} />
                           </td>
                         );
                       })}
                       {/* Sticky right: Status badge */}
-                      <td className="qara-table-cell text-center px-4 py-3 bg-surface border-l border-border-subtle"
+                      <td className="qalens-table-cell text-center px-4 py-3 bg-surface border-l border-border-subtle"
                           style={{ position: 'sticky', right: 56, zIndex: 1 }}>
                         <ClassBadge cls={cls} />
                       </td>
                       {/* Sticky right: Fail count */}
-                      <td className="qara-table-cell text-center px-4 py-3 bg-surface"
+                      <td className="qalens-table-cell text-center px-4 py-3 bg-surface"
                           style={{ position: 'sticky', right: 0, zIndex: 1 }}>
                         <span className={`text-sm font-semibold tabular-nums ${fails > 0 ? 'text-danger' : 'text-muted'}`}>
                           {fails}

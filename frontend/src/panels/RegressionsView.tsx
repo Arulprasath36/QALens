@@ -318,7 +318,7 @@ function ExpandedDetail({ test }: { test: Regression }) {
 
   return (
     <div
-      className="qara-fade-up"
+      className="qalens-fade-up"
       style={{
         padding: '0.85rem 1.35rem 1.1rem 2.85rem',
         background: 'var(--bg-subtle)',
@@ -419,7 +419,7 @@ function TestRow({ test, open, onToggle }: { test: Regression; open: boolean; on
             <span className="mono" style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
               {test.name}
             </span>
-            <span className="qara-badge-danger" style={{ padding: '0.2rem 0.5rem', fontSize: '0.65rem' }}>
+            <span className="qalens-badge-danger" style={{ padding: '0.2rem 0.5rem', fontSize: '0.65rem' }}>
               New regression
             </span>
           </div>
@@ -478,7 +478,7 @@ function FlatRow({ test, open, onToggle }: { test: Regression; open: boolean; on
 
         <div style={{ flex: '0 1 42%', minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="qara-badge-danger" style={{ padding: '0.2rem 0.5rem', fontSize: '0.65rem' }}>
+            <span className="qalens-badge-danger" style={{ padding: '0.2rem 0.5rem', fontSize: '0.65rem' }}>
               New regression
             </span>
             <span className="mono" style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
@@ -569,7 +569,7 @@ function IncidentGroup({
             <ChevronIcon size={14} />
           </span>
           {isNamed ? null : (
-            <span className="qara-pill">UNGROUPED</span>
+            <span className="qalens-pill">UNGROUPED</span>
           )}
           <span style={{ fontSize: '0.9375rem', fontWeight: 600, color: 'var(--text-primary)' }}>
             {cluster.title}
@@ -588,7 +588,7 @@ function IncidentGroup({
 
       {/* Group body */}
       {open && (
-        <div className="qara-fade-up">
+        <div className="qalens-fade-up">
           {cluster.tests.map(t => (
             <TestRow
               key={t.id}
@@ -664,7 +664,7 @@ function RegressionsCard({
   }, [regressions, sortBy]);
 
   return (
-    <div className="qara-card" style={{ overflow: 'hidden' }}>
+    <div className="qalens-card" style={{ overflow: 'hidden' }}>
       {/* Toolbar */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
@@ -684,12 +684,12 @@ function RegressionsCard({
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-          <div className="qara-toolbar-segment" role="tablist" aria-label="View mode">
+          <div className="qalens-toolbar-segment" role="tablist" aria-label="View mode">
             <button
               role="tab"
               aria-selected={view === 'clustered'}
               onClick={() => setView('clustered')}
-              className={`qara-segment-button${view === 'clustered' ? ' qara-segment-button-active' : ''}`}
+              className={`qalens-segment-button${view === 'clustered' ? ' qalens-segment-button-active' : ''}`}
             >
               Clustered
             </button>
@@ -697,7 +697,7 @@ function RegressionsCard({
               role="tab"
               aria-selected={view === 'flat'}
               onClick={() => setView('flat')}
-              className={`qara-segment-button${view === 'flat' ? ' qara-segment-button-active' : ''}`}
+              className={`qalens-segment-button${view === 'flat' ? ' qalens-segment-button-active' : ''}`}
             >
               Flat list
             </button>
@@ -717,7 +717,7 @@ function RegressionsCard({
             />
           )}
           <button
-            className="qara-chip"
+            className="qalens-chip"
             onClick={view === 'clustered' ? (openClusters.size ? collapseAll : expandAll) : (openIds.size ? collapseAll : expandAll)}
           >
             {view === 'clustered'
@@ -858,13 +858,13 @@ export function RegressionsView({
   }
 
   if (error) {
-    return <div className="qara-error-banner">Failed to load regressions: {error}</div>;
+    return <div className="qalens-error-banner">Failed to load regressions: {error}</div>;
   }
 
   if (!history || regressions.length === 0) {
     return (
-      <div className="qara-empty-state">
-        <div className="qara-empty-icon">✓</div>
+      <div className="qalens-empty-state">
+        <div className="qalens-empty-icon">✓</div>
         <p className="type-empty-title">No regressions found</p>
         <p className="type-empty-subtitle">All tests are stable or recovering in this window.</p>
       </div>

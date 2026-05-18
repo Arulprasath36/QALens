@@ -3,18 +3,18 @@ import { Dropdown } from '../../../components/Dropdown';
 import type { ComparisonRow, ComparisonMetrics, DeltaDirection, TestStatus } from '../../types';
 
 const STATUS_CONFIG: Record<TestStatus, { label: string; className: string }> = {
-  passed:  { label: 'Pass',    className: 'qara-badge-success' },
-  failed:  { label: 'Fail',    className: 'qara-badge-danger' },
-  flaky:   { label: 'Flaky',   className: 'qara-badge-warning' },
-  skipped: { label: 'Skip',    className: 'qara-badge-neutral' },
+  passed:  { label: 'Pass',    className: 'qalens-badge-success' },
+  failed:  { label: 'Fail',    className: 'qalens-badge-danger' },
+  flaky:   { label: 'Flaky',   className: 'qalens-badge-warning' },
+  skipped: { label: 'Skip',    className: 'qalens-badge-neutral' },
 };
 
 const DELTA_CONFIG: Record<DeltaDirection, { label: string; className: string }> = {
-  improved:  { label: 'Recovered', className: 'qara-badge-success' },
-  regressed: { label: 'Regressed', className: 'qara-badge-danger' },
-  stable:    { label: 'Stable',    className: 'qara-badge-neutral' },
-  broken:    { label: 'Broken',    className: 'qara-badge-danger'  },
-  new:       { label: 'New',       className: 'qara-badge-info' },
+  improved:  { label: 'Recovered', className: 'qalens-badge-success' },
+  regressed: { label: 'Regressed', className: 'qalens-badge-danger' },
+  stable:    { label: 'Stable',    className: 'qalens-badge-neutral' },
+  broken:    { label: 'Broken',    className: 'qalens-badge-danger'  },
+  new:       { label: 'New',       className: 'qalens-badge-info' },
 };
 
 function StatusBadge({ status }: { status: TestStatus }) {
@@ -88,7 +88,7 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
 
   return (
     <div className="space-y-4">
-      <div className="qara-card p-4 lg:p-5">
+      <div className="qalens-card p-4 lg:p-5">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex items-center gap-2 rounded-full border border-border-default bg-surface-subtle p-1">
             {filterPills.map(pill => (
@@ -96,8 +96,8 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
                 key={pill.key}
                 onClick={() => setFilter(pill.key)}
                 className={[
-                  'qara-pill px-3 py-1.5',
-                  filter === pill.key ? 'qara-pill-active' : 'border-transparent bg-transparent hover:bg-hover',
+                  'qalens-pill px-3 py-1.5',
+                  filter === pill.key ? 'qalens-pill-active' : 'border-transparent bg-transparent hover:bg-hover',
                 ].join(' ')}
               >
                 <span>{pill.label}</span>
@@ -106,7 +106,7 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
             ))}
           </div>
 
-          <div className="qara-control relative flex-1 min-w-[220px] max-w-sm">
+          <div className="qalens-control relative flex-1 min-w-[220px] max-w-sm">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
               <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
               <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -116,7 +116,7 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search tests or suites…"
-              className="qara-input h-11 pl-8 pr-3 text-sm"
+              className="qalens-input h-11 pl-8 pr-3 text-sm"
             />
           </div>
 
@@ -133,9 +133,9 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
         </div>
       </div>
 
-      <div className="qara-table-shell">
-        <table className="qara-table w-full text-sm">
-          <thead className="qara-table-head">
+      <div className="qalens-table-shell">
+        <table className="qalens-table w-full text-sm">
+          <thead className="qalens-table-head">
             <tr>
               <th className="text-left w-[48%]">Test</th>
               <th className="text-left">Suite</th>
@@ -155,9 +155,9 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
               visible.map(row => (
                 <tr
                   key={row.testName}
-                  className="qara-table-row"
+                  className="qalens-table-row"
                 >
-                  <td className="qara-table-cell">
+                  <td className="qalens-table-cell">
                     <div className="space-y-1">
                       <div className="font-medium text-primary leading-snug">
                         {row.displayName}
@@ -170,21 +170,21 @@ export function ComparisonTable({ rows, metricsA, metricsB, initialFilter = 'all
                     </div>
                   </td>
 
-                  <td className="qara-table-cell">
-                    <span className="qara-pill">
+                  <td className="qalens-table-cell">
+                    <span className="qalens-pill">
                       {row.suite}
                     </span>
                   </td>
 
-                  <td className="qara-table-cell text-center">
+                  <td className="qalens-table-cell text-center">
                     <StatusBadge status={row.statusA} />
                   </td>
 
-                  <td className="qara-table-cell text-center">
+                  <td className="qalens-table-cell text-center">
                     <StatusBadge status={row.statusB} />
                   </td>
 
-                  <td className="qara-table-cell text-center">
+                  <td className="qalens-table-cell text-center">
                     <DeltaBadge delta={row.delta} />
                   </td>
                 </tr>

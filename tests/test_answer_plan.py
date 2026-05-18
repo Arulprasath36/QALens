@@ -1,5 +1,5 @@
-"""Tests for qara.llm.answer_plan, qara.llm.prompts (intent-aware), and
-qara.llm.context_history (ConversationContext).
+"""Tests for qalens.llm.answer_plan, qalens.llm.prompts (intent-aware), and
+qalens.llm.context_history (ConversationContext).
 
 Coverage:
 - detect_answer_intent: all 6 intents + priority ordering + default
@@ -13,10 +13,10 @@ from __future__ import annotations
 
 import pytest
 
-from qara.llm.answer_plan import AnswerIntent, AnswerPlan, AnswerType, build_answer_plan, detect_answer_intent, detect_answer_type
-from qara.llm.answer_plan import _is_flakiness_history_query, _is_flakiness_ranking_query  # noqa: E402
-from qara.llm.prompts import build_prompt, build_system_prompt, infer_mode
-from qara.llm.context_history import (
+from qalens.llm.answer_plan import AnswerIntent, AnswerPlan, AnswerType, build_answer_plan, detect_answer_intent, detect_answer_type
+from qalens.llm.answer_plan import _is_flakiness_history_query, _is_flakiness_ranking_query  # noqa: E402
+from qalens.llm.prompts import build_prompt, build_system_prompt, infer_mode
+from qalens.llm.context_history import (
     ConversationContext,
     extract_conversation_context,
     extract_test_from_history,
@@ -259,7 +259,7 @@ def test_build_prompt_history_block_included_in_legacy() -> None:
 
 def test_build_system_prompt_none_returns_base() -> None:
     system = build_system_prompt(None)
-    assert "QARA" in system
+    assert "QaLens" in system
     assert "test-analytics" in system
 
 
@@ -416,7 +416,7 @@ def test_pipeline_drilldown_exact_records_required() -> None:
 # RankingMetric detection — detect_ranking_metric
 # ===========================================================================
 
-from qara.llm.answer_plan import RankingMetric, detect_ranking_metric, detect_secondary_intent
+from qalens.llm.answer_plan import RankingMetric, detect_ranking_metric, detect_secondary_intent
 
 
 class TestDetectRankingMetric:
@@ -655,7 +655,7 @@ class TestBuildSystemPromptUpdate:
 
     def test_drilldown_intent_not_overridden_by_prior_comparison_context(self) -> None:
         """If the question has primary DRILLDOWN signals, prior COMPARISON context must not override it."""
-        from qara.llm.context_history import ResolvedQueryContext
+        from qalens.llm.context_history import ResolvedQueryContext
         prior_ctx = ResolvedQueryContext(
             prior_intent=AnswerIntent.COMPARISON_CHANGE,
             prior_ranking_metric=None,
@@ -682,7 +682,7 @@ class TestBuildSystemPromptUpdate:
 # Gap A — Ranking-first mixed-intent detection
 # ===========================================================================
 
-from qara.llm.answer_plan import _is_ranking_first_mixed_query  # noqa: E402
+from qalens.llm.answer_plan import _is_ranking_first_mixed_query  # noqa: E402
 
 
 class TestRankingFirstMixedQuery:
@@ -827,8 +827,8 @@ class TestMaxResultsThreading:
 
     def test_gather_context_routing_passes_max_results(self) -> None:
         from unittest.mock import patch
-        from qara.llm.routing import gather_context_for_signals, detect_signals, normalize_query
-        from qara.llm.answer_plan import AnswerPlan, AnswerType, RankingMetric
+        from qalens.llm.routing import gather_context_for_signals, detect_signals, normalize_query
+        from qalens.llm.answer_plan import AnswerPlan, AnswerType, RankingMetric
 
         plan = AnswerPlan(
             intent=AnswerIntent.RANKING_LIST,
@@ -841,7 +841,7 @@ class TestMaxResultsThreading:
         )
         signals = detect_signals(normalize_query("top flaky tests"))
 
-        with patch("qara.llm.routing.gather_ranking_context", return_value=("ctx", "facts", [])) as mock_fn:
+        with patch("qalens.llm.routing.gather_ranking_context", return_value=("ctx", "facts", [])) as mock_fn:
             gather_context_for_signals(
                 signals, "top flaky tests", project="P", db_path=None, answer_plan=plan,
             )
@@ -851,8 +851,8 @@ class TestMaxResultsThreading:
 
     def test_gather_context_routing_recommendation_respects_cap(self) -> None:
         from unittest.mock import patch
-        from qara.llm.routing import gather_context_for_signals, detect_signals, normalize_query
-        from qara.llm.answer_plan import AnswerPlan, AnswerType
+        from qalens.llm.routing import gather_context_for_signals, detect_signals, normalize_query
+        from qalens.llm.answer_plan import AnswerPlan, AnswerType
 
         plan = AnswerPlan(
             intent=AnswerIntent.RECOMMENDATION_ACTION,
@@ -864,7 +864,7 @@ class TestMaxResultsThreading:
         )
         signals = detect_signals(normalize_query("what should I fix first"))
 
-        with patch("qara.llm.routing.gather_recommendation_context", return_value=("ctx", "facts", [])) as mock_fn:
+        with patch("qalens.llm.routing.gather_recommendation_context", return_value=("ctx", "facts", [])) as mock_fn:
             gather_context_for_signals(
                 signals, "what should I fix first", project="P", db_path=None, answer_plan=plan,
             )
@@ -877,7 +877,7 @@ class TestMaxResultsThreading:
 # Gap C — ResolvedQueryContext and follow-up inheritance
 # ===========================================================================
 
-from qara.llm.context_history import (  # noqa: E402
+from qalens.llm.context_history import (  # noqa: E402
     ResolvedQueryContext,
     extract_query_context_from_plan,
     has_followup_override,
@@ -887,7 +887,7 @@ from qara.llm.context_history import (  # noqa: E402
     extract_max_results_override,
     extract_prior_context_from_history,
 )
-from qara.llm.answer_plan import RankingMetric as _RankingMetric  # noqa: E402
+from qalens.llm.answer_plan import RankingMetric as _RankingMetric  # noqa: E402
 
 
 class TestResolvedQueryContext:
@@ -1173,7 +1173,7 @@ class TestExtractPriorContextFromHistory:
 # Gap D — Global "answer only what was asked" rule
 # ===========================================================================
 
-from qara.llm.prompts import _BASE_SYSTEM_PROMPT  # noqa: E402
+from qalens.llm.prompts import _BASE_SYSTEM_PROMPT  # noqa: E402
 
 
 class TestGlobalAnswerRule:
@@ -1575,7 +1575,7 @@ class TestFlakinessHistoryRouting:
         The question contains "these tests" which fires has_followup_reference(), but the
         flakiness-history override should prevent intent inheritance.
         """
-        from qara.llm.context_history import ResolvedQueryContext
+        from qalens.llm.context_history import ResolvedQueryContext
 
         prior_ctx = ResolvedQueryContext(prior_intent=AnswerIntent.NEW_REGRESSIONS)
 
@@ -1646,7 +1646,7 @@ class TestFlakinessHistoryRouting:
         """When asked as a follow-up to a NEW_REGRESSIONS answer, the ranking plan
         must still produce the flakiness-RANKING format, not inherit NEW_REGRESSIONS.
         """
-        from qara.llm.context_history import ResolvedQueryContext
+        from qalens.llm.context_history import ResolvedQueryContext
 
         prior_ctx = ResolvedQueryContext(prior_intent=AnswerIntent.NEW_REGRESSIONS)
         plan = build_answer_plan(
@@ -1858,7 +1858,7 @@ class TestFlakinessHistoryRouting:
 class TestDetectAnswerType:
     """Verify deterministic mapping from (intent, question) → AnswerType."""
 
-    from qara.llm.answer_plan import detect_answer_type as _detect
+    from qalens.llm.answer_plan import detect_answer_type as _detect
 
     def test_new_regressions_maps_to_regression_diff(self) -> None:
         at = detect_answer_type(AnswerIntent.NEW_REGRESSIONS, "What new failures appeared?")

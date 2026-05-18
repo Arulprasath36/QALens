@@ -180,7 +180,7 @@ export function Dropdown<T extends string = string>({
         disabled={disabled}
         onClick={() => setOpen(current => !current)}
         className={cx(
-          'qara-control qara-dropdown-trigger',
+          'qalens-control qalens-dropdown-trigger',
           fullWidth && 'w-full',
           disabled && 'cursor-not-allowed opacity-50',
           triggerClassName,
@@ -195,7 +195,7 @@ export function Dropdown<T extends string = string>({
           </span>
         </span>
         {!hideChevron && (
-          <span className={cx('qara-dropdown-chevron', open && 'rotate-180')}>
+          <span className={cx('qalens-dropdown-chevron', open && 'rotate-180')}>
             <svg viewBox="0 0 12 12" fill="none" className="h-3.5 w-3.5" aria-hidden="true">
               <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -208,7 +208,7 @@ export function Dropdown<T extends string = string>({
           id={listboxId}
           role="listbox"
           className={cx(
-            'qara-dropdown-menu',
+            'qalens-dropdown-menu',
             align === 'right' ? 'right-0' : 'left-0',
             menuClassName,
           )}
@@ -232,9 +232,9 @@ export function Dropdown<T extends string = string>({
                 onClick={() => !option.disabled && commit(option.value)}
                 onMouseEnter={() => enabledIndex >= 0 && setActiveIndex(enabledIndex)}
                 className={cx(
-                  'qara-dropdown-option',
-                  isSelected && 'qara-dropdown-option-selected',
-                  isActive && 'qara-dropdown-option-active',
+                  'qalens-dropdown-option',
+                  isSelected && 'qalens-dropdown-option-selected',
+                  isActive && 'qalens-dropdown-option-active',
                   option.disabled && 'cursor-not-allowed opacity-50',
                   optionClassName,
                 )}

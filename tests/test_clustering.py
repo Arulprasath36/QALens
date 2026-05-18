@@ -1,20 +1,20 @@
-"""Tests for qara.analyzers.clustering."""
+"""Tests for qalens.analyzers.clustering."""
 
 from __future__ import annotations
 
 import pytest
 
-from qara.analyzers.clustering import (
+from qalens.analyzers.clustering import (
     _build_label,
     _cluster_confidence,
     _dominant_category,
     _resolve_signature,
     cluster_failures,
 )
-from qara.analyzers.fingerprint import compute_fingerprint
-from qara.models.failure import FailureInfo
-from qara.models.insight import FailureCluster, InsightCategory
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.analyzers.fingerprint import compute_fingerprint
+from qalens.models.failure import FailureInfo
+from qalens.models.insight import FailureCluster, InsightCategory
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 
 # ---------------------------------------------------------------------------
@@ -165,7 +165,7 @@ class TestBuildLabel:
         assert label == "NoSuchElementException"
 
     def test_falls_back_to_message_when_no_error_type(self):
-        from qara.analyzers.categorizer import FailureCategory
+        from qalens.analyzers.categorizer import FailureCategory
         label = _build_label(error_type=None, message="Database connection refused", category=FailureCategory.NETWORK)
         assert label == "Database connection refused"
 
@@ -178,7 +178,7 @@ class TestBuildLabel:
         assert label == "InnerException"
 
     def test_truncates_long_message(self):
-        from qara.analyzers.categorizer import FailureCategory
+        from qalens.analyzers.categorizer import FailureCategory
         long_msg = "x" * 100
         label = _build_label(error_type=None, message=long_msg, category=FailureCategory.UNKNOWN)
         assert len(label) <= 60

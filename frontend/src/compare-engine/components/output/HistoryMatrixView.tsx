@@ -58,12 +58,12 @@ function cellTitle(state: string, runLabel: string): string {
 
 function ClassBadge({ cls }: { cls: string }) {
   if (cls === 'broken' || cls === 'consistently_broken') {
-    return <span className="qara-badge-danger">Failing</span>;
+    return <span className="qalens-badge-danger">Failing</span>;
   }
   if (cls === 'flaky') {
-    return <span className="qara-badge-warning">Flaky</span>;
+    return <span className="qalens-badge-warning">Flaky</span>;
   }
-  return <span className="qara-badge-success">Stable</span>;
+  return <span className="qalens-badge-success">Stable</span>;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -78,9 +78,9 @@ function StatCard({ label, value, tone }: { label: string; value: number; tone?:
     'text-primary';
 
   return (
-    <article className="qara-card qara-fade-up flex-1 min-w-[130px] p-5">
-      <p className="qara-metric-label">{label}</p>
-      <p className={`qara-metric-value text-[clamp(1.8rem,3vw,2.5rem)] font-semibold leading-none mt-3 ${valueClass}`}>
+    <article className="qalens-card qalens-fade-up flex-1 min-w-[130px] p-5">
+      <p className="qalens-metric-label">{label}</p>
+      <p className={`qalens-metric-value text-[clamp(1.8rem,3vw,2.5rem)] font-semibold leading-none mt-3 ${valueClass}`}>
         {value}
       </p>
     </article>
@@ -118,7 +118,7 @@ function passRateColor(rate: number): string {
 function SuiteChip({ suite }: { suite: string }) {
   return (
     <Tooltip content={suite} className="inline-flex max-w-full">
-      <span className="qara-suite-label">{suite}</span>
+      <span className="qalens-suite-label">{suite}</span>
     </Tooltip>
   );
 }
@@ -227,7 +227,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
       <HistorySummaryStats summary={summary} runCount={runs.length} />
 
       {/* ── Toolbar ──────────────────────────────────────── */}
-      <div className="qara-card p-4 lg:p-5">
+      <div className="qalens-card p-4 lg:p-5">
         <div className="flex flex-wrap items-end gap-3">
 
           {/* Filter pills */}
@@ -237,9 +237,9 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
                 key={pill.key}
                 onClick={() => setFilterCls(pill.key)}
                 className={[
-                  'qara-pill px-3 py-1.5',
+                  'qalens-pill px-3 py-1.5',
                   filterCls === pill.key
-                    ? 'qara-pill-active'
+                    ? 'qalens-pill-active'
                     : 'border-transparent bg-transparent hover:bg-hover',
                 ].join(' ')}
               >
@@ -250,7 +250,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
           </div>
 
           {/* Search */}
-          <div className="qara-control relative flex-1 min-w-[200px] max-w-sm">
+          <div className="qalens-control relative flex-1 min-w-[200px] max-w-sm">
             <svg width="13" height="13" viewBox="0 0 16 16" fill="none" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
               <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5" />
               <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -260,7 +260,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search tests or suites…"
-              className="qara-input h-11 pl-8 pr-3 text-sm"
+              className="qalens-input h-11 pl-8 pr-3 text-sm"
             />
           </div>
 
@@ -285,7 +285,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
       </div>
 
       {/* ── Matrix table ─────────────────────────────────── */}
-      <div className="qara-table-shell">
+      <div className="qalens-table-shell">
         <div
           className="overflow-x-auto"
           style={{
@@ -294,10 +294,10 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
           }}
         >
           <table
-            className="qara-table w-full text-sm border-collapse"
+            className="qalens-table w-full text-sm border-collapse"
             style={{ minWidth: `${420 + runs.length * 64}px` }}
           >
-            <thead className="qara-table-head">
+            <thead className="qalens-table-head">
               <tr>
                 {/* Sticky left: Test */}
                 <th
@@ -364,11 +364,11 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
                 </tr>
               ) : (
                 sorted.map(({ row, cellsByRunId, failures }) => (
-                  <tr key={row.testName} className="qara-table-row">
+                  <tr key={row.testName} className="qalens-table-row">
 
                     {/* Sticky left: Test name */}
                     <td
-                      className="qara-table-cell px-4 py-3 bg-surface"
+                      className="qalens-table-cell px-4 py-3 bg-surface"
                       style={{ position: 'sticky', left: 0, zIndex: 1 }}
                     >
                       <div className="space-y-0.5">
@@ -383,7 +383,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
 
                     {/* Sticky left: Suite */}
                     <td
-                      className="qara-table-cell px-4 py-3 bg-surface border-r border-border-subtle"
+                      className="qalens-table-cell px-4 py-3 bg-surface border-r border-border-subtle"
                       style={{ position: 'sticky', left: 280, zIndex: 1 }}
                     >
                       {row.suite ? (
@@ -398,7 +398,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
                       const cell = cellsByRunId.get(run.runId);
                       const state = cell?.state ?? 'absent';
                       return (
-                        <td key={run.runId} className="qara-table-cell text-center px-2 py-3">
+                        <td key={run.runId} className="qalens-table-cell text-center px-2 py-3">
                           <Tooltip content={cellTitle(state, run.label)} className="inline-flex">
                             <RunStateGlyph state={state} />
                           </Tooltip>
@@ -408,7 +408,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
 
                     {/* Sticky right: Status */}
                     <td
-                      className="qara-table-cell text-center px-4 py-3 bg-surface border-l border-border-subtle"
+                      className="qalens-table-cell text-center px-4 py-3 bg-surface border-l border-border-subtle"
                       style={{ position: 'sticky', right: 64, zIndex: 1 }}
                     >
                       <ClassBadge cls={row.classification} />
@@ -416,7 +416,7 @@ export function HistoryMatrixView({ data }: HistoryMatrixViewProps) {
 
                     {/* Sticky right: Fails */}
                     <td
-                      className="qara-table-cell text-center px-4 py-3 bg-surface"
+                      className="qalens-table-cell text-center px-4 py-3 bg-surface"
                       style={{ position: 'sticky', right: 0, zIndex: 1 }}
                     >
                       <span className={`text-sm font-semibold tabular-nums ${failures > 0 ? 'text-danger' : 'text-muted'}`}>

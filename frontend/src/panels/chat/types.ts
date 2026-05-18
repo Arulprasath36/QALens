@@ -682,7 +682,31 @@ export type GenericAnswerResult = {
   body?: string;
 };
 
-export type QaraResult =
+export type TestFixPlaybookResult = {
+  type: 'test_fix_playbook';
+  title: string;
+  subtitle?: string;
+  testName: string;
+  hasActiveFailure: boolean;
+  diagnosis?: string;
+  summary: string;
+  errorType?: string | null;
+  evidence?: string | null;
+  observedRuns?: string[];
+  causes?: string[];
+  checks?: string[];
+  recommendedFix?: string;
+  verification?: string[];
+  confidence?: string;
+  confidenceText?: string;
+  scope?: {
+    windowRuns?: number;
+    failedRuns?: number;
+    dominantOccurrences?: number;
+  };
+};
+
+export type QaLensResult =
   | RiskRankingResult
   | OwnerFailureRateResult
   | OwnerFlakyTestsResult
@@ -700,6 +724,7 @@ export type QaraResult =
   | NewFailuresIntroducedResult
   | RunComparisonResult
   | FailureTrendResult
+  | TestFixPlaybookResult
   | GenericAnswerResult;
 
 export type AssistantUiHints = {

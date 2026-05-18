@@ -1,10 +1,10 @@
-"""Tests for qara.analyzers.fingerprint."""
+"""Tests for qalens.analyzers.fingerprint."""
 
 from __future__ import annotations
 
 import pytest
 
-from qara.analyzers.fingerprint import compute_fingerprint, normalize_stack_trace
+from qalens.analyzers.fingerprint import compute_fingerprint, normalize_stack_trace
 
 
 # ---------------------------------------------------------------------------

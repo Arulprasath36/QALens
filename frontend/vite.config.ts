@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/static/',
   build: {
-    outDir: '../src/qara/server/static',
+    outDir: '../src/qalens/server/static',
     emptyOutDir: true,
     assetsDir: 'assets',
   },

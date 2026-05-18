@@ -1,4 +1,4 @@
-"""Tests for qara.llm.config (Phase 7)."""
+"""Tests for qalens.llm.config (Phase 7)."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from qara.llm.config import (
+from qalens.llm.config import (
     DEFAULT_CONFIG_TOML,
     LLMConfig,
     config_exists,
@@ -49,15 +49,15 @@ def test_is_not_openai_compatible_gemini():
 
 
 def test_effective_api_key_from_env(monkeypatch):
-    monkeypatch.setenv("QARA_LLM_API_KEY", "test-key-from-env")
+    monkeypatch.setenv("QALENS_LLM_API_KEY", "test-key-from-env")
     cfg = LLMConfig(api_key="config-key")
     assert cfg.effective_api_key == "test-key-from-env"
 
 
 def test_effective_api_key_fallback():
     cfg = LLMConfig(api_key="my-key")
-    assert "QARA_LLM_API_KEY" not in os.environ or True  # guard
-    os.environ.pop("QARA_LLM_API_KEY", None)
+    assert "QALENS_LLM_API_KEY" not in os.environ or True  # guard
+    os.environ.pop("QALENS_LLM_API_KEY", None)
     assert cfg.effective_api_key == "my-key"
 
 
@@ -117,7 +117,7 @@ def test_external_llm_requires_opt_in_by_default():
 
 
 def test_external_llm_env_opt_in(monkeypatch):
-    monkeypatch.setenv("QARA_ALLOW_EXTERNAL_LLM", "1")
+    monkeypatch.setenv("QALENS_ALLOW_EXTERNAL_LLM", "1")
     cfg = LLMConfig(provider="openai")
     assert cfg.external_llm_allowed is True
 
@@ -130,7 +130,7 @@ def test_local_llm_is_allowed_without_opt_in():
 def test_load_config_env_overrides_provider(tmp_path, monkeypatch):
     p = tmp_path / "config.toml"
     p.write_text("[llm]\nprovider = \"ollama\"\n", encoding="utf-8")
-    monkeypatch.setenv("QARA_LLM_PROVIDER", "anthropic")
+    monkeypatch.setenv("QALENS_LLM_PROVIDER", "anthropic")
     cfg = load_config(p)
     assert cfg.provider == "anthropic"
 
@@ -138,7 +138,7 @@ def test_load_config_env_overrides_provider(tmp_path, monkeypatch):
 def test_load_config_env_overrides_model(tmp_path, monkeypatch):
     p = tmp_path / "config.toml"
     p.write_text("[llm]\nprovider = \"openai\"\nmodel = \"gpt-4o-mini\"\n", encoding="utf-8")
-    monkeypatch.setenv("QARA_LLM_MODEL", "gpt-4o")
+    monkeypatch.setenv("QALENS_LLM_MODEL", "gpt-4o")
     cfg = load_config(p)
     assert cfg.model == "gpt-4o"
 
@@ -146,7 +146,7 @@ def test_load_config_env_overrides_model(tmp_path, monkeypatch):
 def test_load_config_env_overrides_base_url(tmp_path, monkeypatch):
     p = tmp_path / "config.toml"
     p.write_text("[llm]\nprovider = \"custom\"\n", encoding="utf-8")
-    monkeypatch.setenv("QARA_LLM_BASE_URL", "http://myserver:8080/v1")
+    monkeypatch.setenv("QALENS_LLM_BASE_URL", "http://myserver:8080/v1")
     cfg = load_config(p)
     assert cfg.base_url == "http://myserver:8080/v1"
 

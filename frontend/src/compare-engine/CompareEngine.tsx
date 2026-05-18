@@ -53,10 +53,10 @@ function Skeleton() {
     <div className="space-y-4 animate-pulse">
       <div className="flex gap-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex-1 h-24 qara-card-soft" />
+          <div key={i} className="flex-1 h-24 qalens-card-soft" />
         ))}
       </div>
-      <div className="h-64 qara-card-soft" />
+      <div className="h-64 qalens-card-soft" />
     </div>
   );
 }
@@ -382,7 +382,7 @@ export function CompareEngine() {
       />
 
       {/* ── Control bar ─────────────────────────────────────── */}
-      <div className="qara-fade-up relative z-10 border-b border-border-subtle pb-5">
+      <div className="qalens-fade-up relative z-10 border-b border-border-subtle pb-5">
         <CompareControlBar
           {...compareState}
           owners={owners}
@@ -404,7 +404,7 @@ export function CompareEngine() {
 
       {/* ── Sticky comparison summary bar (entity dimensions) ── */}
       {isEntityDimension && compareState.canCompare && (
-        <div className="flex items-center justify-between gap-4 py-1 qara-fade-up">
+        <div className="flex items-center justify-between gap-4 py-1 qalens-fade-up">
           <div className="flex items-center gap-2.5 min-w-0">
             <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted flex-shrink-0">
               Comparing
@@ -443,7 +443,7 @@ export function CompareEngine() {
 
         {/* Error */}
         {error && !loading && (
-          <div className="qara-card flex items-center gap-3 px-5 py-4 border-danger/20 bg-danger/10 text-danger text-sm">
+          <div className="qalens-card flex items-center gap-3 px-5 py-4 border-danger/20 bg-danger/10 text-danger text-sm">
             <span className="text-lg">⚠️</span>
             <span>{error}</span>
           </div>
@@ -480,8 +480,8 @@ export function CompareEngine() {
               </p>
             ) : (
               <div className="flex items-center gap-2 text-sm">
-                <span className="qara-pill">{timeLabel}</span>
-                <span className="qara-pill">{historyResult.summary.uniqueTests} tests</span>
+                <span className="qalens-pill">{timeLabel}</span>
+                <span className="qalens-pill">{historyResult.summary.uniqueTests} tests</span>
               </div>
             )}
             <h2 className="text-xs font-semibold text-muted uppercase tracking-[0.18em]">
@@ -493,9 +493,9 @@ export function CompareEngine() {
 
         {/* ── Entity view (owners / suites) ── */}
         {entityResult && isEntityDimension && !loading && !error && (
-          <div key={state.selections.slice().sort().join(',')} className="qara-fade-up space-y-5">
+          <div key={state.selections.slice().sort().join(',')} className="qalens-fade-up space-y-5">
             <div className="flex items-center gap-2 text-sm flex-wrap">
-              <span className="qara-pill">{entityResult.time_label}</span>
+              <span className="qalens-pill">{entityResult.time_label}</span>
               <span className="text-muted">
                 {[entityResult.label_a, entityResult.label_b, entityResult.label_c]
                   .filter(Boolean)

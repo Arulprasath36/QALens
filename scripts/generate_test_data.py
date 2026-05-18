@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Synthetic Allure report generator for QARA load testing.
+"""Synthetic Allure report generator for QaLens load testing.
 
 Creates a configurable number of Allure v2 report directories under a
-given output folder, then optionally ingests them all into a QARA database
+given output folder, then optionally ingests them all into a QaLens database
 so you can exercise the Risk, Analysis, Compare, and Chat tabs with
 realistic, varied data.
 
@@ -12,7 +12,7 @@ Usage
     python scripts/generate_test_data.py --runs 20 --ingest
 
 # Generate 40 runs across three projects, custom output dir:
-    python scripts/generate_test_data.py --runs 40 --projects 3 --out /tmp/qara-data --ingest
+    python scripts/generate_test_data.py --runs 40 --projects 3 --out /tmp/qalens-data --ingest
 
 # Just create the report folders without ingesting:
     python scripts/generate_test_data.py --runs 10
@@ -459,15 +459,15 @@ def build_report_dir(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Generate synthetic Allure reports and optionally ingest them into QARA.",
+        description="Generate synthetic Allure reports and optionally ingest them into QaLens.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
     parser.add_argument("--runs",     type=int, default=20,   help="Number of runs to generate per project (default: 20).")
     parser.add_argument("--projects", type=int, default=1,    help="Number of projects to generate (1–3, default: 1).")
     parser.add_argument("--out",      type=Path, default=Path("tmp_test_data"), help="Output directory for report folders.")
-    parser.add_argument("--ingest",   action="store_true",    help="Ingest every generated report into QARA after creation.")
-    parser.add_argument("--db",       type=Path, default=None, help="QARA database path (default: ~/.qara/qara.db).")
+    parser.add_argument("--ingest",   action="store_true",    help="Ingest every generated report into QaLens after creation.")
+    parser.add_argument("--db",       type=Path, default=None, help="QaLens database path (default: ~/.qalens/qalens.db).")
     parser.add_argument("--seed",     type=int, default=42,   help="Random seed for reproducibility (default: 42).")
     parser.add_argument("--clean",    action="store_true",    help="Delete the output directory first if it exists.")
     args = parser.parse_args()
@@ -530,16 +530,16 @@ def main() -> None:
     # -----------------------------------------------------------------
     if not args.ingest:
         print()
-        print("Tip: re-run with --ingest to load everything into QARA:")
+        print("Tip: re-run with --ingest to load everything into QaLens:")
         print(f"     python {sys.argv[0]} --runs {args.runs} --projects {n_projects} --ingest")
         return
 
     print()
-    print("Ingesting into QARA …")
+    print("Ingesting into QaLens …")
     sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-    from qara.api.library import QARAClient  # noqa: PLC0415
+    from qalens.api.library import QaLensClient  # noqa: PLC0415
 
-    client = QARAClient()
+    client = QaLensClient()
     inserted = 0
     skipped = 0
     failed  = 0
@@ -575,7 +575,7 @@ def main() -> None:
     print()
     print("Start the server to explore your data:")
     db_flag = f" --db {args.db}" if args.db else ""
-    print(f"  qara serve{db_flag}")
+    print(f"  qalens serve{db_flag}")
 
 
 if __name__ == "__main__":

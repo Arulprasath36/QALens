@@ -1,4 +1,4 @@
-"""Tests for the Phase-8 analysis pipeline: QARAClient.analyze_report / summarize_report."""
+"""Tests for the Phase-8 analysis pipeline: QaLensClient.analyze_report / summarize_report."""
 
 from __future__ import annotations
 
@@ -9,12 +9,12 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from qara.api.library import QARAClient
-from qara.cli import app
-from qara.models.failure import FailureInfo
-from qara.models.insight import AnalysisSummary, InsightCategory
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.api.library import QaLensClient
+from qalens.cli import app
+from qalens.models.failure import FailureInfo
+from qalens.models.insight import AnalysisSummary, InsightCategory
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 runner = CliRunner()
 
@@ -95,29 +95,29 @@ def _run(*test_cases: TestCaseResult, run_id: str = "run-001") -> TestRun:
 class TestAnalyzeReportBasic:
     def test_returns_analysis_summary(self) -> None:
         run = _run(_tc("testFoo", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert isinstance(result, AnalysisSummary)
 
     def test_run_id_propagated(self) -> None:
         run = _run(_tc("testFoo", TestStatus.FAILED, stack_trace=_JAVA_TRACE), run_id="my-run")
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.run_id == "my-run"
 
     def test_report_format_propagated(self) -> None:
         run = _run(_tc("testFoo", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.report_format == "allure"
 
     def test_engine_version_set(self) -> None:
-        from qara.version import __version__
+        from qalens.version import __version__
 
         run = _run(_tc("testFoo", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.analysis_engine_version == __version__
 
     def test_empty_run_produces_empty_insights(self) -> None:
         run = _run()
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.insights == []
         assert result.clusters == []
 
@@ -127,17 +127,17 @@ class TestAnalyzeReportBasic:
             _tc("t2", TestStatus.PASSED),
             _tc("t3", TestStatus.SKIPPED),
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.insights == []
 
     def test_extraction_warning_count_matches_run(self) -> None:
-        from qara.models.warnings import ExtractionWarning
+        from qalens.models.warnings import ExtractionWarning
 
         run = _run(_tc("t", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
         run.warnings.append(
             ExtractionWarning(field="FailureInfo.stack_trace", reason="truncated")
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.extraction_warning_count == 1
 
 
@@ -153,7 +153,7 @@ class TestStatusCounts:
             _tc("t2", TestStatus.FAILED, stack_trace=_JAVA_TRACE),
             _tc("t3", TestStatus.SKIPPED),
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.status_counts.total == 3
 
     def test_passed_count(self) -> None:
@@ -161,7 +161,7 @@ class TestStatusCounts:
             _tc("t1", TestStatus.PASSED),
             _tc("t2", TestStatus.FAILED, stack_trace=_JAVA_TRACE),
         )
-        assert QARAClient().analyze_report(run).status_counts.passed == 1
+        assert QaLensClient().analyze_report(run).status_counts.passed == 1
 
     def test_failed_count(self) -> None:
         run = _run(
@@ -169,19 +169,19 @@ class TestStatusCounts:
             _tc("t2", TestStatus.BROKEN, stack_trace=_JAVA_TRACE),
             _tc("t3", TestStatus.PASSED),
         )
-        assert QARAClient().analyze_report(run).status_counts.failed == 2
+        assert QaLensClient().analyze_report(run).status_counts.failed == 2
 
     def test_skipped_count(self) -> None:
         run = _run(_tc("t1", TestStatus.SKIPPED), _tc("t2", TestStatus.SKIPPED))
-        assert QARAClient().analyze_report(run).status_counts.skipped == 2
+        assert QaLensClient().analyze_report(run).status_counts.skipped == 2
 
     def test_pass_rate_all_pass(self) -> None:
         run = _run(_tc("t1", TestStatus.PASSED), _tc("t2", TestStatus.PASSED))
-        assert QARAClient().analyze_report(run).status_counts.pass_rate == 1.0
+        assert QaLensClient().analyze_report(run).status_counts.pass_rate == 1.0
 
     def test_pass_rate_empty_run(self) -> None:
         run = _run()
-        assert QARAClient().analyze_report(run).status_counts.pass_rate == 0.0
+        assert QaLensClient().analyze_report(run).status_counts.pass_rate == 0.0
 
 
 # ---------------------------------------------------------------------------
@@ -196,32 +196,32 @@ class TestInsightGeneration:
             _tc("t2", TestStatus.FAILED, stack_trace=_ASSERTION_TRACE),
             _tc("t3", TestStatus.PASSED),
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert len(result.insights) == 2
 
     def test_broken_status_produces_insight(self) -> None:
         run = _run(_tc("t1", TestStatus.BROKEN, stack_trace=_JAVA_TRACE))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert len(result.insights) == 1
 
     def test_insight_test_id_matches_test_case(self) -> None:
         run = _run(_tc("myTest", TestStatus.FAILED, test_id="tc-123", stack_trace=_JAVA_TRACE))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.insights[0].test_id == "tc-123"
 
     def test_insight_test_name_matches(self) -> None:
         run = _run(_tc("loginTest", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.insights[0].test_name == "loginTest"
 
     def test_confidence_is_between_zero_and_one(self) -> None:
         run = _run(_tc("t", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
-        ins = QARAClient().analyze_report(run).insights[0]
+        ins = QaLensClient().analyze_report(run).insights[0]
         assert 0.0 <= ins.confidence <= 1.0
 
     def test_explanation_is_non_empty(self) -> None:
         run = _run(_tc("t", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
-        ins = QARAClient().analyze_report(run).insights[0]
+        ins = QaLensClient().analyze_report(run).insights[0]
         assert ins.explanation.strip()
 
     def test_evidence_contains_error_type(self) -> None:
@@ -233,26 +233,26 @@ class TestInsightGeneration:
                 stack_trace=_ASSERTION_TRACE,
             )
         )
-        ins = QARAClient().analyze_report(run).insights[0]
+        ins = QaLensClient().analyze_report(run).insights[0]
         evidence_text = " ".join(ins.evidence)
         assert "AssertionError" in evidence_text
 
     def test_evidence_contains_signature(self) -> None:
         run = _run(_tc("t", TestStatus.FAILED, stack_trace=_JAVA_TRACE))
-        ins = QARAClient().analyze_report(run).insights[0]
+        ins = QaLensClient().analyze_report(run).insights[0]
         assert any("signature" in e for e in ins.evidence)
 
     def test_no_stack_trace_reduces_confidence(self) -> None:
         run_with = _run(_tc("t", TestStatus.FAILED, stack_trace=_ASSERTION_TRACE,
                             error_type="java.lang.AssertionError"))
         run_without = _run(_tc("t", TestStatus.FAILED, error_type="java.lang.AssertionError"))
-        conf_with = QARAClient().analyze_report(run_with).insights[0].confidence
-        conf_without = QARAClient().analyze_report(run_without).insights[0].confidence
+        conf_with = QaLensClient().analyze_report(run_with).insights[0].confidence
+        conf_without = QaLensClient().analyze_report(run_without).insights[0].confidence
         assert conf_with > conf_without
 
     def test_retry_count_in_evidence(self) -> None:
         run = _run(_tc("t", TestStatus.FAILED, stack_trace=_JAVA_TRACE, retry_count=2))
-        ins = QARAClient().analyze_report(run).insights[0]
+        ins = QaLensClient().analyze_report(run).insights[0]
         assert any("2" in e and "retr" in e for e in ins.evidence)
 
     def test_passed_on_retry_in_evidence(self) -> None:
@@ -261,7 +261,7 @@ class TestInsightGeneration:
         run = _run(
             _tc("t", TestStatus.FAILED, stack_trace=_JAVA_TRACE, retry_count=3)
         )
-        ins = QARAClient().analyze_report(run).insights[0]
+        ins = QaLensClient().analyze_report(run).insights[0]
         assert any("retri" in e.lower() for e in ins.evidence)
 
 
@@ -281,7 +281,7 @@ class TestInsightCategoryMapping:
             )
         )
         assert (
-            QARAClient().analyze_report(run).insights[0].category
+            QaLensClient().analyze_report(run).insights[0].category
             == InsightCategory.LIKELY_TEST_SCRIPT_ISSUE
         )
 
@@ -295,7 +295,7 @@ class TestInsightCategoryMapping:
             )
         )
         assert (
-            QARAClient().analyze_report(run).insights[0].category
+            QaLensClient().analyze_report(run).insights[0].category
             == InsightCategory.LIKELY_PRODUCT_DEFECT
         )
 
@@ -309,7 +309,7 @@ class TestInsightCategoryMapping:
             )
         )
         assert (
-            QARAClient().analyze_report(run).insights[0].category
+            QaLensClient().analyze_report(run).insights[0].category
             == InsightCategory.LIKELY_FLAKY
         )
 
@@ -323,14 +323,14 @@ class TestInsightCategoryMapping:
             )
         )
         assert (
-            QARAClient().analyze_report(run).insights[0].category
+            QaLensClient().analyze_report(run).insights[0].category
             == InsightCategory.LIKELY_ENVIRONMENT_ISSUE
         )
 
     def test_unknown_error_type_maps_to_unknown(self) -> None:
         run = _run(_tc("t", TestStatus.FAILED))
         assert (
-            QARAClient().analyze_report(run).insights[0].category
+            QaLensClient().analyze_report(run).insights[0].category
             == InsightCategory.UNKNOWN
         )
 
@@ -351,7 +351,7 @@ class TestRelatedTests:
                 error_type="org.openqa.selenium.NoSuchElementException",
                 stack_trace=_JAVA_TRACE),
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         related_for_t1 = result.insights[0].related_tests
         related_for_t2 = result.insights[1].related_tests
         # Each test points to the OTHER, not itself
@@ -364,7 +364,7 @@ class TestRelatedTests:
             _tc("t1", TestStatus.FAILED, stack_trace=_JAVA_TRACE),
             _tc("t2", TestStatus.FAILED, stack_trace=_ASSERTION_TRACE),
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         # Different traces → different signatures → no related tests
         assert result.insights[0].related_tests == []
         assert result.insights[1].related_tests == []
@@ -385,7 +385,7 @@ class TestCategoryCountsIntegration:
             _tc("t3", TestStatus.FAILED,
                 error_type="org.openqa.selenium.TimeoutException", stack_trace=_TIMEOUT_TRACE),
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         cc = result.category_counts
         total_counted = (
             cc.likely_product_defect
@@ -399,7 +399,7 @@ class TestCategoryCountsIntegration:
 
     def test_category_counts_all_zero_for_passing_run(self) -> None:
         run = _run(_tc("t", TestStatus.PASSED))
-        cc = QARAClient().analyze_report(run).category_counts
+        cc = QaLensClient().analyze_report(run).category_counts
         assert cc.likely_product_defect == 0
         assert cc.likely_flaky == 0
         assert cc.likely_environment_issue == 0
@@ -420,13 +420,13 @@ class TestClustersIntegration:
                 error_type="org.openqa.selenium.NoSuchElementException",
                 stack_trace=_JAVA_TRACE),
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert len(result.clusters) >= 1
         assert result.clusters[0].size == 2
 
     def test_clusters_empty_for_no_failures(self) -> None:
         run = _run(_tc("t", TestStatus.PASSED))
-        assert QARAClient().analyze_report(run).clusters == []
+        assert QaLensClient().analyze_report(run).clusters == []
 
 
 # ---------------------------------------------------------------------------
@@ -438,18 +438,18 @@ class TestRecommendedActions:
     def test_recommended_actions_non_empty_for_failures(self) -> None:
         run = _run(_tc("t", TestStatus.FAILED, stack_trace=_ASSERTION_TRACE,
                        error_type="java.lang.AssertionError"))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert len(result.recommended_actions) >= 1
 
     def test_no_recommended_actions_for_passing_run(self) -> None:
         run = _run(_tc("t", TestStatus.PASSED))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert result.recommended_actions == []
 
     def test_recommended_actions_mention_product_defect(self) -> None:
         run = _run(_tc("t", TestStatus.FAILED,
                        error_type="java.lang.AssertionError", stack_trace=_ASSERTION_TRACE))
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         combined = " ".join(result.recommended_actions).lower()
         assert "defect" in combined or "reproducible" in combined
 
@@ -467,7 +467,7 @@ class TestFlakyTestIds:
                 error_type="org.openqa.selenium.TimeoutException",
                 stack_trace=_TIMEOUT_TRACE)
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert "tc-flaky" in result.flaky_test_ids
 
     def test_non_flaky_test_not_in_flaky_ids(self) -> None:
@@ -477,7 +477,7 @@ class TestFlakyTestIds:
                 error_type="java.lang.AssertionError",
                 stack_trace=_ASSERTION_TRACE)
         )
-        result = QARAClient().analyze_report(run)
+        result = QaLensClient().analyze_report(run)
         assert "tc-defect" not in result.flaky_test_ids
 
 
@@ -492,7 +492,7 @@ class TestIdempotency:
             _tc("t1", TestStatus.FAILED, stack_trace=_JAVA_TRACE),
             _tc("t2", TestStatus.PASSED),
         )
-        client = QARAClient()
+        client = QaLensClient()
         r1 = client.analyze_report(run)
         r2 = client.analyze_report(run)
         assert r1.status_counts == r2.status_counts
@@ -513,71 +513,71 @@ class TestSummarizeReport:
                 error_type="java.lang.AssertionError", stack_trace=_ASSERTION_TRACE),
             _tc("t2", TestStatus.PASSED),
         )
-        return QARAClient().analyze_report(run)
+        return QaLensClient().analyze_report(run)
 
     def test_json_format_is_valid_json(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="json")
+        content = QaLensClient().summarize_report(analysis, fmt="json")
         parsed = json.loads(content)
         assert isinstance(parsed, dict)
 
     def test_json_contains_run_id(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="json")
+        content = QaLensClient().summarize_report(analysis, fmt="json")
         parsed = json.loads(content)
         assert parsed["run_id"] == "run-001"
 
     def test_json_contains_insights(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="json")
+        content = QaLensClient().summarize_report(analysis, fmt="json")
         parsed = json.loads(content)
         assert "insights" in parsed
         assert isinstance(parsed["insights"], list)
 
     def test_markdown_format_is_string(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="markdown")
+        content = QaLensClient().summarize_report(analysis, fmt="markdown")
         assert isinstance(content, str)
         assert len(content) > 50
 
     def test_markdown_contains_heading(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="markdown")
-        assert "# QARA Analysis Summary" in content
+        content = QaLensClient().summarize_report(analysis, fmt="markdown")
+        assert "# QaLens Analysis Summary" in content
 
     def test_markdown_contains_status_section(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="markdown")
+        content = QaLensClient().summarize_report(analysis, fmt="markdown")
         assert "Status Overview" in content
 
     def test_markdown_contains_run_id(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="markdown")
+        content = QaLensClient().summarize_report(analysis, fmt="markdown")
         assert "run-001" in content
 
     def test_console_format_is_non_empty(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="console")
+        content = QaLensClient().summarize_report(analysis, fmt="console")
         assert isinstance(content, str)
         assert len(content) > 30
 
     def test_console_contains_status_info(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis, fmt="console")
+        content = QaLensClient().summarize_report(analysis, fmt="console")
         assert "Status" in content
 
     def test_default_format_is_console(self, analysis: AnalysisSummary) -> None:
-        content = QARAClient().summarize_report(analysis)
+        content = QaLensClient().summarize_report(analysis)
         assert isinstance(content, str)
         assert len(content) > 0
 
     def test_all_passing_run_markdown(self) -> None:
         run = _run(_tc("t", TestStatus.PASSED))
-        analysis = QARAClient().analyze_report(run)
-        content = QARAClient().summarize_report(analysis, fmt="markdown")
-        assert "# QARA Analysis Summary" in content
+        analysis = QaLensClient().analyze_report(run)
+        content = QaLensClient().summarize_report(analysis, fmt="markdown")
+        assert "# QaLens Analysis Summary" in content
 
     def test_all_passing_run_json(self) -> None:
         run = _run(_tc("t", TestStatus.PASSED))
-        analysis = QARAClient().analyze_report(run)
-        content = QARAClient().summarize_report(analysis, fmt="json")
+        analysis = QaLensClient().analyze_report(run)
+        content = QaLensClient().summarize_report(analysis, fmt="json")
         parsed = json.loads(content)
         assert parsed["insights"] == []
 
 
 # ---------------------------------------------------------------------------
-# qara summarize CLI command
+# qalens summarize CLI command
 # ---------------------------------------------------------------------------
 
 
@@ -605,7 +605,7 @@ class TestSummarizeCLI:
             app, ["summarize", str(allure_dir), "--format", "markdown"]
         )
         assert result.exit_code == 0
-        assert "# QARA Analysis Summary" in result.output
+        assert "# QaLens Analysis Summary" in result.output
 
     def test_summarize_writes_to_file(self, allure_dir: Path, tmp_path: Path) -> None:
         out_file = tmp_path / "summary.json"

@@ -1,10 +1,10 @@
-"""Tests for qara.analyzers.canonical."""
+"""Tests for qalens.analyzers.canonical."""
 
 from __future__ import annotations
 
 import pytest
 
-from qara.analyzers.canonical import names_match, to_canonical_name
+from qalens.analyzers.canonical import names_match, to_canonical_name
 
 
 # ---------------------------------------------------------------------------

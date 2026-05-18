@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
 
 interface Window {
-  _QARA_DEFAULT_PROJECT?: string;
+  _QALENS_DEFAULT_PROJECT?: string;
 }

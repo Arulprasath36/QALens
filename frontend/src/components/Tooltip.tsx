@@ -48,7 +48,7 @@ export function Tooltip({
         left: rect.right + 10,
         top: clampedTop,
         transform: 'translate(0, -50%)',
-        arrowClassName: 'qara-tooltip-arrow qara-tooltip-arrow-right',
+        arrowClassName: 'qalens-tooltip-arrow qalens-tooltip-arrow-right',
       });
       return;
     }
@@ -63,7 +63,7 @@ export function Tooltip({
       left: clampedLeft,
       top: rect.top - 10,
       transform: 'translate(-50%, -100%)',
-      arrowClassName: 'qara-tooltip-arrow',
+      arrowClassName: 'qalens-tooltip-arrow',
     });
   }, [maxWidth, placement]);
 
@@ -97,7 +97,7 @@ export function Tooltip({
 
       {!disabled && open && position && createPortal(
         <div
-          className="qara-tooltip"
+          className="qalens-tooltip"
           style={{
             left: position.left,
             top: position.top,

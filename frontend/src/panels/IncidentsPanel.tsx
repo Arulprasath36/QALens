@@ -354,7 +354,7 @@ function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) 
   return (
     <button
       onClick={handleCopy}
-      className="qara-chip type-chip"
+      className="qalens-chip type-chip"
     >
       {copied
         ? <><span>✓</span> Copied</>
@@ -383,9 +383,9 @@ function StatCards({ incidents, scope }: { incidents: AggregatedIncident[]; scop
   }
 
   return (
-    <div className="qara-stat-grid">
+    <div className="qalens-stat-grid">
       {cards.map(c => (
-        <div key={c.label} className="qara-stat-card">
+        <div key={c.label} className="qalens-stat-card">
           <span className="type-metric-label">{c.label}</span>
           <span className={`type-metric-value ${c.valueClass}`}>{c.value}</span>
         </div>
@@ -754,7 +754,7 @@ function EnrichedClusterCard({
                   )}
                 </div>
                 {inc.representative_stack_trace ? (
-                  <pre className="qara-code-block max-h-48 overflow-x-auto overflow-y-auto whitespace-pre p-3 font-mono text-xs leading-relaxed text-muted">
+                  <pre className="qalens-code-block max-h-48 overflow-x-auto overflow-y-auto whitespace-pre p-3 font-mono text-xs leading-relaxed text-muted">
                     {inc.representative_stack_trace}
                   </pre>
                 ) : (
@@ -1054,7 +1054,7 @@ export function IncidentsPanel() {
   // ── Render ─────────────────────────────────────────────────
 
   return (
-    <div className="qara-page">
+    <div className="qalens-page">
 
       {/* Page header */}
       <PageHeader
@@ -1070,7 +1070,7 @@ export function IncidentsPanel() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-wrap items-center gap-3">
             <label className="type-input-label shrink-0">View</label>
-            <div className="qara-toolbar-segment">
+            <div className="qalens-toolbar-segment">
               {([
                 { id: 'single', label: 'Single Run' },
                 { id: 'window', label: 'Window Analysis' },
@@ -1079,8 +1079,8 @@ export function IncidentsPanel() {
                   key={mode.id}
                   onClick={() => setViewMode(mode.id)}
                   className={[
-                    'qara-segment-button',
-                    viewMode === mode.id ? 'qara-segment-button-active' : '',
+                    'qalens-segment-button',
+                    viewMode === mode.id ? 'qalens-segment-button-active' : '',
                   ].join(' ')}
                 >
                   {mode.label}
@@ -1148,7 +1148,7 @@ export function IncidentsPanel() {
       </section>
 
       {/* Mode switch */}
-      <div className="qara-toolbar-segment mt-2 w-fit">
+      <div className="qalens-toolbar-segment mt-2 w-fit">
         {([
           { id: 'incidents',   label: 'Incidents' },
           { id: 'failures',    label: 'Insights' },
@@ -1157,8 +1157,8 @@ export function IncidentsPanel() {
             key={mode.id}
             onClick={() => setActiveMode(mode.id)}
             className={[
-              'qara-segment-button',
-              activeMode === mode.id ? 'qara-segment-button-active' : '',
+              'qalens-segment-button',
+              activeMode === mode.id ? 'qalens-segment-button-active' : '',
             ].join(' ')}
           >
             {mode.label}
@@ -1182,7 +1182,7 @@ export function IncidentsPanel() {
 
       {/* Error */}
       {activeMode === 'incidents' && incidentsError && !incidentsLoading && (
-        <div className="qara-error-banner">
+        <div className="qalens-error-banner">
           <span>⚠️</span>
           <span>Failed to load incidents: {incidentsError}</span>
         </div>
@@ -1190,8 +1190,8 @@ export function IncidentsPanel() {
 
       {/* Empty state */}
       {activeMode === 'incidents' && !incidentsLoading && !incidentsError && runs.length > 0 && enrichedClusters.length === 0 && (
-        <div id="incident-clusters" className="qara-empty-state">
-          <div className="qara-empty-icon">✅</div>
+        <div id="incident-clusters" className="qalens-empty-state">
+          <div className="qalens-empty-icon">✅</div>
           <p className="type-empty-title">
             {viewMode === 'single' ? 'This run is clean' : `No recurring incident clusters detected in ${windowRangeLabel}`}
           </p>
@@ -1205,8 +1205,8 @@ export function IncidentsPanel() {
 
       {/* No run selected */}
       {activeMode === 'incidents' && !incidentsLoading && !incidentsError && runs.length === 0 && !runsLoading && (
-        <div className="qara-empty-state">
-          <div className="qara-empty-icon">🔍</div>
+        <div className="qalens-empty-state">
+          <div className="qalens-empty-icon">🔍</div>
           <p className="type-empty-title">Select a run above</p>
         </div>
       )}
@@ -1300,8 +1300,8 @@ export function IncidentsPanel() {
               />
             ))
           ) : (
-            <div className="qara-empty-state">
-              <div className="qara-empty-icon">🔎</div>
+            <div className="qalens-empty-state">
+              <div className="qalens-empty-icon">🔎</div>
               <p className="type-empty-title">No incident cards match this type</p>
               <p className="type-empty-subtitle max-w-sm">
                 Clear the filter or pick another incident type to see matching clusters in this run window.

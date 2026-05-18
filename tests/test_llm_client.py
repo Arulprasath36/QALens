@@ -1,4 +1,4 @@
-"""Tests for qara.llm.client (Phase 7) — uses pytest-httpx to mock HTTP."""
+"""Tests for qalens.llm.client (Phase 7) — uses pytest-httpx to mock HTTP."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from qara.llm.client import LLMClient, LLMError
-from qara.llm.config import LLMConfig
+from qalens.llm.client import LLMClient, LLMError
+from qalens.llm.config import LLMConfig
 
 
 # ---------------------------------------------------------------------------

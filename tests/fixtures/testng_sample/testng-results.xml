@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results total="4" passed="1" failed="1" skipped="1" ignored="0">
+  <suite name="ShopNow Suite" duration-ms="3650" started-at="2026-02-22T04:00:00Z" finished-at="2026-02-22T04:00:04Z">
+    <test name="Checkout Tests">
+      <class name="com.shopnow.checkout.CheckoutTest">
+        <test-method
+          status="PASS"
+          signature="testPayPalRedirect()[pri:0, instance:com.shopnow.checkout.CheckoutTest@123]"
+          name="testPayPalRedirect"
+          duration-ms="800"
+          started-at="2026-02-22T04:00:00Z"
+          finished-at="2026-02-22T04:00:01Z"
+          is-config="false">
+          <attributes>
+            <attribute name="owner"><value>Payments Team</value></attribute>
+            <attribute name="feature"><value>Checkout</value></attribute>
+            <attribute name="story"><value>PayPal redirect</value></attribute>
+            <attribute name="tags"><value>payments, smoke</value></attribute>
+          </attributes>
+          <groups>
+            <group name="regression" />
+          </groups>
+        </test-method>
+        <test-method
+          status="FAIL"
+          signature="testCreditCardPayment()[pri:0, instance:com.shopnow.checkout.CheckoutTest@123]"
+          name="testCreditCardPayment"
+          duration-ms="1200"
+          is-config="false">
+          <exception class="java.lang.AssertionError">
+            <message>Expected confirmation banner after payment</message>
+            <full-stacktrace>java.lang.AssertionError: Expected confirmation banner after payment
+	at com.shopnow.checkout.CheckoutTest.testCreditCardPayment(CheckoutTest.java:42)</full-stacktrace>
+          </exception>
+          <attributes>
+            <attribute name="owner"><value>Payments Team</value></attribute>
+          </attributes>
+        </test-method>
+        <test-method
+          status="SKIP"
+          signature="testApplyCoupon()[pri:0, instance:com.shopnow.checkout.CheckoutTest@123]"
+          name="testApplyCoupon"
+          duration-ms="0"
+          is-config="false" />
+        <test-method
+          status="PASS"
+          name="beforeMethod"
+          duration-ms="50"
+          is-config="true" />
+      </class>
+    </test>
+  </suite>
+</testng-results>

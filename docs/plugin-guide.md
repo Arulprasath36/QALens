@@ -1,6 +1,6 @@
 # Plugin Guide
 
-QARA is designed for extensibility. This guide explains how to add custom parsers, categorization rules, and output writers without forking the project.
+QaLens is designed for extensibility. This guide explains how to add custom parsers, categorization rules, and output writers without forking the project.
 
 ---
 
@@ -11,25 +11,36 @@ QARA is designed for extensibility. This guide explains how to add custom parser
 ```python
 # my_plugin/parsers/myformat.py
 from pathlib import Path
-from qara.parsers.base import BaseParser
-from qara.models.run import TestRun
+from qalens.parsers.base import BaseParser, DetectionResult
+from qalens.models.run import TestRun
 
 class MyFormatParser(BaseParser):
     """Parser for MyFormat test reports."""
 
-    def can_handle(self, report_path: Path) -> bool:
-        """Return True if this parser can handle the given report path."""
-        return (report_path / "myformat-marker.json").exists()
+    parser_key = "myformat"           # required: short unique id, lowercase
+    parser_name = "MyFormat Reports"  # required: human-readable display name
+
+    def can_parse(self, report_path: Path) -> DetectionResult:
+        """Return a DetectionResult indicating how confident we are this is a MyFormat report."""
+        marker = report_path / "myformat-marker.json"
+        if marker.exists():
+            return DetectionResult(confidence=0.9, evidence=["myformat-marker.json found"])
+        return DetectionResult(confidence=0.0, evidence=[])
 
     def parse(self, report_path: Path) -> TestRun:
         """Parse the report and return a canonical TestRun."""
         ...
 ```
 
+`DetectionResult.confidence` is a float in `[0, 1]`:
+- `≥ 0.8` — high confidence (multiple strong signals)
+- `0.5 – 0.79` — medium confidence (partial match)
+- `< 0.5` — not matched (parser will be skipped)
+
 ### Step 2: Register your parser
 
 ```python
-from qara.parsers.detector import Detector
+from qalens.parsers.detector import Detector
 from my_plugin.parsers.myformat import MyFormatParser
 
 detector = Detector()
@@ -39,18 +50,19 @@ detector.register(MyFormatParser())
 Or, if using the library API:
 
 ```python
-from qara.api.library import QARAClient
+from qalens.api.library import QaLensClient
 from my_plugin.parsers.myformat import MyFormatParser
 
-client = QARAClient(extra_parsers=[MyFormatParser()])
+client = QaLensClient(extra_parsers=[MyFormatParser()])
 run = client.extract_report("./reports/myformat-report")
 ```
 
 ### Parser contract
 
-- `can_handle(path)` must be fast (no heavy I/O) — it is called during detection
+- `parser_key` and `parser_name` must be set as class attributes
+- `can_parse(path)` must be fast (no heavy I/O) — it is called during detection
 - `parse(path)` must return a `TestRun`, even if partially populated
-- Use `ExtractionWarning` for missing fields, never raise unhandled exceptions
+- Use `self._warn(...)` to record `ExtractionWarning` for missing fields — never raise for optional data
 - Do not perform any analysis inside the parser
 
 ---
@@ -61,9 +73,9 @@ Categorization rules are simple functions that evaluate a `FailureInfo` in conte
 
 ```python
 # my_plugin/rules/my_rule.py
-from qara.models.failure import FailureInfo
-from qara.models.insight import Insight, InsightCategory
-from qara.models.test_case import TestCaseResult
+from qalens.models.failure import FailureInfo
+from qalens.models.insight import Insight, InsightCategory
+from qalens.models.test_case import TestCaseResult
 
 def my_custom_rule(
     test: TestCaseResult,
@@ -84,7 +96,7 @@ def my_custom_rule(
 ### Register the rule
 
 ```python
-from qara.analyzers.categorizer import Categorizer
+from qalens.analyzers.categorizer import Categorizer
 from my_plugin.rules.my_rule import my_custom_rule
 
 categorizer = Categorizer(extra_rules=[my_custom_rule])
@@ -93,48 +105,49 @@ categorizer = Categorizer(extra_rules=[my_custom_rule])
 Or via the library API:
 
 ```python
-from qara.api.library import QARAClient
+from qalens.api.library import QaLensClient
 from my_plugin.rules.my_rule import my_custom_rule
 
-client = QARAClient(extra_categorizer_rules=[my_custom_rule])
+client = QaLensClient(extra_categorizer_rules=[my_custom_rule])
 ```
 
 ---
 
 ## Adding a Custom Output Writer
 
+> **Note:** A formal `BaseWriter` interface is not yet implemented. Custom output
+> is currently achieved by consuming `AnalysisSummary` directly from the library API:
+
 ```python
-# my_plugin/outputs/slack_writer.py
-from qara.outputs.base import BaseWriter
-from qara.models.insight import AnalysisSummary
+from qalens.api.library import QaLensClient
 
-class SlackWriter(BaseWriter):
-    """Writes QARA summaries as Slack block-kit messages."""
+client = QaLensClient()
+run = client.extract_report("./reports/myformat-report")
+analysis = client.analyze_report(run)
+summary = analysis  # AnalysisSummary — consume however you need
 
-    def write(self, summary: AnalysisSummary, destination: str) -> None:
-        blocks = self._build_blocks(summary)
-        # post to Slack webhook at ``destination``
-        ...
-
-    def _build_blocks(self, summary: AnalysisSummary) -> list[dict]:
-        ...
+# Example: post to a Slack webhook
+import httpx
+httpx.post("https://hooks.slack.com/...", json={"text": str(summary)})
 ```
+
+A pluggable `BaseWriter` interface is planned for a future release.
 
 ---
 
 ## Future Plugin Discovery (Planned)
 
-In a future release, QARA will support automatic plugin discovery via Python entry points:
+In a future release, QaLens will support automatic plugin discovery via Python entry points:
 
 ```toml
 # your plugin's pyproject.toml
-[project.entry-points."qara.parsers"]
+[project.entry-points."qalens.parsers"]
 myformat = "my_plugin.parsers.myformat:MyFormatParser"
 
-[project.entry-points."qara.rules"]
+[project.entry-points."qalens.rules"]
 my_rule = "my_plugin.rules.my_rule:my_custom_rule"
 ```
 
-This will allow `pip install qara-myformat-plugin` to automatically extend QARA.
+This will allow `pip install qalens-myformat-plugin` to automatically extend QaLens.
 
 > **Note**: The entry-point plugin loader is not yet implemented in v1. The programmatic API above is the supported extension mechanism for now.

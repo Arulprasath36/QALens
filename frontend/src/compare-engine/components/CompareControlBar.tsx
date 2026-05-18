@@ -134,7 +134,7 @@ export function CompareControlBar({
         {/* Active comparison badge */}
         {canCompare && selectionPill && (
           <div className="flex items-center gap-2 ml-auto">
-            <span className="qara-pill qara-pill-active text-xs">
+            <span className="qalens-pill qalens-pill-active text-xs">
               {selectionPill}
             </span>
           </div>
@@ -143,7 +143,7 @@ export function CompareControlBar({
         {onReset && (
           <button
             onClick={onReset}
-            className="qara-chip type-chip"
+            className="qalens-chip type-chip"
           >
             Reset
           </button>

@@ -83,9 +83,9 @@ secrets.toml
 *.p12
 *.pfx
 
-# QARA — local history and output dirs
+# QaLens — local history and output dirs
 /history/
-.qara_cache/
+.qalens_cache/
 /outputs/
 /artifacts/
 /screenshots/
@@ -108,7 +108,7 @@ site/
 *.sqlite3-shm
 *.sqlite3-wal
 
-# QARA — local test data and generated reports
+# QaLens — local test data and generated reports
 tmp_test_data/
 !tmp_test_data/
 tmp_test_data/*
@@ -149,5 +149,5 @@ frontend/.vitest/
 *.tsbuildinfo
 # Generated frontend assets — rebuilt by `make build-ui` / `hatch build`.
 # The .gitkeep marker keeps the directory tracked; everything else is ignored.
-src/qara/server/static/*
-!src/qara/server/static/.gitkeep
+src/qalens/server/static/*
+!src/qalens/server/static/.gitkeep

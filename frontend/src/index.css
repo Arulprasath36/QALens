@@ -176,27 +176,27 @@
 }
 
 @layer components {
-  .qara-card {
+  .qalens-card {
     border: 1px solid var(--border-default);
     border-radius: 1.25rem;
     background: var(--bg-surface);
     box-shadow: var(--shadow-card);
   }
 
-  .qara-card-soft {
+  .qalens-card-soft {
     border: 1px solid var(--border-subtle);
     border-radius: 1.25rem;
     background: var(--bg-subtle);
   }
 
-  .qara-card-elevated {
+  .qalens-card-elevated {
     border: 1px solid var(--border-default);
     border-radius: 1.25rem;
     background: var(--bg-surface);
     box-shadow: var(--shadow-elevated);
   }
 
-  .qara-control {
+  .qalens-control {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -215,25 +215,25 @@
       color 140ms ease;
   }
 
-  html.dark .qara-control {
+  html.dark .qalens-control {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
-  .qara-control:hover {
+  .qalens-control:hover {
     transform: translateY(-1px);
     border-color: var(--border-strong);
     background: var(--bg-hover);
   }
 
-  .qara-control:focus-within,
-  .qara-control:focus-visible {
+  .qalens-control:focus-within,
+  .qalens-control:focus-visible {
     outline: none;
     border-color: var(--color-info);
     box-shadow: var(--focus-ring);
   }
 
-  .qara-input,
-  .qara-select {
+  .qalens-input,
+  .qalens-select {
     width: 100%;
     border: 0;
     background: transparent;
@@ -241,7 +241,7 @@
     outline: none;
   }
 
-  .qara-chip {
+  .qalens-chip {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -263,21 +263,21 @@
       box-shadow 140ms ease;
   }
 
-  .qara-chip:hover {
+  .qalens-chip:hover {
     transform: translateY(-1px);
     border-color: var(--border-strong);
     background: var(--bg-hover);
     color: var(--text-primary);
   }
 
-  .qara-chip-active {
+  .qalens-chip-active {
     border-color: rgb(var(--info-rgb) / 0.28);
     background: var(--bg-selected);
     color: var(--text-primary);
     box-shadow: inset 0 0 0 1px rgb(var(--info-rgb) / 0.08);
   }
 
-  .qara-pill {
+  .qalens-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -293,13 +293,13 @@
     line-height: 1;
   }
 
-  .qara-pill-active {
+  .qalens-pill-active {
     border-color: rgb(0 0 0 / .1);
     background: var(--bg-selected);
     color: var(--text-primary);
   }
 
-  .qara-suite-label {
+  .qalens-suite-label {
     display: -webkit-box;
     max-width: 7.5rem;
     overflow: hidden;
@@ -313,11 +313,11 @@
     -webkit-line-clamp: 2;
   }
 
-  .qara-badge-success,
-  .qara-badge-warning,
-  .qara-badge-danger,
-  .qara-badge-info,
-  .qara-badge-neutral {
+  .qalens-badge-success,
+  .qalens-badge-warning,
+  .qalens-badge-danger,
+  .qalens-badge-info,
+  .qalens-badge-neutral {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -330,37 +330,37 @@
     letter-spacing: 0.01em;
   }
 
-  .qara-badge-success {
+  .qalens-badge-success {
     background: rgb(var(--success-rgb) / 0.12);
     border-color: rgb(var(--success-rgb) / 0.2);
     color: var(--color-success);
   }
 
-  .qara-badge-warning {
+  .qalens-badge-warning {
     background: rgb(var(--warning-rgb) / 0.12);
     border-color: rgb(var(--warning-rgb) / 0.2);
     color: var(--color-warning);
   }
 
-  .qara-badge-danger {
+  .qalens-badge-danger {
     background: rgb(var(--danger-rgb) / 0.12);
     border-color: rgb(var(--danger-rgb) / 0.2);
     color: var(--color-danger);
   }
 
-  .qara-badge-info {
+  .qalens-badge-info {
     background: rgb(var(--info-rgb) / 0.12);
     border-color: rgb(var(--info-rgb) / 0.2);
     color: var(--color-info);
   }
 
-  .qara-badge-neutral {
+  .qalens-badge-neutral {
     background: var(--bg-subtle);
     border-color: var(--border-default);
     color: var(--text-muted);
   }
 
-  .qara-table-shell {
+  .qalens-table-shell {
     overflow: hidden;
     border: 1px solid var(--border-default);
     border-radius: 1.25rem;
@@ -368,11 +368,11 @@
     box-shadow: var(--shadow-card);
   }
 
-  .qara-table-head {
+  .qalens-table-head {
     background: var(--bg-subtle);
   }
 
-  .qara-table-head th {
+  .qalens-table-head th {
     border-bottom: 1px solid var(--border-default);
     padding: 0.75rem 1rem;
     color: var(--text-muted);
@@ -383,20 +383,20 @@
     white-space: nowrap;
   }
 
-  .qara-table-row td {
+  .qalens-table-row td {
     border-bottom: 1px solid var(--border-subtle);
   }
 
-  .qara-table-row:hover {
+  .qalens-table-row:hover {
     background: var(--bg-hover);
   }
 
-  .qara-table-cell {
+  .qalens-table-cell {
     padding: 1rem 1rem;
     vertical-align: middle;
   }
 
-  .qara-metric-value {
+  .qalens-metric-value {
     font-size: 2.25rem;
     font-weight: 700;
     line-height: 1.05;
@@ -405,7 +405,7 @@
     font-feature-settings: 'tnum' 1, 'lnum' 1;
   }
 
-  .qara-metric-label {
+  .qalens-metric-label {
     color: var(--text-muted);
     font-size: 0.6875rem;
     font-weight: 600;
@@ -414,7 +414,7 @@
     line-height: 1;
   }
 
-  .qara-meter-track {
+  .qalens-meter-track {
     position: relative;
     overflow: hidden;
     height: 0.5rem;
@@ -422,7 +422,7 @@
     background: var(--bg-subtle);
   }
 
-  .qara-meter-fill {
+  .qalens-meter-fill {
     position: relative;
     height: 100%;
     border-radius: inherit;
@@ -430,7 +430,7 @@
     box-shadow: 0 0 0 1px rgb(var(--info-rgb) / 0.12);
   }
 
-  .qara-meter-knob {
+  .qalens-meter-knob {
     position: absolute;
     right: -0.375rem;
     top: 50%;
@@ -443,7 +443,7 @@
     box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
   }
 
-  .qara-nav-item {
+  .qalens-nav-item {
     display: flex;
     align-items: center;
     gap: 0.65rem;
@@ -460,25 +460,25 @@
       border-color 140ms ease;
   }
 
-  .qara-nav-item:hover {
+  .qalens-nav-item:hover {
     transform: translateY(-1px);
     background: var(--bg-hover);
     color: var(--text-primary);
   }
 
-  .qara-nav-item-active {
+  .qalens-nav-item-active {
     background: var(--bg-selected);
     color: var(--text-primary);
     box-shadow: inset 0 0 0 1px rgb(var(--info-rgb) / 0.08);
   }
 
-  .qara-dropdown-trigger {
+  .qalens-dropdown-trigger {
     justify-content: space-between;
     gap: 0.75rem;
     text-align: left;
   }
 
-  .qara-dropdown-chevron {
+  .qalens-dropdown-chevron {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -489,7 +489,7 @@
     flex-shrink: 0;
   }
 
-  .qara-dropdown-menu {
+  .qalens-dropdown-menu {
     position: absolute;
     top: calc(100% + 0.5rem);
     min-width: 100%;
@@ -504,7 +504,7 @@
     overflow-x: hidden;
   }
 
-  .qara-dropdown-option {
+  .qalens-dropdown-option {
     display: flex;
     width: 100%;
     align-items: center;
@@ -520,18 +520,18 @@
       color 120ms ease;
   }
 
-  .qara-dropdown-option:hover,
-  .qara-dropdown-option-active {
+  .qalens-dropdown-option:hover,
+  .qalens-dropdown-option-active {
     background: var(--bg-hover);
     color: var(--text-primary);
   }
 
-  .qara-dropdown-option-selected {
+  .qalens-dropdown-option-selected {
     background: var(--bg-selected);
     color: var(--text-primary);
   }
 
-  .qara-modal-root {
+  .qalens-modal-root {
     position: fixed;
     inset: 0;
     z-index: 90;
@@ -541,7 +541,7 @@
     padding: 1.5rem;
   }
 
-  .qara-modal-backdrop {
+  .qalens-modal-backdrop {
     position: absolute;
     inset: 0;
     background:
@@ -550,7 +550,7 @@
     backdrop-filter: blur(10px);
   }
 
-  .qara-modal-panel {
+  .qalens-modal-panel {
     position: relative;
     z-index: 1;
     display: flex;
@@ -564,7 +564,7 @@
     box-shadow: var(--shadow-overlay);
   }
 
-  .qara-modal-header {
+  .qalens-modal-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -576,7 +576,7 @@
       var(--bg-surface);
   }
 
-  .qara-modal-title {
+  .qalens-modal-title {
     margin: 0;
     color: var(--text-primary);
     font-size: 1.15rem;
@@ -585,20 +585,20 @@
     line-height: 1.1;
   }
 
-  .qara-modal-meta {
+  .qalens-modal-meta {
     margin-top: 0.35rem;
     color: var(--text-muted);
     font-size: 0.875rem;
     line-height: 1.45;
   }
 
-  .qara-modal-body {
+  .qalens-modal-body {
     flex: 1;
     overflow: auto;
     padding: 1.1rem 1.25rem 1.25rem;
   }
 
-  .qara-modal-footer {
+  .qalens-modal-footer {
     position: sticky;
     bottom: 0;
     display: flex;
@@ -612,19 +612,19 @@
       var(--bg-surface);
   }
 
-  html.dark .qara-modal-footer {
+  html.dark .qalens-modal-footer {
     background:
       linear-gradient(180deg, rgb(17 24 39 / 0.82), rgb(17 24 39 / 0.96)),
       var(--bg-surface);
   }
 
-  .qara-page {
+  .qalens-page {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
   }
 
-  .qara-page-header {
+  .qalens-page-header {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start;
@@ -632,22 +632,22 @@
     gap: 1rem;
   }
 
-  .qara-page-header-compact {
+  .qalens-page-header-compact {
     gap: 0.75rem;
   }
 
-  .qara-page-header-minimal {
+  .qalens-page-header-minimal {
     gap: 0.5rem;
   }
 
-  .qara-page-heading {
+  .qalens-page-heading {
     display: flex;
     align-items: flex-start;
     gap: 0.9rem;
     min-width: 0;
   }
 
-  .qara-page-icon {
+  .qalens-page-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -663,11 +663,11 @@
     flex-shrink: 0;
   }
 
-  html.dark .qara-page-icon {
+  html.dark .qalens-page-icon {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
-  .qara-page-kicker {
+  .qalens-page-kicker {
     margin: 0 0 0.32rem;
     color: var(--text-muted);
     font-size: 0.6875rem;
@@ -677,7 +677,7 @@
     text-transform: uppercase;
   }
 
-  .qara-page-title {
+  .qalens-page-title {
     margin: 0;
     color: var(--text-primary);
     font-size: 1.55rem;
@@ -686,7 +686,7 @@
     line-height: 1.05;
   }
 
-  .qara-page-subtitle {
+  .qalens-page-subtitle {
     margin: 0.45rem 0 0;
     max-width: 44rem;
     color: var(--text-muted);
@@ -694,26 +694,26 @@
     line-height: 1.55;
   }
 
-  .qara-page-meta {
+  .qalens-page-meta {
     color: var(--text-muted);
     font-size: 0.875rem;
     line-height: 1.4;
     letter-spacing: -0.01em;
   }
 
-  .qara-page-title-minimal {
+  .qalens-page-title-minimal {
     font-size: 1.125rem;
     line-height: 1.15;
     letter-spacing: -0.03em;
   }
 
-  .qara-stat-grid {
+  .qalens-stat-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     gap: 0.9rem;
   }
 
-  .qara-stat-card {
+  .qalens-stat-card {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
@@ -727,13 +727,13 @@
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.025), 0 10px 28px rgba(15, 23, 42, 0.025);
   }
 
-  html.dark .qara-stat-card {
+  html.dark .qalens-stat-card {
     background:
       linear-gradient(180deg, rgb(255 255 255 / 0.01), rgb(255 255 255 / 0)),
       var(--bg-surface);
   }
 
-  .qara-toolbar {
+  .qalens-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -744,7 +744,7 @@
     background: var(--bg-subtle);
   }
 
-  .qara-toolbar-segment {
+  .qalens-toolbar-segment {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
@@ -755,11 +755,11 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
   }
 
-  html.dark .qara-toolbar-segment {
+  html.dark .qalens-toolbar-segment {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
   }
 
-  .qara-segment-button {
+  .qalens-segment-button {
     border-radius: 0.8rem;
     padding: 0.55rem 0.8rem;
     color: var(--text-muted);
@@ -772,26 +772,26 @@
       transform 140ms ease;
   }
 
-  .qara-segment-button:hover {
+  .qalens-segment-button:hover {
     color: var(--text-primary);
   }
 
-  .qara-segment-button-active {
+  .qalens-segment-button-active {
     background: var(--bg-selected);
     color: var(--text-primary);
   }
 
-  .qara-inline-note {
+  .qalens-inline-note {
     color: var(--text-muted);
     font-size: 0.75rem;
     line-height: 1.4;
   }
 
-  .qara-inline-insight {
+  .qalens-inline-insight {
     background: var(--bg-inline-insight);
   }
 
-  .qara-tooltip {
+  .qalens-tooltip {
     position: fixed;
     z-index: 80;
     padding: 0.7rem 0.8rem;
@@ -805,7 +805,7 @@
     pointer-events: none;
   }
 
-  .qara-tooltip-arrow {
+  .qalens-tooltip-arrow {
     position: absolute;
     left: 50%;
     bottom: -0.35rem;
@@ -817,11 +817,11 @@
     transform: translateX(-50%) rotate(45deg);
   }
 
-  .qara-tooltip-arrow-right {
+  .qalens-tooltip-arrow-right {
     display: none;
   }
 
-  .qara-empty-state {
+  .qalens-empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -834,7 +834,7 @@
     text-align: center;
   }
 
-  .qara-empty-icon {
+  .qalens-empty-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -847,7 +847,7 @@
     box-shadow: var(--shadow-card);
   }
 
-  .qara-error-banner {
+  .qalens-error-banner {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -859,7 +859,7 @@
     font-size: 0.875rem;
   }
 
-  .qara-accordion {
+  .qalens-accordion {
     border: 1px solid var(--border-default);
     border-radius: 1.2rem;
     background: var(--bg-surface);
@@ -867,29 +867,29 @@
     overflow: hidden;
   }
 
-  .qara-accordion-muted {
+  .qalens-accordion-muted {
     border: 1px solid var(--border-default);
     border-radius: 1.2rem;
     background: var(--bg-subtle);
   }
 
-  .qara-code-block {
+  .qalens-code-block {
     border: 1px solid var(--border-default);
     border-radius: 0.9rem;
     background: var(--bg-subtle);
     color: var(--text-secondary);
   }
 
-  .qara-fade-up {
-    animation: qara-fade-up 180ms ease-out both;
+  .qalens-fade-up {
+    animation: qalens-fade-up 180ms ease-out both;
   }
 
-  .qara-insight-reveal {
-    animation: qara-insight-reveal 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  .qalens-insight-reveal {
+    animation: qalens-insight-reveal 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     transform-origin: top left;
   }
 
-  .qara-insight-cta {
+  .qalens-insight-cta {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
@@ -907,18 +907,18 @@
       text-decoration-color 140ms ease;
   }
 
-  .qara-insight-cta:hover {
+  .qalens-insight-cta:hover {
     color: rgb(var(--info-rgb) / 0.95);
     text-decoration-color: rgb(var(--info-rgb) / 0.35);
   }
 
-  .qara-insight-cta svg {
+  .qalens-insight-cta svg {
     transition:
       transform 140ms ease,
       opacity 140ms ease;
   }
 
-  .qara-insight-cta:hover svg {
+  .qalens-insight-cta:hover svg {
     transform: translateX(2px);
     opacity: 1;
   }
@@ -1108,7 +1108,7 @@
   }
 }
 
-@keyframes qara-fade-up {
+@keyframes qalens-fade-up {
   from {
     opacity: 0;
     transform: translateY(4px);
@@ -1119,7 +1119,7 @@
   }
 }
 
-@keyframes qara-insight-reveal {
+@keyframes qalens-insight-reveal {
   from {
     opacity: 0;
     transform: translateY(6px) scale(0.988);
@@ -1242,54 +1242,54 @@ html:not(.dark) circle[stroke="#3f3f46"] {
   stroke: var(--border-default);
 }
 
-.prose-qara {
+.prose-qalens {
   line-height: 1.65;
   color: var(--text-primary);
 }
 
-.prose-qara h1,
-.prose-qara h2,
-.prose-qara h3 {
+.prose-qalens h1,
+.prose-qalens h2,
+.prose-qalens h3 {
   margin-top: 1.25em;
   margin-bottom: 0.5em;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.prose-qara p {
+.prose-qalens p {
   margin: 0.6em 0;
 }
 
-.prose-qara ul {
+.prose-qalens ul {
   padding-left: 1.4em;
   list-style: disc;
 }
 
-.prose-qara ol {
+.prose-qalens ol {
   padding-left: 1.4em;
   list-style: decimal;
 }
 
-.prose-qara li {
+.prose-qalens li {
   margin: 0.25em 0;
 }
 
-.prose-qara code {
+.prose-qalens code {
   font-size: 0.85em;
   border-radius: 0.5rem;
   padding: 1px 5px;
 }
 
-.qara-run-timeline-frame {
-  animation: qaraTimelineIn 180ms ease-out both;
+.qalens-run-timeline-frame {
+  animation: qalensTimelineIn 180ms ease-out both;
 }
 
-.qara-run-timeline-item {
-  animation: qaraTimelineItemIn 180ms ease-out both;
+.qalens-run-timeline-item {
+  animation: qalensTimelineItemIn 180ms ease-out both;
   transition: transform 170ms ease, opacity 170ms ease;
 }
 
-.qara-run-timeline-node {
+.qalens-run-timeline-node {
   transform-origin: center;
   transition:
     transform 160ms ease,
@@ -1299,17 +1299,17 @@ html:not(.dark) circle[stroke="#3f3f46"] {
     filter 160ms ease;
 }
 
-.qara-run-timeline-node:hover {
+.qalens-run-timeline-node:hover {
   transform: scale(1.1);
   filter: brightness(1.04);
   border-color: var(--border-strong);
 }
 
-.qara-run-timeline-node-selected {
-  animation: qaraTimelineSelected 220ms ease-out both, qaraTimelinePulse 2600ms ease-in-out 420ms infinite;
+.qalens-run-timeline-node-selected {
+  animation: qalensTimelineSelected 220ms ease-out both, qalensTimelinePulse 2600ms ease-in-out 420ms infinite;
 }
 
-@keyframes qaraTimelineIn {
+@keyframes qalensTimelineIn {
   from {
     opacity: 0;
     transform: translateY(4px);
@@ -1320,7 +1320,7 @@ html:not(.dark) circle[stroke="#3f3f46"] {
   }
 }
 
-@keyframes qaraTimelineItemIn {
+@keyframes qalensTimelineItemIn {
   from {
     opacity: 0;
     transform: translateY(3px);
@@ -1331,7 +1331,7 @@ html:not(.dark) circle[stroke="#3f3f46"] {
   }
 }
 
-@keyframes qaraTimelineSelected {
+@keyframes qalensTimelineSelected {
   from {
     transform: scale(0.86);
   }
@@ -1340,7 +1340,7 @@ html:not(.dark) circle[stroke="#3f3f46"] {
   }
 }
 
-@keyframes qaraTimelinePulse {
+@keyframes qalensTimelinePulse {
   0%, 100% {
     box-shadow:
       0 0 0 7px rgba(79, 70, 229, 0.12),
@@ -1354,9 +1354,9 @@ html:not(.dark) circle[stroke="#3f3f46"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .qara-run-timeline-frame,
-  .qara-run-timeline-item,
-  .qara-run-timeline-node-selected {
+  .qalens-run-timeline-frame,
+  .qalens-run-timeline-item,
+  .qalens-run-timeline-node-selected {
     animation: none !important;
   }
 }

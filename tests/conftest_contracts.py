@@ -14,10 +14,10 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection, init_db
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection, init_db
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 
 # ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ def make_tc(
     message: str | None = None,
 ) -> TestCaseResult:
     """Create a minimal TestCaseResult."""
-    from qara.models.failure import FailureInfo
+    from qalens.models.failure import FailureInfo
 
     failure = None
     if error_type or message:

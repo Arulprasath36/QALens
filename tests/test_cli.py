@@ -1,12 +1,12 @@
-"""Tests for the QARA CLI (Phase 9)."""
+"""Tests for the QaLens CLI (Phase 9)."""
 
 from __future__ import annotations
 
 from typer.testing import CliRunner
 
-from qara.cli import app
-from qara.cli.commands.serve import _is_public_bind_host
-from qara.version import __version__
+from qalens.cli import app
+from qalens.cli.commands.serve import _is_public_bind_host
+from qalens.version import __version__
 
 runner = CliRunner()
 
@@ -27,7 +27,7 @@ class TestHelpText:
     def test_root_help(self) -> None:
         result = runner.invoke(app, ["--help"])
         assert result.exit_code == 0
-        assert "QARA" in result.output
+        assert "QaLens" in result.output
 
     def test_detect_help(self) -> None:
         result = runner.invoke(app, ["detect", "--help"])

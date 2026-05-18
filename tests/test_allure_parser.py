@@ -1,4 +1,4 @@
-"""Tests for :class:`~qara.parsers.allure.AllureHtmlParser`.
+"""Tests for :class:`~qalens.parsers.allure.AllureHtmlParser`.
 
 Uses synthetic JSON/HTML fixtures under ``tests/fixtures/allure_sample/``.
 """
@@ -9,11 +9,11 @@ from pathlib import Path
 
 import pytest
 
-from qara.models.run import TestRun
-from qara.models.test_case import TestStatus
-from qara.models.warnings import WarningSeverity
-from qara.parsers.allure import AllureHtmlParser
-from qara.parsers.base import ReportMalformedError
+from qalens.models.run import TestRun
+from qalens.models.test_case import TestStatus
+from qalens.models.warnings import WarningSeverity
+from qalens.parsers.allure import AllureHtmlParser
+from qalens.parsers.base import ReportMalformedError
 
 # ---------------------------------------------------------------------------
 # Helpers

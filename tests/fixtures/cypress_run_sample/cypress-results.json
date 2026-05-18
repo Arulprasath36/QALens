@@ -1,0 +1,47 @@
+{
+  "browserName": "chrome",
+  "runs": [
+    {
+      "spec": {
+        "name": "auth.cy.js",
+        "relative": "cypress/e2e/auth.cy.js"
+      },
+      "tests": [
+        {
+          "testId": "auth-login",
+          "title": ["Authentication", "testValidUserLogin"],
+          "state": "passed",
+          "attempts": [
+            {
+              "state": "failed",
+              "duration": 900,
+              "error": {
+                "message": "CypressError: detached DOM",
+                "stack": "CypressError: detached DOM\n    at cypress/e2e/auth.cy.js:14:5"
+              }
+            },
+            {
+              "state": "passed",
+              "duration": 500
+            }
+          ]
+        },
+        {
+          "testId": "auth-invalid",
+          "title": ["Authentication", "testInvalidPassword @auth"],
+          "state": "failed",
+          "attempts": [
+            {
+              "state": "failed",
+              "duration": 650,
+              "error": {
+                "message": "AssertionError: expected error banner",
+                "stack": "AssertionError: expected error banner\n    at cypress/e2e/auth.cy.js:33:7"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

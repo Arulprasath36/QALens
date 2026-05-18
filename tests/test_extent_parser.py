@@ -1,4 +1,4 @@
-"""Tests for :class:`~qara.parsers.extent.ExtentHtmlParser`.
+"""Tests for :class:`~qalens.parsers.extent.ExtentHtmlParser`.
 
 Uses synthetic HTML fixtures under ``tests/fixtures/extent_sample/``.
 """
@@ -9,11 +9,11 @@ from pathlib import Path
 
 import pytest
 
-from qara.models.run import TestRun
-from qara.models.test_case import TestStatus
-from qara.models.warnings import WarningSeverity
-from qara.parsers.base import DetectionResult, ReportMalformedError
-from qara.parsers.extent import ExtentHtmlParser
+from qalens.models.run import TestRun
+from qalens.models.test_case import TestStatus
+from qalens.models.warnings import WarningSeverity
+from qalens.parsers.base import DetectionResult, ReportMalformedError
+from qalens.parsers.extent import ExtentHtmlParser
 
 # ---------------------------------------------------------------------------
 # Helpers

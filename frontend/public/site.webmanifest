@@ -1,12 +1,13 @@
 {
-  "name": "QARA",
-  "short_name": "QARA",
+  "name": "QaLens",
+  "short_name": "QaLens",
   "description": "Test Intelligence",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#1B38E8",
   "background_color": "#ffffff",
   "icons": [
+    { "src": "/qalens-icon.png", "sizes": "96x96", "type": "image/png" },
     { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
   ]

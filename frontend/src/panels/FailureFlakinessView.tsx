@@ -414,13 +414,13 @@ function ConcentrationPanel({
   const max  = Math.max(1, ...rows.map(r => r.total));
 
   return (
-    <div className="qara-card p-5">
+    <div className="qalens-card p-5">
       <div className="flex items-start justify-between gap-3">
         <SectionTitle
           title="Concentration"
           subtitle={mode === 'owner' ? 'Who should investigate first' : 'Where failures are concentrated'}
         />
-        <div className="qara-toolbar-segment shrink-0" role="tablist" aria-label="Group failures by">
+        <div className="qalens-toolbar-segment shrink-0" role="tablist" aria-label="Group failures by">
           {(['owner', 'suite'] as const).map(m => (
             <button
               key={m}
@@ -428,7 +428,7 @@ function ConcentrationPanel({
               role="tab"
               aria-selected={mode === m}
               onClick={() => setMode(m)}
-              className={['qara-segment-button', mode === m ? 'qara-segment-button-active' : ''].join(' ')}
+              className={['qalens-segment-button', mode === m ? 'qalens-segment-button-active' : ''].join(' ')}
             >
               {m === 'owner' ? 'Owner' : 'Suite'}
             </button>
@@ -592,7 +592,7 @@ function NestedTestRow({
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           {statusBadge(row)}
           <span className="mono" style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-            {row.display_name}()
+            {row.display_name.replace(/\(\)$/, '')}()
           </span>
           {!isWindowAnalysis && isFailure(latest?.state) && failureLabel && (
             <OverflowTooltipLabel
@@ -610,7 +610,7 @@ function NestedTestRow({
                 </div>
               }
               className="min-w-0 max-w-full"
-              innerClassName="qara-badge-danger inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
+              innerClassName="qalens-badge-danger inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
               innerStyle={{ ...SOFT_DANGER_BADGE_STYLE, padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}
               showOnOverflowOnly={false}
             />
@@ -713,16 +713,16 @@ function TestSidePanel({
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                   {isRegression(row) ? (
-                    <span className="qara-badge-danger" style={{ padding: '0.2rem 0.55rem', fontSize: '0.65rem' }}>New regression</span>
+                    <span className="qalens-badge-danger" style={{ padding: '0.2rem 0.55rem', fontSize: '0.65rem' }}>New regression</span>
                   ) : (
-                    <span className="qara-pill" style={{ padding: '0.22rem 0.55rem', fontSize: '0.65rem' }}>
+                    <span className="qalens-pill" style={{ padding: '0.22rem 0.55rem', fontSize: '0.65rem' }}>
                       {isFailure(latest?.state) ? 'Failed' : readableState(latest?.state)}
                     </span>
                   )}
                   {row.suite && <span className="type-eyebrow">{row.suite}</span>}
                 </div>
                 <div className="mono" style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.015em', wordBreak: 'break-word' }}>
-                  {row.display_name}()
+                  {row.display_name.replace(/\(\)$/, '')}()
                 </div>
               </div>
               <button
@@ -967,7 +967,7 @@ const focusedRows = useMemo(() => {
 
   if (error) {
     return (
-      <div className="qara-error-banner">
+      <div className="qalens-error-banner">
         <span>Failed to load failure intelligence: {error}</span>
       </div>
     );
@@ -975,8 +975,8 @@ const focusedRows = useMemo(() => {
 
   if (!history || rows.length === 0) {
     return (
-      <div className="qara-empty-state">
-        <div className="qara-empty-icon">✓</div>
+      <div className="qalens-empty-state">
+        <div className="qalens-empty-icon">✓</div>
         <p className="type-empty-title">No status history found</p>
         <p className="type-empty-subtitle">Ingest more runs to analyze failures and flakiness.</p>
       </div>
@@ -1026,12 +1026,12 @@ const focusedRows = useMemo(() => {
                 : `Last ${runsWindow} runs`}
           </p>
         </div>
-        <span className="qara-inline-note">{contextNote}</span>
+        <span className="qalens-inline-note">{contextNote}</span>
       </div>
 
       {/* ① Headline — collapsed: one bold line + one rich subtext line that absorbs
             the prior priority strip's concentration + ownership context. */}
-      <section className="qara-card-elevated overflow-hidden">
+      <section className="qalens-card-elevated overflow-hidden">
         <div className="px-6 py-5">
           <p className="type-eyebrow">Headline</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-primary">
@@ -1112,7 +1112,7 @@ const focusedRows = useMemo(() => {
                 key={key}
                 onClick={() => { setStatusFilter(key); setTransitionFilter(null); setFingerprintFilter(null); }}
                 className={[
-                  'qara-stat-card min-h-0 text-left transition-all duration-150 hover:-translate-y-0.5',
+                  'qalens-stat-card min-h-0 text-left transition-all duration-150 hover:-translate-y-0.5',
                   active ? 'ring-2 ring-info/20' : '',
                 ].join(' ')}
               >
@@ -1139,7 +1139,7 @@ const focusedRows = useMemo(() => {
       )}
 
       {isWindowAnalysis && (
-        <section className="qara-card p-5">
+        <section className="qalens-card p-5">
           <div className="flex items-start justify-between gap-3">
             <SectionTitle
               title="What changed"
@@ -1147,7 +1147,7 @@ const focusedRows = useMemo(() => {
             />
             {(statusFilter !== 'all' || transitionFilter || fingerprintFilter) && (
               <button
-                className="qara-chip type-chip"
+                className="qalens-chip type-chip"
                 onClick={() => { setStatusFilter('all'); setTransitionFilter(null); setFingerprintFilter(null); }}
               >
                 Clear filters
@@ -1290,7 +1290,7 @@ const focusedRows = useMemo(() => {
       {isWindowAnalysis && regressionsExpanded && (
         <section
           id="inline-regressions"
-          className="qara-card overflow-hidden"
+          className="qalens-card overflow-hidden"
           aria-label="New regressions detail"
         >
           <header className="flex items-center justify-between gap-3 border-b border-border-subtle bg-surface-subtle px-5 py-3">
@@ -1302,7 +1302,7 @@ const focusedRows = useMemo(() => {
             </div>
             <button
               type="button"
-              className="qara-chip type-chip"
+              className="qalens-chip type-chip"
               onClick={() => setRegressionsExpanded(false)}
               aria-label="Collapse regressions detail"
             >
@@ -1321,7 +1321,7 @@ const focusedRows = useMemo(() => {
       {/* ⑤ Failure patterns — lazy: collapsed by default. Toolbar always visible
             with a self-contained summary (count + top pattern); the heavy accordion
             only mounts when the user clicks "View patterns". */}
-      <div className="qara-card" style={{ overflow: 'hidden' }}>
+      <div className="qalens-card" style={{ overflow: 'hidden' }}>
         {/* Toolbar — always visible, summarises everything important */}
         <div style={{
           display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
@@ -1374,7 +1374,7 @@ const focusedRows = useMemo(() => {
           </div>
           {groups.length > 0 && (
             <button
-              className="qara-chip"
+              className="qalens-chip"
               onClick={() => setPatternsExpanded(prev => !prev)}
               aria-expanded={patternsExpanded}
               aria-controls="failure-patterns-accordion"
@@ -1483,7 +1483,7 @@ const focusedRows = useMemo(() => {
 
               {/* Expanded: nested test rows */}
               {open && (
-                <div className="qara-fade-up" style={{ position: 'relative', background: 'var(--bg-surface)', borderTop: '1px dashed var(--border-default)' }}>
+                <div className="qalens-fade-up" style={{ position: 'relative', background: 'var(--bg-surface)', borderTop: '1px dashed var(--border-default)' }}>
                   {/* Left accent rail */}
                   {isWindowAnalysis && (
                     <div style={{
@@ -1526,7 +1526,7 @@ const focusedRows = useMemo(() => {
       {/* ⑦ Active failures and flaky tests — only shown when a filter is active.
             Note: when transitionFilter === 'Passed → Failed', the inline RegressionsView
             (section ③½) covers this case, so we suppress ⑦ to avoid a duplicate list. */}
-      {(statusFilter !== 'all' || (transitionFilter && transitionFilter !== 'Passed → Failed') || fingerprintFilter) && <section className="qara-card p-5">
+      {(statusFilter !== 'all' || (transitionFilter && transitionFilter !== 'Passed → Failed') || fingerprintFilter) && <section className="qalens-card p-5">
         {(() => {
           const sectionTitle = transitionFilter
             ? (TRANSITION_META[transitionFilter]?.label ?? transitionFilter)
@@ -1544,7 +1544,7 @@ const focusedRows = useMemo(() => {
                 subtitle={sectionSubtitle}
               />
               {!isRecoveredSection && (
-                <button className="qara-chip type-chip" onClick={() => onOpenIncidents()}>
+                <button className="qalens-chip type-chip" onClick={() => onOpenIncidents()}>
                   Inspect incident clusters
                 </button>
               )}
@@ -1618,7 +1618,7 @@ const focusedRows = useMemo(() => {
                             </div>
                           }
                           className="min-w-0 max-w-full"
-                          innerClassName="qara-badge-info inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
+                          innerClassName="qalens-badge-info inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
                           innerStyle={{ padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}
                           showOnOverflowOnly={false}
                         />
@@ -1639,13 +1639,13 @@ const focusedRows = useMemo(() => {
                             </div>
                           }
                           className="min-w-0 max-w-full"
-                          innerClassName="qara-badge-danger inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
+                          innerClassName="qalens-badge-danger inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
                           innerStyle={{ ...SOFT_DANGER_BADGE_STYLE, padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}
                           showOnOverflowOnly={false}
                         />
                       )}
                       {!isPassingNow && isExistingFailuresSection && !recoveryLabel && (
-                        <span className="qara-badge-danger" style={{ ...SOFT_DANGER_BADGE_STYLE, padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}>
+                        <span className="qalens-badge-danger" style={{ ...SOFT_DANGER_BADGE_STYLE, padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}>
                           Persisting in recent runs
                         </span>
                       )}
@@ -1665,18 +1665,18 @@ const focusedRows = useMemo(() => {
                             </div>
                           }
                           className="min-w-0 max-w-full"
-                          innerClassName="qara-badge-danger inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
+                          innerClassName="qalens-badge-danger inline-flex min-w-0 max-w-full cursor-default items-center overflow-hidden text-ellipsis whitespace-nowrap"
                           innerStyle={{ ...SOFT_DANGER_BADGE_STYLE, padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}
                           showOnOverflowOnly={false}
                         />
                       )}
                       {!isPassingNow && isSingleRunFailedSection && !recoveryLabel && (
-                        <span className="qara-badge-danger" style={{ ...SOFT_DANGER_BADGE_STYLE, padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}>
+                        <span className="qalens-badge-danger" style={{ ...SOFT_DANGER_BADGE_STYLE, padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}>
                           Current failure
                         </span>
                       )}
                       {isPassingNow && !recoveryLabel && (
-                        <span className="qara-badge-success" style={{ padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}>
+                        <span className="qalens-badge-success" style={{ padding: '0.22rem 0.5rem', fontSize: '0.625rem' }}>
                           No flips in recent runs
                         </span>
                       )}
@@ -1725,7 +1725,7 @@ const focusedRows = useMemo(() => {
                           </>
                         )}
                         {incident && isFailure(latest?.state) && (
-                          <button onClick={() => onOpenIncidents(incident.incident_id)} className="qara-chip type-chip min-h-0 px-2 py-1 text-[11px]">
+                          <button onClick={() => onOpenIncidents(incident.incident_id)} className="qalens-chip type-chip min-h-0 px-2 py-1 text-[11px]">
                             View incident
                           </button>
                         )}

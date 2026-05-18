@@ -57,7 +57,7 @@ function MetricCard({ label, valueA, valueB, format, higher }: MetricCardProps) 
                               'worse';
 
   return (
-    <article className="qara-card qara-fade-up flex-1 min-w-[180px] p-5">
+    <article className="qalens-card qalens-fade-up flex-1 min-w-[180px] p-5">
 
       {/* Title */}
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted mb-4">
