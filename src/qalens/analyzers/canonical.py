@@ -1,4 +1,4 @@
-"""Canonical test-name normalisation for QALens.
+"""Canonical test-name normalisation for QA Lens.
 
 A *canonical name* is a stable, normalised version of a test's display name
 used to link the same test across multiple runs even when its exact string

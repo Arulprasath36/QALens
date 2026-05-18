@@ -1,4 +1,4 @@
-"""SQLite schema definition and connection management for QALens.
+"""SQLite schema definition and connection management for QA Lens.
 
 The default database lives at ``~/.qalens/qalens.db``.  Every function that
 needs a connection should call :func:`get_connection` so the path can
@@ -53,7 +53,7 @@ _DEFAULT_DB_PATH = _DEFAULT_DB_DIR / "qalens.db"
 
 
 def default_db_path() -> Path:
-    """Return the default path for the QALens SQLite database.
+    """Return the default path for the QA Lens SQLite database.
 
     Creates ``~/.qalens/`` if it does not already exist.
 

@@ -101,7 +101,7 @@ def ingest(
     db: Optional[Path] = typer.Option(
         None,
         "--db",
-        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QA Lens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     attachments_dir: Optional[Path] = typer.Option(
         None,
@@ -194,7 +194,7 @@ def ingest(
         ),
     ),
 ) -> None:
-    """Parse a report and store it in the local QALens database.
+    """Parse a report and store it in the local QA Lens database.
 
     On subsequent calls with the same report the run is skipped (idempotent).
     Use --force to overwrite an existing run.

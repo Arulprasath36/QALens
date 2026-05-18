@@ -1,4 +1,4 @@
-"""Tests for QALens canonical data models (Phase 1).
+"""Tests for QA Lens canonical data models (Phase 1).
 
 Covers: Attachment, ExtractionWarning, FailureInfo, StepResult,
         TestCaseResult, TestStatus, RunMetadata, TestRun,

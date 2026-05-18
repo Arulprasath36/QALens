@@ -1,6 +1,6 @@
 # Plugin Guide
 
-QALens is designed for extensibility. This guide explains how to add custom parsers, categorization rules, and output writers without forking the project.
+QA Lens is designed for extensibility. This guide explains how to add custom parsers, categorization rules, and output writers without forking the project.
 
 ---
 
@@ -137,7 +137,7 @@ A pluggable `BaseWriter` interface is planned for a future release.
 
 ## Future Plugin Discovery (Planned)
 
-In a future release, QALens will support automatic plugin discovery via Python entry points:
+In a future release, QA Lens will support automatic plugin discovery via Python entry points:
 
 ```toml
 # your plugin's pyproject.toml
@@ -148,6 +148,6 @@ myformat = "my_plugin.parsers.myformat:MyFormatParser"
 my_rule = "my_plugin.rules.my_rule:my_custom_rule"
 ```
 
-This will allow `pip install qalens-myformat-plugin` to automatically extend QALens.
+This will allow `pip install qalens-myformat-plugin` to automatically extend QA Lens.
 
 > **Note**: The entry-point plugin loader is not yet implemented in v1. The programmatic API above is the supported extension mechanism for now.

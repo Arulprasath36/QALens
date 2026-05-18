@@ -1,4 +1,4 @@
-"""Lightweight data-transfer objects for the QALens database layer.
+"""Lightweight data-transfer objects for the QA Lens database layer.
 
 Extracted from :mod:`qalens.db.repository` for cohesion.
 All public names are re-exported from :mod:`qalens.db.repository` for

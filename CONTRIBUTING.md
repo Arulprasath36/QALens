@@ -1,8 +1,8 @@
-# Contributing to QALens
+# Contributing to QA Lens
 
-Thank you for your interest in contributing to QALens — Quality Assurance + Lens!
+Thank you for your interest in contributing to QA Lens.
 
-QALens is an open-source project welcoming contributions from QA engineers, platform engineers, developers, and technical writers.
+QA Lens is an open-source project welcoming contributions from QA engineers, platform engineers, developers, and technical writers.
 
 ---
 
@@ -32,8 +32,8 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 ### Clone and install
 
 ```bash
-git clone https://github.com/your-org/qalens.git
-cd qalens
+git clone https://github.com/Arulprasath36/QALens.git
+cd QALens
 python -m venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
@@ -44,9 +44,13 @@ pre-commit install
 
 ```bash
 pytest
-ruff check src/ tests/
-mypy src/
+cd frontend && npm run typecheck && npm test
 ```
+
+The repository also has strict `ruff`, `ruff format`, and `mypy` configuration.
+Those checks are still being cleaned up across the full codebase, so treat them
+as quality-improvement targets unless the issue or pull request specifically
+touches that area.
 
 ---
 
@@ -57,7 +61,7 @@ src/qalens/
 ├── parsers/      # Report-specific HTML/JSON extractors
 ├── models/       # Canonical Pydantic data models
 ├── analyzers/    # Heuristic analysis and categorization
-├── outputs/      # JSON, Markdown, console output writers
+├── reports/      # Standalone HTML, Markdown, and JSON report builders/renderers
 ├── utils/        # Shared utilities (text, hashing, FS)
 └── api/          # Public Python library surface
 
@@ -93,12 +97,11 @@ refactor: extract signature normalization into standalone fn
 
 Before opening a PR:
 
-1. Run the full test suite: `pytest --cov=src/qalens`
-2. Run the linter: `ruff check src/ tests/`
-3. Run type checks: `mypy src/`
-4. Ensure pre-commit passes: `pre-commit run --all-files`
-5. Add or update tests for your change
-6. Update docstrings and docs if relevant
+1. Run the full test suite: `pytest`
+2. Run frontend checks if you touched UI code: `cd frontend && npm run typecheck && npm test`
+3. Add or update tests for your change
+4. Update docstrings and docs if relevant
+5. Run targeted `ruff`/`mypy` checks for files you changed when practical
 
 PR titles should follow the same Conventional Commits format.
 
@@ -146,6 +149,6 @@ See [docs/parser-strategy.md](docs/parser-strategy.md) for the parser contract.
 
 ## Questions?
 
-Open a [GitHub Discussion](https://github.com/your-org/qalens/discussions) or an Issue.
+Open a [GitHub Discussion](https://github.com/Arulprasath36/QALens/discussions) or an Issue.
 
-Thank you for helping make QALens better!
+Thank you for helping make QA Lens better.

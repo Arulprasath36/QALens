@@ -1,4 +1,4 @@
-"""Prompt builders for QALens LLM queries.
+"""Prompt builders for QA Lens LLM queries.
 
 Two public helpers are provided:
 
@@ -55,7 +55,7 @@ Keep your answer focused and technical. Do not speculate beyond the data."""
 
 
 _PROJECT_QUESTION_TEMPLATE = """The following is a summary of automated test health for a project, extracted \
-from a QALens test report database. Use it to answer the question below.
+from a QA Lens test report database. Use it to answer the question below.
 
 If a [QUERY SIGNALS] block is present at the top of the context, it lists which \
 aspects of the data are relevant and any guardrails that apply. Follow those \
@@ -245,7 +245,7 @@ _STRUCTURED_FACTS: dict[AnswerIntent, str] = {
 # ---------------------------------------------------------------------------
 
 _BASE_SYSTEM_PROMPT = (
-    "You are QALens (Automated Root Cause Insights), an expert test-analytics assistant. "
+    "You are QA Lens (Automated Root Cause Insights), an expert test-analytics assistant. "
     "You have access to structured data extracted from automated test reports stored "
     "in a relational database. Your answers must be grounded in the provided context \u2014 "
     "never speculate beyond what the data shows. "
@@ -382,9 +382,9 @@ def build_system_prompt(answer_plan=None) -> str:
     return _BASE_SYSTEM_PROMPT + primary_addendum + secondary_addendum
 
 
-_NARRATION_SYSTEM_PROMPT = """You are QALens's narration layer.
+_NARRATION_SYSTEM_PROMPT = """You are QA Lens's narration layer.
 
-You are given authoritative structured facts that were computed by QALens from
+You are given authoritative structured facts that were computed by QA Lens from
 the database. Your job is to turn those facts into a short, natural chat
 answer. Do not recompute rankings, do not invent metrics, and do not mention
 facts that are not present in the bundle.
@@ -409,7 +409,7 @@ def build_narration_prompt(
 ) -> str:
     """Build a compact narration prompt over deterministic structured facts.
 
-    This is used for hybrid responses where QALens computes the data
+    This is used for hybrid responses where QA Lens computes the data
     deterministically and the LLM only writes the short explanation shown in
     chat. The output should be concise prose, not a reformatted table.
     """
@@ -500,7 +500,7 @@ def build_narration_prompt(
             "Name the shared-suite count and the owner-only suite counts when present.",
             "Mention the top 1 or 2 shared or owner-only suites explicitly when available.",
             "If there are no shared suites, say that directly.",
-            "State that QALens can narrow the comparison to a specific run window if the user wants recent health instead.",
+            "State that QA Lens can narrow the comparison to a specific run window if the user wants recent health instead.",
             "State that the detailed suite comparison is shown in the Results workspace.",
             "Do not use bullets, markdown headings, or tables.",
             "Do not invent suites, counts, ownership, or recent-window claims not present in the fact bundle.",
@@ -641,7 +641,7 @@ def build_narration_prompt(
         ]
     if defaulted_scope:
         prompt_rules.append(
-            "Make it clear that the scope was defaulted by QALens because the user did not specify a narrower window."
+            "Make it clear that the scope was defaulted by QA Lens because the user did not specify a narrower window."
         )
 
     return "\n".join([

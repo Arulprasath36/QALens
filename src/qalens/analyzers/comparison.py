@@ -1,4 +1,4 @@
-"""Run Comparison service for QALens.
+"""Run Comparison service for QA Lens.
 
 Computes per-test history matrices and summary statistics across an
 arbitrary set of runs selected by the caller.
@@ -147,10 +147,10 @@ class ComparisonFilters:
 # ---------------------------------------------------------------------------
 
 class ComparisonService:
-    """Builds run comparison matrices from the QALens SQLite database.
+    """Builds run comparison matrices from the QA Lens SQLite database.
 
     Args:
-        conn: An open :class:`sqlite3.Connection` to the QALens database.
+        conn: An open :class:`sqlite3.Connection` to the QA Lens database.
     """
 
     def __init__(self, conn: sqlite3.Connection) -> None:

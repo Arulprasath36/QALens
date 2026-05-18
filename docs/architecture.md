@@ -1,12 +1,12 @@
-# QALens Architecture
+# QA Lens Architecture
 
-> QALens — Quality Assurance + Lens
+> QA Lens turns static test reports into local, explainable triage intelligence.
 
 ---
 
 ## Overview
 
-QALens is structured as a **pipeline** with clearly separated concerns:
+QA Lens is structured as a **pipeline** with clearly separated concerns:
 
 ```
 Report on disk
@@ -26,7 +26,7 @@ Report on disk
        ▼
 ┌─────────────┐
 │  Analyzers  │  (analyzers/)
-│             │  Signatures → Categorization → Clustering → Flaky → Summary
+│             │  Signatures → Categorization → Clustering → Flaky → Decision
 └──────┬──────┘
        │  models.AnalysisSummary
        ▼
@@ -119,7 +119,7 @@ Each major layer has a defined abstract base or protocol:
 | `categorizer.py` | Rule-based failure categorization |
 | `clustering.py` | Deterministic + optional fuzzy failure grouping |
 | `flaky.py` | Flaky scoring with historical context |
-| `summarizer.py` | Executive / engineering / QA summaries |
+| `decision.py` | Decision summary, trend intelligence, and prioritized actions |
 | `incidents.py` | Cross-run incident tracking and trend detection |
 
 ### `src/qalens/db/`
@@ -163,7 +163,9 @@ Each major layer has a defined abstract base or protocol:
 
 | Module | Responsibility |
 |--------|---------------|
-| Report generators | Produce standalone HTML, Markdown, and JSON exports |
+| `builder.py` | Build deterministic report payloads from SQLite data |
+| `model.py` | Typed report export models |
+| `renderers.py` | Render standalone HTML, Markdown, and JSON exports |
 
 ### `src/qalens/ownership.py`
 
@@ -182,13 +184,12 @@ a `owners.toml` file provided at ingestion time.
 |--------|---------------|
 | `fs.py` | File system helpers (find, resolve, walk) |
 | `text.py` | Text cleaning and regex utilities |
-| `hashing.py` | Stable hash/fingerprint generation |
 
 ---
 
 ## Authentication
 
-QALens supports three auth modes configured via environment variables:
+QA Lens supports three auth modes configured via environment variables:
 
 | Mode | Env vars | How it works |
 |------|----------|-------------|
@@ -226,7 +227,7 @@ Analyzers (sequential pipeline)
   4. FlakyScorer
        → compare with historical runs from the DB
        → compute flaky_score per test
-  5. Summarizer
+  5. Decision/report builders
        → aggregate statistics
        → produce AnalysisSummary
 
@@ -255,14 +256,14 @@ See [plugin-guide.md](plugin-guide.md) for details on:
 
 ```
 cli/            → api/library.py + db/ + server/
-api/library.py  → parsers/ + analyzers/ + outputs/
+api/library.py  → parsers/ + analyzers/ + reports/
 server/         → db/ + auth + llm/ + reports/ + ownership
 parsers/        → models/ + utils/
 analyzers/      → models/ + utils/
-outputs/        → models/
+reports/        → db/ + models/
 llm/            → db/ + security
 models/         → pydantic (external)
 ```
 
 No circular dependencies are permitted. `models/` must not import from
-`parsers/`, `analyzers/`, or `outputs/`.
+`parsers/`, `analyzers/`, or `reports/`.

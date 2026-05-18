@@ -25,5 +25,6 @@ qalens analyze --db ./shopnow-demo.db
 qalens serve --db ./shopnow-demo.db
 ```
 
-The local SQLite files (`ari.db`, `ari.db-wal`, `ari.db-shm`) are intentionally
-not tracked. Recreate the database from the report folders when needed.
+The local SQLite files (`qalens.db`, `qalens.db-wal`, `qalens.db-shm`) are
+intentionally not tracked. Recreate the database from the report folders when
+needed.

@@ -817,7 +817,7 @@ function ActionBriefDrawer({
             {decision.fix_first.length === 0 ? (
               <div className="rounded-xl border border-border-subtle bg-subtle px-4 py-6 text-center">
                 <p className="text-sm font-semibold text-primary">No immediate action detected</p>
-                <p className="mt-1 text-sm text-muted">QALens did not find a high-priority action for this run.</p>
+                <p className="mt-1 text-sm text-muted">QA Lens did not find a high-priority action for this run.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -941,7 +941,7 @@ function DecisionIntelligencePanel({
               <p className="mt-2 max-w-4xl text-sm leading-6 text-secondary">
                 {topAction
                   ? topAction.reason
-                  : 'QALens did not find a high-priority action for this run window.'}
+                  : 'QA Lens did not find a high-priority action for this run window.'}
               </p>
             </div>
           </div>
@@ -1522,7 +1522,7 @@ function RunDetailView({
       mode: 'longest' as const,
       label: 'Longest',
       tableLabel: 'longest tests',
-      helper: 'No comparable run is available, so QALens shows the longest tests in this run.',
+      helper: 'No comparable run is available, so QA Lens shows the longest tests in this run.',
       testKeys: new Set(longest.map(testKey)),
       count: longest.length,
     };

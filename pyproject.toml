@@ -5,10 +5,10 @@ build-backend = "hatchling.build"
 [project]
 name = "qalens-insights"
 dynamic = ["version"]
-description = "QALens — Quality Assurance + Lens: turn static test reports into triage-ready intelligence"
+description = "QA Lens: turn static test reports into triage-ready intelligence"
 readme = "README.md"
 license = { file = "LICENSE" }
-authors = [{ name = "QALens Contributors" }]
+authors = [{ name = "QA Lens Contributors" }]
 keywords = [
     "test automation",
     "root cause analysis",

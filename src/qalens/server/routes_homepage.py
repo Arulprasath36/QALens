@@ -1,4 +1,4 @@
-"""Homepage-cards route handler for the QALens FastAPI server.
+"""Homepage-cards route handler for the QA Lens FastAPI server.
 
 Provides GET /api/homepage-cards — returns 4 live intelligence cards for the
 chat welcome screen, each with a real metric and a suggested question.

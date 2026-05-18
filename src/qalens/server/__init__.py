@@ -1,4 +1,4 @@
-"""QALens web server package.
+"""QA Lens web server package.
 
 Provides a FastAPI-based local web UI for browsing test history,
 flakiness analysis, failure groups, digest reports, and LLM Q&A.

@@ -1,4 +1,4 @@
-"""JUnit XML parser for QALens.
+"""JUnit XML parser for QA Lens.
 
 Supports the common ``<testsuites>`` and ``<testsuite>`` report shapes emitted
 by Maven Surefire, Gradle, pytest, Jest, Playwright, Cypress reporters, and

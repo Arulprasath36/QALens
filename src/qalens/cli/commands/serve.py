@@ -1,4 +1,4 @@
-"""Serve command: launch the QALens web UI."""
+"""Serve command: launch the QA Lens web UI."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def serve(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QALens SQLite database (default: ~/.qalens/qalens.db).",
+        help="Path to QA Lens SQLite database (default: ~/.qalens/qalens.db).",
     ),
     config: Path | None = typer.Option(
         None,
@@ -51,10 +51,10 @@ def serve(
     auth_token: str | None = typer.Option(
         None,
         "--auth-token",
-        help="Require this bearer token for QALens API access. Can also be set with QALENS_AUTH_TOKEN.",
+        help="Require this bearer token for QA Lens API access. Can also be set with QALENS_AUTH_TOKEN.",
     ),
 ) -> None:
-    """Start the QALens web UI on [bold]http://host:port[/bold].
+    """Start the QA Lens web UI on [bold]http://host:port[/bold].
 
     Launches a local FastAPI server with a browser-based dashboard for:
     run history, flakiness analysis, failure groups, digest reports,
@@ -80,7 +80,7 @@ def serve(
 
     if _is_public_bind_host(host) and not allow_public_bind:
         err_console.print(
-            "[red]Refusing to bind QALens to a public interface by default.[/red] "
+            "[red]Refusing to bind QA Lens to a public interface by default.[/red] "
             "Use [bold]--allow-public-bind[/bold] only behind authentication or a trusted reverse proxy."
         )
         raise typer.Exit(code=2)
@@ -102,18 +102,18 @@ def serve(
         auth_hint = (
             "API authentication is enabled for this server session."
             if effective_auth_token
-            else "Set QALENS_AUTH_TOKEN or pass --auth-token before exposing QALens."
+            else "Set QALENS_AUTH_TOKEN or pass --auth-token before exposing QA Lens."
         )
         err_console.print(
             "\n[bold yellow]⚠  PUBLIC BINDING WARNING[/bold yellow]\n"
-            f"   QALens is listening on [bold]{host}:{port}[/bold] — reachable by anyone on the network.\n"
+            f"   QA Lens is listening on [bold]{host}:{port}[/bold] — reachable by anyone on the network.\n"
             f"   {auth_hint}\n"
-            "   Only expose QALens on trusted networks or behind a reverse proxy.\n"
+            "   Only expose QA Lens on trusted networks or behind a reverse proxy.\n"
             "   See SECURITY.md → Production Deployment Checklist.\n"
         )
 
     console.print(
-        f"[bold]QALens[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
+        f"[bold]QA Lens[/bold] web UI starting at [link={url}][cyan]{url}[/cyan][/link]"
     )
     console.print("Press [bold]Ctrl+C[/bold] to stop.\n")
 

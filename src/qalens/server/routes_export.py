@@ -1,4 +1,4 @@
-"""Chat result export route for the QALens FastAPI server."""
+"""Chat result export route for the QA Lens FastAPI server."""
 
 from __future__ import annotations
 

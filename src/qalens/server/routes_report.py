@@ -1,4 +1,4 @@
-"""Report export route handlers for the QALens FastAPI server."""
+"""Report export route handlers for the QA Lens FastAPI server."""
 
 from __future__ import annotations
 

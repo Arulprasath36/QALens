@@ -83,7 +83,7 @@ secrets.toml
 *.p12
 *.pfx
 
-# QALens — local history and output dirs
+# QA Lens — local history and output dirs
 /history/
 .qalens_cache/
 /outputs/
@@ -108,7 +108,7 @@ site/
 *.sqlite3-shm
 *.sqlite3-wal
 
-# QALens — local test data and generated reports
+# QA Lens — local test data and generated reports
 tmp_test_data/
 !tmp_test_data/
 tmp_test_data/*
@@ -118,6 +118,7 @@ tmp_test_data/ShopNow_E-Commerce/*.db
 tmp_test_data/ShopNow_E-Commerce/*.db-shm
 tmp_test_data/ShopNow_E-Commerce/*.db-wal
 tmp_test_data/ShopNow_E-Commerce/*.db-journal
+tmp_test_data/ShopNow_E-Commerce/**/.DS_Store
 ExtentReport.html
 !tests/fixtures/extent_sample/ExtentReport.html
 

@@ -1,4 +1,4 @@
-"""Settings route handlers for the QALens FastAPI server."""
+"""Settings route handlers for the QA Lens FastAPI server."""
 
 from __future__ import annotations
 
@@ -207,8 +207,8 @@ def _env_flag_enabled(name: str) -> bool:
 def _write_llm_config(config_path: Path, cfg: LLMConfig) -> None:
     config_path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
-        "# QALens LLM configuration\n",
-        "# Managed by QALens Settings UI or `qalens llm-config`.\n",
+        "# QA Lens LLM configuration\n",
+        "# Managed by QA Lens Settings UI or `qalens llm-config`.\n",
         "\n",
         "[llm]\n",
         f'provider = "{_toml_escape(cfg.provider)}"\n',

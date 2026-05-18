@@ -1,4 +1,4 @@
-"""QALens parsers package.
+"""QA Lens parsers package.
 
 Contains the report detector and format-specific parsers for Extent, Allure,
 JUnit XML, TestNG XML, Playwright JSON/HTML, and Cypress/Mocha JSON reports.

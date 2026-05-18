@@ -1,4 +1,4 @@
-"""Artifact ingestion policy, storage, and image processing for QALens.
+"""Artifact ingestion policy, storage, and image processing for QA Lens.
 
 Three ingestion modes
 ---------------------

@@ -1,4 +1,4 @@
-"""Incident-centric presentation model for QALens.
+"""Incident-centric presentation model for QA Lens.
 
 An *incident* is a group of related test failures that share a probable root
 cause.  It is the primary triage unit surfaced to the user rather than

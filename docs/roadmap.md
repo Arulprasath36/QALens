@@ -1,6 +1,5 @@
-# QALens Roadmap
+# QA Lens Roadmap
 
-> QALens — Quality Assurance + Lens  
 > This roadmap reflects the current development direction. Priorities may shift based on community feedback.
 
 ---
@@ -31,7 +30,8 @@
 | LLM chat/ask integration | ✅ Done |
 | Security hardening baseline | ✅ Done |
 | Unit + fixture-based tests | ✅ Done |
-| Ruff + mypy + pre-commit | ✅ Done |
+| Ruff + mypy cleanup | 🔄 In progress |
+| Pre-commit configuration | 🔄 In progress |
 
 ---
 
@@ -45,7 +45,7 @@
 | Demo dataset for GitHub users | ✅ Done |
 | Deterministic `qalens ask` answers for factual aggregate questions | ✅ Done |
 | Frontend XSS sanitizer regression coverage | ✅ Done |
-| Dependency/security CI checks | ✅ Done |
+| Dependency/security CI checks | 🔄 In progress |
 | Improved Extent v5 parser coverage | 🔄 Ongoing |
 | Shell completion documentation | ⏳ Planned |
 | Broader CLI JSON output coverage | ⏳ Planned |
@@ -62,17 +62,17 @@
 | Run comparison API and UI | ✅ Done |
 | Trend analysis facts | ✅ Done |
 | Trend charts in Markdown | ⏳ Planned |
-| `qalens history list` command | ⏳ Planned |
-| `qalens compare <run1> <run2>` command | ⏳ Planned |
+| `qalens history` command | ✅ Done |
+| Explicit-run `qalens compare --run-id ...` support | ✅ Done |
 
 ---
 
 ## v1.3 — Parser Breadth
 
 - pytest-html report parser
-- JUnit XML parser
-- TestNG XML parser
-- Cypress / Playwright report parsers
+- More JUnit XML fixture variants
+- More TestNG XML fixture variants
+- More Cypress / Playwright fixture variants
 - More real-world Extent and Allure fixture variants
 
 ---
@@ -107,10 +107,10 @@
 
 ## Non-Goals (Permanent)
 
-- QALens will never be a test reporting framework
-- QALens will never replace Extent Reports or Allure
-- QALens v1 will never require cloud connectivity
-- QALens will never silently discard data without an `ExtractionWarning`
+- QA Lens will never be a test reporting framework
+- QA Lens will never replace Extent Reports or Allure
+- QA Lens v1 will never require cloud connectivity
+- QA Lens will never silently discard data without an `ExtractionWarning`
 
 ---
 

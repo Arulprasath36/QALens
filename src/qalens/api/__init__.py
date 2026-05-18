@@ -1,4 +1,4 @@
-"""QALens public Python API package.
+"""QA Lens public Python API package.
 
 Exposes ``QALensClient`` as the primary entry point for library consumers.
 """

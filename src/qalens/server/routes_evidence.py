@@ -1,4 +1,4 @@
-"""Evidence drawer API routes for the QALens web UI.
+"""Evidence drawer API routes for the QA Lens web UI.
 
 Provides lightweight, lazily-fetched evidence payloads used by the in-chat
 Evidence Drawer.  Click a source card → fetch from here → display context

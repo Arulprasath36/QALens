@@ -1,4 +1,4 @@
-"""Test run models for QALens.
+"""Test run models for QA Lens.
 
 ``TestRun`` is the top-level canonical object produced by every parser.
 It contains run-level metadata and the full list of test case results.
@@ -95,7 +95,7 @@ class RunMetadata(BaseModel):
 
 
 class TestRun(BaseModel):
-    """The canonical top-level object produced by every QALens parser.
+    """The canonical top-level object produced by every QA Lens parser.
 
     Every parser MUST return a ``TestRun``. It contains the run metadata
     and the complete list of test case results. Analyzers receive a

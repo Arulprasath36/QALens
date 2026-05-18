@@ -1,6 +1,6 @@
-"""Flaky test detection for QALens.
+"""Flaky test detection for QA Lens.
 
-:class:`FlakyScorer` queries the QALens database to compute a stability
+:class:`FlakyScorer` queries the QA Lens database to compute a stability
 profile for every test across its run history.  No ML is required —
 the algorithm is based on pass rate and status flip count.
 
@@ -217,10 +217,10 @@ def _compute_streak(history: list[str]) -> int:
 
 
 class FlakyScorer:
-    """Computes flakiness scores for tests stored in the QALens database.
+    """Computes flakiness scores for tests stored in the QA Lens database.
 
     Args:
-        conn: An open :class:`sqlite3.Connection` to an initialised QALens DB.
+        conn: An open :class:`sqlite3.Connection` to an initialised QA Lens DB.
         flaky_threshold: Minimum ``flip_score`` to classify a test as flaky.
             Default is 0.35.
     """

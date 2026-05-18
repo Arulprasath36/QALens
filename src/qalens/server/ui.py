@@ -1,4 +1,4 @@
-"""Serve the QALens single-page application from static files.
+"""Serve the QA Lens single-page application from static files.
 
 The full HTML/CSS/JS lives in src/qalens/server/static/.  At request time only
 one substitution is made: the __DEFAULT_PROJECT__ placeholder in index.html is
@@ -22,7 +22,7 @@ _FALLBACK_HTML = """\
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>QALens \u2014 UI not built</title>
+    <title>QA Lens \u2014 UI not built</title>
     <style>
       body { font-family: system-ui, sans-serif; background: #09090b; color: #e4e4e7;
              display: flex; align-items: center; justify-content: center;
@@ -38,7 +38,7 @@ _FALLBACK_HTML = """\
   </head>
   <body>
     <div class="card">
-      <h1>QALens UI not built</h1>
+      <h1>QA Lens UI not built</h1>
       <p>The React frontend has not been compiled yet.<br>
          Run the following command from the project root:</p>
       <code>make build-ui</code>
@@ -49,7 +49,7 @@ _FALLBACK_HTML = """\
 
 
 def _build_index_html(*, default_project: str | None = None) -> str:
-    """Return the QALens web UI HTML with DEFAULT_PROJECT injected.
+    """Return the QA Lens web UI HTML with DEFAULT_PROJECT injected.
 
     Falls back to a helpful error page when the static build is absent.
     """

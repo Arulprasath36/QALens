@@ -281,7 +281,7 @@ export function SettingsPanel() {
       <PageHeader
         title="Settings"
         kicker="Configuration"
-        description="Runtime paths, LLM provider settings, and security defaults used by this QALens server."
+        description="Runtime paths, LLM provider settings, and security defaults used by this QA Lens server."
         icon={<Settings className="h-5 w-5" />}
         actions={
           <div className="flex items-center gap-2">
@@ -359,7 +359,7 @@ export function SettingsPanel() {
               label="API key"
               hint={
                 settings.llm.api_key_env_configured
-                  ? 'QALens_LLM_API_KEY is set in the environment.'
+                  ? 'QALENS_LLM_API_KEY is set in the environment.'
                   : settings.llm.api_key_configured
                     ? 'A key is saved. Leave blank to keep it unchanged.'
                     : 'Leave blank for local providers.'
@@ -424,11 +424,11 @@ export function SettingsPanel() {
 
           {externalProviderSelected && !form.allow_external && (
             <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
-              External providers require explicit opt-in before QALens sends redacted report context outside this machine.
+              External providers require explicit opt-in before QA Lens sends redacted report context outside this machine.
             </div>
           )}
 
-          <Field label="System prompt override" hint="Optional. Leave blank to use QALens's default prompt.">
+          <Field label="System prompt override" hint="Optional. Leave blank to use QA Lens's default prompt.">
             <textarea
               value={form.system_prompt}
               onChange={event => setForm(current => current && ({ ...current, system_prompt: event.target.value }))}

@@ -1,4 +1,4 @@
-"""Attachment model for QALens.
+"""Attachment model for QA Lens.
 
 Attachments represent files linked to a test execution — screenshots,
 log files, videos, HAR traces, or any other artifact captured during

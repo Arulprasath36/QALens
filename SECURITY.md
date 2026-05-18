@@ -6,13 +6,13 @@
 |---------|-----------|
 | latest  | ✅        |
 
-QALens is currently pre-1.0. Security fixes are applied to the latest `main` branch only.
+QA Lens is currently pre-1.0. Security fixes are applied to the latest `main` branch only.
 
 ---
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in QALens, **please do not open a public GitHub issue**.
+If you discover a security vulnerability in QA Lens, **please do not open a public GitHub issue**.
 
 Report it privately by emailing the maintainers at:
 
@@ -29,10 +29,10 @@ You can expect:
 
 ## Scope
 
-QALens has two deployment modes with different attack surfaces:
+QA Lens has two deployment modes with different attack surfaces:
 
 ### CLI mode (local only)
-QALens reads test report files from the local filesystem and writes to a local SQLite database.
+QA Lens reads test report files from the local filesystem and writes to a local SQLite database.
 
 Primary attack surface:
 - **Malicious HTML/JSON report files** — parsed via BeautifulSoup4, lxml, and the stdlib JSON parser. Crafted files could exploit parsing bugs in those libraries.
@@ -71,27 +71,27 @@ Security controls active in server mode:
 
 - Social engineering
 - Vulnerabilities in third-party dependencies (report to those projects)
-- Attacks requiring physical access to the machine running QALens
+- Attacks requiring physical access to the machine running QA Lens
 
 ---
 
 ## Production Deployment Checklist
 
-> QALens is designed as a **local developer tool**. If you choose to expose it on a network, work through this checklist first.
+> QA Lens is designed as a **local developer tool**. If you choose to expose it on a network, work through this checklist first.
 
 Use the standalone [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md) before any
 networked deployment. The summary below is kept as a quick reference.
 
 ### Authentication & network exposure
 - [ ] Set `QALENS_AUTH_TOKEN`, pass `qalens serve --auth-token ...`, or configure
-      `QALENS_AUTH_MODE=github` before exposing QALens beyond localhost
+      `QALENS_AUTH_MODE=github` before exposing QA Lens beyond localhost
 - [ ] For GitHub OAuth, set `QALENS_GITHUB_CLIENT_ID`,
       `QALENS_GITHUB_CLIENT_SECRET`, `QALENS_SESSION_SECRET`, and an allowlist via
       `QALENS_ALLOWED_GITHUB_USERS` or `QALENS_ALLOWED_GITHUB_ORGS`
 - [ ] Place the server behind a reverse proxy (nginx, Caddy) that enforces
       HTTPS and, when needed, stronger organization auth such as OAuth2 or mTLS
 - [ ] Bind `qalens serve` to `127.0.0.1` unless you have explicitly enabled
-      QALens auth and network controls
+      QA Lens auth and network controls
 - [ ] Use HTTPS; configure TLS termination at the proxy layer
 - [ ] Restrict access by IP allowlist at the network/firewall level
 
@@ -107,12 +107,14 @@ networked deployment. The summary below is kept as a quick reference.
 - [ ] Pin production image/runtime versions; avoid floating `^`/`>=` in lock files
 - [ ] Enable Dependabot (or Renovate) alerts on the repository
 
-### CI gates (enabled by `.github/workflows/ci.yml`)
-- [ ] `npm audit --audit-level=high` — blocks on new high/critical npm CVEs
-- [ ] `pip-audit` — scans Python dependency tree for known CVEs
-- [ ] `bandit -r src/` — static analysis for common Python security anti-patterns
-- [ ] `mypy` strict type-check — catches type confusion bugs before runtime
-- [ ] Tests must pass — regression coverage for ingestion and query paths
+### Recommended local checks before networked deployment
+- [ ] `pytest`
+- [ ] `npm audit --audit-level=high`
+- [ ] `pip-audit`
+- [ ] `bandit -r src/ -ll`
+
+Strict repository-wide `ruff` and `mypy` checks are configured but currently
+have known cleanup work before they can be treated as blocking release gates.
 
 ### Database
 - [ ] Keep the SQLite database file outside the web root
@@ -120,7 +122,7 @@ networked deployment. The summary below is kept as a quick reference.
 - [ ] Back up regularly; the database is the sole source of truth for all ingested reports
 
 ### LLM / AI
-- [ ] Review what data is sent to the LLM provider — QALens redacts secrets but does send test names, error messages, and stack traces
+- [ ] Review what data is sent to the LLM provider — QA Lens redacts secrets but does send test names, error messages, and stack traces
 - [ ] If your test reports contain PII or sensitive system details, evaluate whether LLM features are appropriate for your environment
 - [ ] Set and monitor LLM API spend limits
 

@@ -1,4 +1,4 @@
-"""Deterministic follow-up question generator for QALens chat.
+"""Deterministic follow-up question generator for QA Lens chat.
 
 Follow-ups are driven by the current **answer scope** and **answer type**,
 not by source cards.  This ensures every suggested question references only

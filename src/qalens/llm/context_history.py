@@ -1,4 +1,4 @@
-"""Conversation-history helpers for QALens LLM context building.
+"""Conversation-history helpers for QA Lens LLM context building.
 
 Extracted from :mod:`qalens.llm.context` for cohesion.
 All public names are re-exported from :mod:`qalens.llm.context` for backward

@@ -25,7 +25,7 @@ def ask(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QA Lens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     config: Path | None = typer.Option(
         None,
@@ -41,7 +41,7 @@ def ask(
 ) -> None:
     """Ask a natural-language question about your test failures.
 
-    QALens builds a structured context from your test database and sends it
+    QA Lens builds a structured context from your test database and sends it
     to the configured local or cloud LLM.
 
     Examples::

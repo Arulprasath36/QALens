@@ -1,4 +1,4 @@
-"""Build deterministic QALens shareable report payloads from SQLite data."""
+"""Build deterministic QA Lens shareable report payloads from SQLite data."""
 
 from __future__ import annotations
 
@@ -37,10 +37,10 @@ def build_report(
     min_runs: int = 2,
     limit: int = 10,
 ) -> ShareableReport:
-    """Build a deterministic shareable report from stored QALens data.
+    """Build a deterministic shareable report from stored QA Lens data.
 
     Args:
-        db_path: SQLite database path. ``None`` uses QALens's default DB.
+        db_path: SQLite database path. ``None`` uses QA Lens's default DB.
         project: Optional project filter. If omitted, the report scopes itself
             to the latest run's project.
         run_id: Optional run id, ``latest``, or run sequence number.
@@ -148,7 +148,7 @@ def _resolve_run(
     runs = repo.list_runs(project=project, limit=1)
     if not runs:
         suffix = f" for project {project!r}" if project else ""
-        raise ValueError(f"No QALens runs found{suffix}.")
+        raise ValueError(f"No QA Lens runs found{suffix}.")
     return runs[0]
 
 

@@ -1,6 +1,6 @@
-"""Base parser abstractions, detection results, and QALens exceptions.
+"""Base parser abstractions, detection results, and QA Lens exceptions.
 
-This module defines the contracts every QALens parser must satisfy.
+This module defines the contracts every QA Lens parser must satisfy.
 It also defines the :class:`DetectionResult` model that carries
 explainable evidence from detection, and the exception hierarchy
 used throughout the parser layer.
@@ -9,7 +9,7 @@ Design notes:
 - :class:`BaseParser` is an ABC. Concrete parsers subclass it and
   implement :meth:`can_parse` and :meth:`parse`.
 - :class:`DetectionResult` is a Pydantic model so it serializes cleanly
-  to JSON alongside the rest of QALens's output.
+  to JSON alongside the rest of QA Lens's output.
 - Exceptions are kept in this module to avoid a proliferation of tiny
   files; they are re-exported from :mod:`qalens.parsers`.
 """
@@ -26,12 +26,12 @@ from qalens.models.warnings import ExtractionWarning, WarningSeverity
 
 
 # ---------------------------------------------------------------------------
-# QALens exception hierarchy
+# QA Lens exception hierarchy
 # ---------------------------------------------------------------------------
 
 
 class QALensError(Exception):
-    """Base class for all QALens errors."""
+    """Base class for all QA Lens errors."""
 
 
 class ReportNotSupportedError(QALensError):
@@ -191,7 +191,7 @@ class DetectionResult(BaseModel):
 
 
 class BaseParser(ABC):
-    """Abstract base class for all QALens report parsers.
+    """Abstract base class for all QA Lens report parsers.
 
     Concrete parsers must:
 

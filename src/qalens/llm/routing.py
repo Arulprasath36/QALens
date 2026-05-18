@@ -1,4 +1,4 @@
-"""Signal detection and context orchestration for QALens LLM queries.
+"""Signal detection and context orchestration for QA Lens LLM queries.
 
 Replaces the brittle ``_RISK_PHRASES`` set with a semantic signals approach:
 
@@ -445,7 +445,7 @@ def gather_context_for_signals(
         signals:     Detected :class:`QuerySignals` for the user's question.
         question:    The original (un-normalised) user question.
         project:     Optional project name filter.
-        db_path:     Path to the QALens SQLite database.
+        db_path:     Path to the QA Lens SQLite database.
         intent:      Optional pre-parsed :class:`QueryIntent`.
         answer_plan: Optional :class:`~qalens.llm.answer_plan.AnswerPlan`.
 
@@ -665,7 +665,7 @@ def _build_newly_failing_scope(
 
     Args:
         project:  Optional project name filter.
-        db_path:  Path to the QALens SQLite database.
+        db_path:  Path to the QA Lens SQLite database.
 
     Returns:
         An :class:`AnswerScope` with the newly failing test names.
@@ -731,7 +731,7 @@ def _build_recent_flip_context(
 
     Args:
         project: Optional project name filter.
-        db_path: Path to the QALens SQLite database.
+        db_path: Path to the QA Lens SQLite database.
         window:  Rolling window size (default: 5 most recent runs).
 
     Returns:
@@ -872,7 +872,7 @@ def _build_flakiness_binary_payload(
         PayloadSection(
             heading="Why they were marked flaky",
             items=[
-                "QALens treats a test as flaky here based on recent pass\u2194fail "
+                "QA Lens treats a test as flaky here based on recent pass\u2194fail "
                 "switching before the regression, not total lifetime failures."
             ],
         ),
@@ -1088,7 +1088,7 @@ def gather_ranking_context(
 
     Args:
         project:  Optional project name filter.
-        db_path:  Path to the QALens SQLite database.
+        db_path:  Path to the QA Lens SQLite database.
         top_n:    Maximum number of tests to include.
         min_runs: Minimum run appearances required for classification.
         metric:   Which :class:`~qalens.llm.answer_plan.RankingMetric` to sort by.
@@ -1488,7 +1488,7 @@ def gather_comparison_context(
 
     Args:
         project:   Optional project name filter.
-        db_path:   Path to the QALens SQLite database.
+        db_path:   Path to the QA Lens SQLite database.
         n_runs:    Number of most-recent runs to compare (minimum 2).
         is_trend:  When True, use 5 runs and compute trend metrics.
 
@@ -1736,7 +1736,7 @@ def gather_recommendation_context(
 
     Args:
         project:      Optional project name filter.
-        db_path:      Path to the QALens SQLite database.
+        db_path:      Path to the QA Lens SQLite database.
         top_n_risk:   Number of highest-risk tests to include.
         top_n_flaky:  Number of flakiest tests to include.
         min_runs:     Minimum run appearances for stability stats.
@@ -1830,7 +1830,7 @@ def gather_summary_context(
 
     Args:
         project:      Optional project name filter.
-        db_path:      Path to the QALens SQLite database.
+        db_path:      Path to the QA Lens SQLite database.
         max_failures: Maximum number of failing tests to list.
         min_runs:     Minimum run appearances for stability stats.
 
@@ -2024,7 +2024,7 @@ def gather_specific_run_context(
     Args:
         run_number: The ``run_sequence`` value (1-based integer shown to users).
         project:    Optional project name filter.
-        db_path:    Path to the QALens SQLite database.
+        db_path:    Path to the QA Lens SQLite database.
 
     Returns:
         A 3-tuple of ``(context_text, structured_facts_text, sources)``.  When

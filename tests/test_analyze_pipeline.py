@@ -538,7 +538,7 @@ class TestSummarizeReport:
 
     def test_markdown_contains_heading(self, analysis: AnalysisSummary) -> None:
         content = QALensClient().summarize_report(analysis, fmt="markdown")
-        assert "# QALens Analysis Summary" in content
+        assert "# QA Lens Analysis Summary" in content
 
     def test_markdown_contains_status_section(self, analysis: AnalysisSummary) -> None:
         content = QALensClient().summarize_report(analysis, fmt="markdown")
@@ -566,7 +566,7 @@ class TestSummarizeReport:
         run = _run(_tc("t", TestStatus.PASSED))
         analysis = QALensClient().analyze_report(run)
         content = QALensClient().summarize_report(analysis, fmt="markdown")
-        assert "# QALens Analysis Summary" in content
+        assert "# QA Lens Analysis Summary" in content
 
     def test_all_passing_run_json(self) -> None:
         run = _run(_tc("t", TestStatus.PASSED))
@@ -605,7 +605,7 @@ class TestSummarizeCLI:
             app, ["summarize", str(allure_dir), "--format", "markdown"]
         )
         assert result.exit_code == 0
-        assert "# QALens Analysis Summary" in result.output
+        assert "# QA Lens Analysis Summary" in result.output
 
     def test_summarize_writes_to_file(self, allure_dir: Path, tmp_path: Path) -> None:
         out_file = tmp_path / "summary.json"

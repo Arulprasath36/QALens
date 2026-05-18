@@ -555,7 +555,7 @@ function provisionalRiskResult(data: ApiAskResponse, question: string): RiskRank
   return {
     type: 'risk_ranking',
     title: 'Most likely to fail next run',
-    subtitle: 'Ranked by QALens risk score across the selected run window',
+    subtitle: 'Ranked by QA Lens risk score across the selected run window',
     scope: {
       label: parseScopeLabel(data.answer, data.context_mode),
       eligibleTests: parseEligibleTests(data.answer, testSources.length),

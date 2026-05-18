@@ -1,4 +1,4 @@
-"""QALens command-line interface.
+"""QA Lens command-line interface.
 
 Built with Typer. Entry point registered in ``pyproject.toml`` as ``qalens``.
 
@@ -6,9 +6,10 @@ Usage examples::
 
     qalens detect ./reports/allure-report
     qalens extract ./reports/allure-report --out extracted.json
-    qalens analyze ./reports/allure-report --history ./history --out analysis.json
-    qalens summarize ./reports/extent-report --format markdown --out summary.md
-    qalens clusters ./reports/allure-report
+    qalens ingest ./reports/allure-report --db ./qalens.db
+    qalens analyze --db ./qalens.db --out analysis.json
+    qalens summarize --db ./qalens.db --format markdown --out summary.md
+    qalens clusters --db ./qalens.db
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ from qalens.version import __version__
 app = typer.Typer(
     name="qalens",
     help=(
-        "QALens — Quality Assurance + Lens.\n\n"
+        "QA Lens — Quality Assurance + Lens.\n\n"
         "Transforms static test HTML reports into triage-ready intelligence.\n\n"
     ),
     no_args_is_help=True,
@@ -43,13 +44,13 @@ def main(
         None,
         "--version",
         "-V",
-        help="Print QALens version and exit.",
+        help="Print QA Lens version and exit.",
         callback=_version_callback,
         is_eager=True,
         show_default=False,
     ),
 ) -> None:
-    """QALens — Quality Assurance + Lens."""
+    """QA Lens — Quality Assurance + Lens."""
 
 
 # ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-"""Date-filtered context builder for QALens LLM queries.
+"""Date-filtered context builder for QA Lens LLM queries.
 
 Extracted from :mod:`qalens.llm.context` for cohesion.
 All public names are re-exported from :mod:`qalens.llm.context` for backward

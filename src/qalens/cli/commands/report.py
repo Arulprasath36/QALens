@@ -15,7 +15,7 @@ err_console = Console(stderr=True)
 def report(
     db: Annotated[
         Path | None,
-        typer.Option("--db", help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db."),
+        typer.Option("--db", help="Path to QA Lens SQLite database. Defaults to ~/.qalens/qalens.db."),
     ] = None,
     project: Annotated[
         str | None,
@@ -64,9 +64,9 @@ def report(
         typer.Option("--open", help="Open HTML output in the default browser after writing it."),
     ] = False,
 ) -> None:
-    """Export a deterministic shareable QALens report.
+    """Export a deterministic shareable QA Lens report.
 
-    The report is generated from QALens's SQLite data, not by an LLM. It is safe
+    The report is generated from QA Lens's SQLite data, not by an LLM. It is safe
     to use in CI artifacts, release notes, and team triage handoffs.
     """
     from qalens.reports import build_report, render_html, render_json, render_markdown

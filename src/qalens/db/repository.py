@@ -1,4 +1,4 @@
-"""High-level repository for persisting and querying QALens data.
+"""High-level repository for persisting and querying QA Lens data.
 
 :class:`RunRepository` wraps all SQL operations so no other module
 needs to write raw SQL.  It is intentionally narrow: it only exposes
@@ -39,7 +39,7 @@ from qalens.db.models import RunRow, TestCaseRow, TestHistoryEntry  # noqa: F401
 
 
 class RunRepository:
-    """Persists and queries QALens run data in SQLite.
+    """Persists and queries QA Lens run data in SQLite.
 
     Args:
         conn: An open :class:`sqlite3.Connection`.  The caller is

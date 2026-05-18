@@ -23,7 +23,7 @@ def analyze(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QA Lens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     flaky: bool = typer.Option(True, "--flaky/--no-flaky", help="Show flaky test analysis."),
     failures: bool = typer.Option(True, "--failures/--no-failures", help="Show grouped failure analysis."),
@@ -33,7 +33,7 @@ def analyze(
 ) -> None:
     """Analyze test stability and failure patterns from ingested runs.
 
-    Queries the QALens database (populated by 'qalens ingest') to produce:
+    Queries the QA Lens database (populated by 'qalens ingest') to produce:
 
     \b
     --flaky     Flakiness scores for all tests with sufficient history
@@ -180,7 +180,7 @@ def digest(
     db: Path | None = typer.Option(
         None,
         "--db",
-        help="Path to QALens SQLite database. Defaults to ~/.qalens/qalens.db.",
+        help="Path to QA Lens SQLite database. Defaults to ~/.qalens/qalens.db.",
     ),
     format: str = typer.Option(  # noqa: A002
         "html",
@@ -207,7 +207,7 @@ def digest(
 ) -> None:
     """Generate a shareable failure digest report.
 
-    Reads from the QALens database and produces a triage-ready report showing
+    Reads from the QA Lens database and produces a triage-ready report showing
     flaky tests, consistently broken tests, and recurring failure groups.
 
     Examples::
@@ -340,7 +340,7 @@ def summarize(
 
     [bold]CI gate[/bold]: use threshold flags to fail the build when failure
     counts exceed a limit.  Exit code [bold]2[/bold] means a gate was breached
-    (distinct from exit code 1 which means a QALens error).
+    (distinct from exit code 1 which means a QA Lens error).
 
     Examples::
 

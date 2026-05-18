@@ -1,4 +1,4 @@
-"""Run-comparison route handlers for the QALens FastAPI server.
+"""Run-comparison route handlers for the QA Lens FastAPI server.
 
 Factory function :func:`make_compare_router` registers all
 ``/api/compare/*`` endpoints.

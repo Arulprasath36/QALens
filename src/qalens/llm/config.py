@@ -1,4 +1,4 @@
-"""LLM provider configuration for QALens.
+"""LLM provider configuration for QA Lens.
 
 Configuration is stored in ``~/.qalens/config.toml`` and loaded lazily on first
 use.  Users can also override any field via environment variables.
@@ -90,7 +90,7 @@ _PROVIDER_DEFAULTS: dict[str, dict] = {
 _OPENAI_COMPATIBLE = {"ollama", "openai", "azure", "lmstudio", "custom"}
 
 DEFAULT_CONFIG_TOML = """\
-# QALens LLM configuration
+# QA Lens LLM configuration
 # Run `qalens llm-config` to interactively set up a provider.
 
 [llm]
@@ -115,7 +115,7 @@ max_tokens  = 2048
 # Sampling temperature (0.0 = deterministic, 1.0 = creative)
 temperature = 0.2
 
-# Optional system prompt override (leave blank for QALens default)
+# Optional system prompt override (leave blank for QA Lens default)
 system_prompt = ""
 
 # External/cloud LLM providers are disabled by default. Set this to true, or

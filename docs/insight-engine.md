@@ -1,6 +1,6 @@
 # Insight Engine
 
-This document describes how QALens transforms normalized `TestRun` data into actionable insights.
+This document describes how QA Lens transforms normalized `TestRun` data into actionable insights.
 
 ---
 
@@ -19,7 +19,7 @@ ClusterEngine       → FailureCluster list
   ↓
 FlakyScorer         → flaky_score per test (optional, needs history)
   ↓
-Summarizer          → AnalysisSummary
+Decision/report builders → summaries, trends, and exports
 ```
 
 ---
@@ -151,13 +151,12 @@ Group by exact `failure_signature`. All tests sharing a signature form a cluster
 
 ### Layer 2 — Fuzzy clustering (optional)
 
-When enabled, uses TF-IDF vectorization of normalized error messages + cosine similarity to merge nearby clusters.
+When enabled through the Python API, uses TF-IDF vectorization of normalized
+error messages plus cosine similarity to merge nearby clusters.
 
-```python
-qalens analyze ./reports/allure --fuzzy-clusters
-```
-
-This is disabled by default to keep v1 deterministic and explainable.
+The CLI `qalens analyze` command currently analyzes runs already ingested into
+SQLite and does not expose a `--fuzzy-clusters` flag. Fuzzy clustering is a
+library-level option via `QALensClient(enable_fuzzy_clustering=True)`.
 
 ---
 
@@ -183,14 +182,16 @@ flaky_score = weighted_average(
 
 ---
 
-## Summary Generation
+## Summary And Report Generation
 
-Defined in `src/qalens/analyzers/summarizer.py`.
+Run-level summaries are produced from `AnalysisSummary` in the API/CLI layer.
+Shareable reports are built by `src/qalens/reports/builder.py` and rendered by
+`src/qalens/reports/renderers.py`.
 
-Three summary types:
+The product surfaces several deterministic summary forms:
 
 | Summary | Audience | Key content |
 |---|---|---|
-| Executive | Management | Pass rate, top clusters, risk signal |
-| Engineering | Developers | Product defects, cluster details, stack frames |
-| QA Lead | QA lead | All categories, flaky list, recommended actions |
+| Decision brief | QA and engineering leads | What changed, trend direction, and what to inspect first |
+| Shareable report | Team handoff / CI artifacts | Executive bullets, risk, incidents, failure groups |
+| CLI summary | Developers | Counts, categories, clusters, and recommended next checks |

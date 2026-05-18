@@ -1,4 +1,4 @@
-"""Run-data route handlers for the QALens FastAPI server.
+"""Run-data route handlers for the QA Lens FastAPI server.
 
 Factory function :func:`make_runs_router` registers all ``/api/runs`` and
 ``/api/tests`` endpoints onto an :class:`~fastapi.APIRouter`, which is then

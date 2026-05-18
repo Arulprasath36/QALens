@@ -1,4 +1,4 @@
-"""Trend computation helpers for QALens pass-rate trend analysis.
+"""Trend computation helpers for QA Lens pass-rate trend analysis.
 
 These are pure, side-effect-free functions that take a list of
 ``(label, pass_rate)`` tuples (oldest first) and return a

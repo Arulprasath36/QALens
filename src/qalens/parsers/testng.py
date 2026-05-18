@@ -1,4 +1,4 @@
-"""TestNG XML parser for QALens.
+"""TestNG XML parser for QA Lens.
 
 Supports the ``testng-results.xml`` format emitted by TestNG. The parser
 normalizes executable ``test-method`` entries and ignores configuration methods

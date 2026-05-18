@@ -1,4 +1,4 @@
-"""QALens canonical data models.
+"""QA Lens canonical data models.
 
 All parsers normalize their extracted data into these Pydantic models.
 Analyzers consume these models exclusively — they never touch raw HTML or JSON.

@@ -1,4 +1,4 @@
-"""Security tests for QALens's ingestion pipeline.
+"""Security tests for QA Lens's ingestion pipeline.
 
 Covers:
 - XSS / script-injection via report-derived string fields

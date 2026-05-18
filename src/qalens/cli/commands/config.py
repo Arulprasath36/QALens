@@ -78,7 +78,7 @@ def llm_config(
 
     if init:
         path = save_default_config(config_path)
-        if path.read_text().startswith("# QALens"):
+        if path.read_text().startswith("# QA Lens"):
             console.print(f"[green]Config template written:[/green] {path}")
         else:
             console.print(f"[yellow]Config already exists:[/yellow] {path}")
@@ -158,7 +158,7 @@ def _write_config(config_path: Path, cfg: object) -> None:
     from qalens.llm.config import LLMConfig
     assert isinstance(cfg, LLMConfig)
     lines = [
-        "# QALens LLM configuration\n",
+        "# QA Lens LLM configuration\n",
         "\n",
         "[llm]\n",
         f'provider    = "{cfg.provider}"\n',

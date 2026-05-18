@@ -1,4 +1,4 @@
-"""Owner mapping support for parsed QALens test runs.
+"""Owner mapping support for parsed QA Lens test runs.
 
 Reports do not always carry owner metadata.  This module lets teams provide
 an explicit ownership file and applies it before a run is persisted.

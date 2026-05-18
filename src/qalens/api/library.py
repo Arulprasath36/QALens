@@ -1,6 +1,6 @@
-"""QALens public Python library API.
+"""QA Lens public Python library API.
 
-``QALensClient`` is the primary entry point for programmatic use of QALens.
+``QALensClient`` is the primary entry point for programmatic use of QA Lens.
 It orchestrates detection, extraction, analysis, and summarization.
 
 Example::
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 
 
 class QALensClient:
-    """High-level client for the QALens analysis pipeline.
+    """High-level client for the QA Lens analysis pipeline.
 
     All public methods are designed to be used independently or chained.
     The client is stateless — repeated calls to the same method with the
@@ -304,7 +304,7 @@ class QALensClient:
                 :func:`~qalens.analyzers.canonical.to_canonical_name` to obtain
                 this from a raw display name.
             project: Restrict history to this project.
-            db_path: Path to the QALens SQLite database.
+            db_path: Path to the QA Lens SQLite database.
             limit: Maximum run history depth.
 
         Returns:
@@ -333,7 +333,7 @@ class QALensClient:
 
         Args:
             project: Project filter (``None`` = all projects).
-            db_path: Path to the QALens SQLite database.
+            db_path: Path to the QA Lens SQLite database.
             min_runs: Minimum run appearances required.
 
         Returns:
@@ -363,7 +363,7 @@ class QALensClient:
 
         Args:
             project: Project filter (``None`` = all projects).
-            db_path: Path to the QALens SQLite database.
+            db_path: Path to the QA Lens SQLite database.
             min_runs: Minimum run appearances required.
 
         Returns:
@@ -393,7 +393,7 @@ class QALensClient:
 
         Args:
             project: Project filter (``None`` = all).
-            db_path: Path to the QALens SQLite database.
+            db_path: Path to the QA Lens SQLite database.
             limit: Maximum number of groups.
 
         Returns:
@@ -456,13 +456,13 @@ class QALensClient:
     ) -> str:
         """Ask a natural-language question about test failures.
 
-        Builds a structured context from the QALens database, constructs a prompt,
+        Builds a structured context from the QA Lens database, constructs a prompt,
         and sends it to the configured local LLM (or cloud provider).
 
         Args:
             question: Free-text question, e.g. ``"Why does testCreateOrder fail?"``
             project: Optional project filter for database queries.
-            db_path: Path to the QALens SQLite database.
+            db_path: Path to the QA Lens SQLite database.
             config_path: Path to ``config.toml``.  ``None`` = default.
             llm_config: Pre-built :class:`~qalens.llm.config.LLMConfig`.  When
                 supplied, *config_path* is ignored.
@@ -516,7 +516,7 @@ class QALensClient:
 
         Args:
             project: Restrict to a specific project (``None`` = all).
-            db_path: Path to the QALens SQLite database.
+            db_path: Path to the QA Lens SQLite database.
             min_runs: Minimum run count required for flaky classification.
             max_failure_groups: Maximum number of recurring failure groups.
 

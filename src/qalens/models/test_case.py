@@ -1,6 +1,6 @@
-"""Test case and step models for QALens.
+"""Test case and step models for QA Lens.
 
-``TestCaseResult`` is the central unit of analysis in QALens — one instance per
+``TestCaseResult`` is the central unit of analysis in QA Lens — one instance per
 test that appeared in the report, regardless of status. ``StepResult``
 represents a single execution step within a test case.
 """
@@ -21,7 +21,7 @@ from qalens.models.failure import FailureInfo
 class TestStatus(str, Enum):
     """Normalised test execution status.
 
-    QALens maps every source-specific status string (Extent's ``pass``/``fail``,
+    QA Lens maps every source-specific status string (Extent's ``pass``/``fail``,
     Allure's ``passed``/``failed``/``broken``, etc.) onto this set.
 
     Attributes:
@@ -130,7 +130,7 @@ class StepResult(BaseModel):
 class TestCaseResult(BaseModel):
     """A single test case result extracted from a report.
 
-    This is the canonical unit of analysis in QALens. One ``TestCaseResult``
+    This is the canonical unit of analysis in QA Lens. One ``TestCaseResult``
     is created per test that appeared in the source report, regardless of
     whether it passed or failed.
 

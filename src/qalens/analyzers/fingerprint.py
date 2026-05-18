@@ -1,4 +1,4 @@
-"""Stack-trace fingerprinting for QALens.
+"""Stack-trace fingerprinting for QA Lens.
 
 A *fingerprint* is a short, stable hex string that identifies the
 *shape* of a failure independently of run-specific noise (line numbers,

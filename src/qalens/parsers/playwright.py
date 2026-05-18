@@ -1,4 +1,4 @@
-"""Playwright JSON/HTML report parser for QALens.
+"""Playwright JSON/HTML report parser for QA Lens.
 
 The Playwright JSON reporter is the most stable structured input.  Playwright
 HTML report folders are supported when they include the same JSON payload in a
@@ -346,7 +346,7 @@ def _tag_values(value: Any) -> list[str]:
 
 
 def _earliest_start_time(tests: list[TestCaseResult]) -> datetime | None:
-    # Playwright JSON stores startTime per result; QALens does not currently keep
+    # Playwright JSON stores startTime per result; QA Lens does not currently keep
     # per-test start times, so run-level started_at is best-effort for now.
     return None
 

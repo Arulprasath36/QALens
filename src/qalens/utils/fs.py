@@ -1,4 +1,4 @@
-"""Filesystem helper utilities for QALens parsers.
+"""Filesystem helper utilities for QA Lens parsers.
 
 All parsers use these helpers for consistent, safe file operations.
 No parser should contain raw ``open()`` calls or ``Path.glob()`` calls

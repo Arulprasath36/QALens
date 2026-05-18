@@ -1,4 +1,4 @@
-"""Rule-based failure categorizer for QALens.
+"""Rule-based failure categorizer for QA Lens.
 
 Maps an error type + message pair to a human-readable :class:`FailureCategory`
 using ordered regex rules.  No ML or external dependencies required.
@@ -21,7 +21,7 @@ from enum import Enum
 
 
 class FailureCategory(str, Enum):
-    """Human-readable failure categories used across QALens outputs.
+    """Human-readable failure categories used across QA Lens outputs.
 
     Values are lowercase-hyphenated for JSON serialisation consistency.
     """

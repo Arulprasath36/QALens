@@ -298,7 +298,7 @@ class TestOutputOnBreach:
         result = _invoke("--format", "markdown", "--strict")
         # Even on exit 2, the markdown heading should appear
         combined = result.output + (result.stderr or "")
-        assert "QALens Analysis Summary" in combined or len(result.output) > 0
+        assert "QA Lens Analysis Summary" in combined or len(result.output) > 0
 
     def test_error_exit_code_is_nonzero(self) -> None:
         """A bad report path must exit with a non-zero code."""

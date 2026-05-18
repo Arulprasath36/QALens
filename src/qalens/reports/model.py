@@ -1,4 +1,4 @@
-"""Typed models for deterministic QALens report exports."""
+"""Typed models for deterministic QA Lens report exports."""
 
 from __future__ import annotations
 
@@ -96,7 +96,7 @@ class ImpactSummary:
 
 @dataclass(frozen=True)
 class ShareableReport:
-    """Complete deterministic QALens report payload."""
+    """Complete deterministic QA Lens report payload."""
 
     generated_at: str
     scope_label: str
