@@ -1,4 +1,4 @@
-"""Tests for ari.llm.client (Phase 7) — uses pytest-httpx to mock HTTP."""
+"""Tests for qalens.llm.client (Phase 7) — uses pytest-httpx to mock HTTP."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 
 import pytest
 
-from qara.llm.client import LLMClient, LLMError
-from qara.llm.config import LLMConfig
+from qalens.llm.client import LLMClient, LLMError
+from qalens.llm.config import LLMConfig
 
 
 # ---------------------------------------------------------------------------
@@ -108,6 +108,34 @@ def test_chat_sends_system_and_user_messages(httpx_mock):
     assert messages[1]["content"] == "my question"
 
 
+def test_chat_redacts_secrets_before_sending_prompt(httpx_mock):
+    cfg = _ollama_cfg()
+    httpx_mock.add_response(
+        url="http://localhost:11434/v1/chat/completions",
+        json=_openai_response("ok"),
+    )
+    secret = "sk-proj-abcdefghijklmnopqrstuvwxyz123456"
+    LLMClient(cfg).chat(f"Failure log leaked api_key={secret}")
+    request = httpx_mock.get_request()
+    payload = json.loads(request.content)
+    assert secret not in payload["messages"][1]["content"]
+    assert "[REDACTED]" in payload["messages"][1]["content"]
+
+
+def test_chat_truncates_oversized_prompt_before_sending(httpx_mock):
+    cfg = _ollama_cfg()
+    httpx_mock.add_response(
+        url="http://localhost:11434/v1/chat/completions",
+        json=_openai_response("ok"),
+    )
+    LLMClient(cfg).chat("x" * 90_000)
+    request = httpx_mock.get_request()
+    payload = json.loads(request.content)
+    content = payload["messages"][1]["content"]
+    assert len(content) < 81_000
+    assert "prompt text was truncated" in content
+
+
 def test_chat_sends_bearer_token_when_api_key_set(httpx_mock):
     cfg = _ollama_cfg(api_key="sk-mykey")
     httpx_mock.add_response(
@@ -128,6 +156,32 @@ def test_chat_no_auth_header_when_no_api_key(httpx_mock):
     LLMClient(cfg).chat("q")
     request = httpx_mock.get_request()
     assert "authorization" not in request.headers
+
+
+def test_chat_blocks_external_provider_without_opt_in():
+    cfg = LLMConfig(
+        provider="openai",
+        base_url="https://api.openai.com/v1",
+        model="gpt-4o-mini",
+        api_key="sk-test",
+    )
+    with pytest.raises(LLMError, match="External LLM provider"):
+        LLMClient(cfg).chat("q")
+
+
+def test_chat_allows_external_provider_with_opt_in(httpx_mock):
+    cfg = LLMConfig(
+        provider="openai",
+        base_url="https://api.openai.com/v1",
+        model="gpt-4o-mini",
+        api_key="sk-test",
+        allow_external=True,
+    )
+    httpx_mock.add_response(
+        url="https://api.openai.com/v1/chat/completions",
+        json=_openai_response("ok"),
+    )
+    assert LLMClient(cfg).chat("q") == "ok"
 
 
 def test_chat_raises_llm_error_on_http_500(httpx_mock):
@@ -163,6 +217,7 @@ def test_chat_anthropic_returns_answer(httpx_mock):
         model="claude-3-haiku-20240307",
         api_key="sk-ant-test",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://api.anthropic.com/v1/messages",
@@ -179,6 +234,7 @@ def test_chat_anthropic_sends_api_key_header(httpx_mock):
         model="claude-3-haiku-20240307",
         api_key="sk-ant-key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://api.anthropic.com/v1/messages",
@@ -196,6 +252,7 @@ def test_chat_anthropic_raises_on_error(httpx_mock):
         model="claude-3-haiku-20240307",
         api_key="bad-key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://api.anthropic.com/v1/messages",
@@ -218,6 +275,7 @@ def test_chat_gemini_returns_answer(httpx_mock):
         model="gemini-2.0-flash",
         api_key="gemini-key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=gemini-key",
@@ -234,6 +292,7 @@ def test_chat_gemini_raises_on_bad_format(httpx_mock):
         model="gemini-2.0-flash",
         api_key="key",
         timeout=10,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=key",
@@ -252,6 +311,7 @@ def test_chat_gemini_raises_on_max_tokens(httpx_mock):
         api_key="key",
         timeout=10,
         max_tokens=256,
+        allow_external=True,
     )
     httpx_mock.add_response(
         url="https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=key",
@@ -269,6 +329,7 @@ def test_chat_gemini_joins_multiple_parts(httpx_mock):
         model="gemini-2.0-flash",
         api_key="key",
         timeout=10,
+        allow_external=True,
     )
     multi_part_response = {
         "candidates": [

@@ -1,0 +1,30 @@
+{
+  "config": {
+    "rootDir": "/workspace/shopnow"
+  },
+  "suites": [
+    {
+      "title": "auth.spec.ts",
+      "file": "tests/auth.spec.ts",
+      "specs": [
+        {
+          "title": "testValidUserLogin",
+          "file": "tests/auth.spec.ts",
+          "tests": [
+            {
+              "testId": "auth-login-chromium",
+              "projectName": "chromium",
+              "expectedStatus": "passed",
+              "results": [
+                {
+                  "status": "passed",
+                  "duration": 450
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

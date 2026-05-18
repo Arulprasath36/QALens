@@ -1,4 +1,4 @@
-"""Tests for :mod:`ari.llm.routing` — signal detection and context orchestration."""
+"""Tests for :mod:`qalens.llm.routing` — signal detection and context orchestration."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from qara.llm.routing import (
+from qalens.llm.routing import (
     QuerySignals,
     _build_signals_header,
     _build_newly_failing_scope,
@@ -14,8 +14,8 @@ from qara.llm.routing import (
     gather_context_for_signals,
     normalize_query,
 )
-from qara.llm.context import _has_slowing_chip
-from qara.analyzers.predictor import RiskSignals
+from qalens.llm.context import _has_slowing_chip
+from qalens.analyzers.predictor import RiskSignals
 
 
 # ---------------------------------------------------------------------------
@@ -31,7 +31,7 @@ def _make_scope_run(
     hour: int = 10,
 ):
     """Create a minimal TestRun for scope-builder tests."""
-    from qara.models.run import RunMetadata, TestRun
+    from qalens.models.run import RunMetadata, TestRun
 
     meta = RunMetadata(
         run_id=run_id,
@@ -46,7 +46,7 @@ def _make_scope_run(
 
 def _make_scope_tc(name: str, status: str):
     """Create a minimal TestCaseResult for scope-builder tests."""
-    from qara.models.test_case import TestCaseResult, TestStatus
+    from qalens.models.test_case import TestCaseResult, TestStatus
 
     st = TestStatus(status)
     return TestCaseResult(test_id=f"tc-{name}", name=name, status=st)
@@ -375,7 +375,7 @@ class TestGatherContextForSignals:
 
     def test_mode_is_project_when_routed(self, tmp_path):
         """When signals require risk context, mode must be 'project'."""
-        from qara.db.schema import get_connection, init_db
+        from qalens.db.schema import get_connection, init_db
 
         db = tmp_path / "r.db"
         conn = get_connection(str(db))
@@ -389,7 +389,7 @@ class TestGatherContextForSignals:
         assert mode == "project"
 
     def test_context_contains_signals_header_when_routed(self, tmp_path):
-        from qara.db.schema import get_connection, init_db
+        from qalens.db.schema import get_connection, init_db
 
         db = tmp_path / "r2.db"
         conn = get_connection(str(db))
@@ -471,7 +471,7 @@ class TestBuildNewlyFailingScope:
     """Tests for the helper that builds a compact newly-failing test list."""
 
     def test_returns_not_enough_runs_sentinel_on_empty_db(self, tmp_path):
-        from qara.db.schema import get_connection, init_db
+        from qalens.db.schema import get_connection, init_db
 
         db = tmp_path / "empty.db"
         conn = get_connection(str(db))
@@ -485,8 +485,8 @@ class TestBuildNewlyFailingScope:
 
     def test_returns_bullet_list_for_newly_failing(self, tmp_path):
         """With two runs where testAlpha regressed, scope contains only testAlpha."""
-        from qara.db.schema import get_connection, init_db
-        from qara.db.repository import RunRepository
+        from qalens.db.schema import get_connection, init_db
+        from qalens.db.repository import RunRepository
 
         db = tmp_path / "scope.db"
         conn = get_connection(str(db))
@@ -512,8 +512,8 @@ class TestBuildNewlyFailingScope:
         assert "testBeta" not in result.tests
 
     def test_returns_no_newly_failing_sentinel_when_all_pass(self, tmp_path):
-        from qara.db.schema import get_connection, init_db
-        from qara.db.repository import RunRepository
+        from qalens.db.schema import get_connection, init_db
+        from qalens.db.repository import RunRepository
 
         db = tmp_path / "allpass.db"
         conn = get_connection(str(db))
@@ -535,14 +535,14 @@ class TestAnswerScopeFormatBlock:
     """Tests for AnswerScope.format_block() rendering."""
 
     def test_format_block_contains_scope_label(self):
-        from qara.llm.answer_plan import AnswerScope
+        from qalens.llm.answer_plan import AnswerScope
 
         scope = AnswerScope(tests=["testA"], total=1, label="NEWLY FAILING TESTS")
         block = scope.format_block()
         assert "=== SCOPE: NEWLY FAILING TESTS ===" in block
 
     def test_format_block_lists_tests(self):
-        from qara.llm.answer_plan import AnswerScope
+        from qalens.llm.answer_plan import AnswerScope
 
         scope = AnswerScope(tests=["testA", "testB"], total=2, label="X")
         block = scope.format_block()
@@ -550,21 +550,21 @@ class TestAnswerScopeFormatBlock:
         assert "- testB" in block
 
     def test_format_block_enforces_only_instruction(self):
-        from qara.llm.answer_plan import AnswerScope
+        from qalens.llm.answer_plan import AnswerScope
 
         scope = AnswerScope(tests=["testA"], total=1, label="X")
         block = scope.format_block()
         assert "Use ONLY these tests" in block
 
     def test_format_block_shows_total(self):
-        from qara.llm.answer_plan import AnswerScope
+        from qalens.llm.answer_plan import AnswerScope
 
         scope = AnswerScope(tests=["a", "b", "c"], total=3, label="X")
         block = scope.format_block()
         assert "Total scoped tests: 3" in block
 
     def test_format_block_includes_runs_when_set(self):
-        from qara.llm.answer_plan import AnswerScope
+        from qalens.llm.answer_plan import AnswerScope
 
         scope = AnswerScope(tests=["a"], runs=["Run #50", "Run #51"], total=1, label="X")
         block = scope.format_block()
@@ -573,7 +573,7 @@ class TestAnswerScopeFormatBlock:
 
     def test_empty_scope_still_has_enforcement(self):
         """Even an empty scope must tell the LLM not to fabricate tests."""
-        from qara.llm.answer_plan import AnswerScope
+        from qalens.llm.answer_plan import AnswerScope
 
         scope = AnswerScope(tests=[], total=0, label="EMPTY")
         block = scope.format_block()
@@ -648,7 +648,7 @@ class TestStructuredPayloadFormatBlock:
     """Tests for StructuredPayload.format_block() rendering."""
 
     def test_verdict_appears_first(self):
-        from qara.llm.answer_plan import PayloadSection, StructuredPayload
+        from qalens.llm.answer_plan import PayloadSection, StructuredPayload
 
         p = StructuredPayload(
             verdict="**Summary: 3 newly failing**",
@@ -658,7 +658,7 @@ class TestStructuredPayloadFormatBlock:
         assert block.startswith("**Summary: 3 newly failing**")
 
     def test_empty_sections_suppressed(self):
-        from qara.llm.answer_plan import PayloadSection, StructuredPayload
+        from qalens.llm.answer_plan import PayloadSection, StructuredPayload
 
         p = StructuredPayload(
             sections=[
@@ -671,7 +671,7 @@ class TestStructuredPayloadFormatBlock:
         assert "Empty" not in block
 
     def test_deterministic_ordering(self):
-        from qara.llm.answer_plan import PayloadSection, StructuredPayload
+        from qalens.llm.answer_plan import PayloadSection, StructuredPayload
 
         p = StructuredPayload(
             sections=[
@@ -683,7 +683,7 @@ class TestStructuredPayloadFormatBlock:
         assert block.index("First") < block.index("Second")
 
     def test_backend_counts_in_output(self):
-        from qara.llm.answer_plan import PayloadSection, StructuredPayload
+        from qalens.llm.answer_plan import PayloadSection, StructuredPayload
 
         p = StructuredPayload(
             verdict="**3 newly failing, 2 recovered**",
@@ -706,8 +706,8 @@ class TestBuildRegressionDiffPayload:
     """Tests for _build_regression_diff_payload backend structure builder."""
 
     def test_returns_none_on_empty_db(self, tmp_path):
-        from qara.db.schema import get_connection, init_db
-        from qara.llm.routing import _build_regression_diff_payload
+        from qalens.db.schema import get_connection, init_db
+        from qalens.llm.routing import _build_regression_diff_payload
 
         db = tmp_path / "empty.db"
         conn = get_connection(str(db))
@@ -718,9 +718,9 @@ class TestBuildRegressionDiffPayload:
         assert result is None
 
     def test_produces_sections_with_counts(self, tmp_path):
-        from qara.db.schema import get_connection, init_db
-        from qara.db.repository import RunRepository
-        from qara.llm.routing import _build_regression_diff_payload
+        from qalens.db.schema import get_connection, init_db
+        from qalens.db.repository import RunRepository
+        from qalens.llm.routing import _build_regression_diff_payload
 
         db = tmp_path / "diff.db"
         conn = get_connection(str(db))
@@ -746,9 +746,9 @@ class TestBuildRegressionDiffPayload:
         assert "testAlpha" in block
 
     def test_empty_newly_failing_section_suppressed(self, tmp_path):
-        from qara.db.schema import get_connection, init_db
-        from qara.db.repository import RunRepository
-        from qara.llm.routing import _build_regression_diff_payload
+        from qalens.db.schema import get_connection, init_db
+        from qalens.db.repository import RunRepository
+        from qalens.llm.routing import _build_regression_diff_payload
 
         db = tmp_path / "nochange.db"
         conn = get_connection(str(db))
@@ -781,8 +781,8 @@ class TestInjectScopeContext:
     """Tests for the _inject_scope_context helper."""
 
     def test_prepends_scope_block_when_tests_present(self):
-        from qara.llm.answer_plan import AnswerScope
-        from qara.llm.routing import _inject_scope_context
+        from qalens.llm.answer_plan import AnswerScope
+        from qalens.llm.routing import _inject_scope_context
 
         scope = AnswerScope(
             tests=["testA()", "testB()"],
@@ -796,16 +796,16 @@ class TestInjectScopeContext:
         assert "testA()" in result
 
     def test_returns_context_unchanged_when_scope_empty(self):
-        from qara.llm.answer_plan import AnswerScope
-        from qara.llm.routing import _inject_scope_context
+        from qalens.llm.answer_plan import AnswerScope
+        from qalens.llm.routing import _inject_scope_context
 
         scope = AnswerScope(label="NEWLY FAILING TESTS")
         result = _inject_scope_context("some context", scope)
         assert result == "some context"
 
     def test_scope_block_ends_before_context(self):
-        from qara.llm.answer_plan import AnswerScope
-        from qara.llm.routing import _inject_scope_context
+        from qalens.llm.answer_plan import AnswerScope
+        from qalens.llm.routing import _inject_scope_context
 
         scope = AnswerScope(tests=["testX()"], total=1, label="TEST SCOPE")
         result = _inject_scope_context("original data", scope)

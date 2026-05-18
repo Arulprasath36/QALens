@@ -1,0 +1,81 @@
+{
+  "config": {
+    "rootDir": "/workspace/shopnow"
+  },
+  "suites": [
+    {
+      "title": "checkout.spec.ts",
+      "file": "tests/checkout.spec.ts",
+      "specs": [
+        {
+          "title": "testCreditCardPayment",
+          "file": "tests/checkout.spec.ts",
+          "tags": ["@payments", "@smoke"],
+          "tests": [
+            {
+              "testId": "checkout-credit-card-chromium",
+              "projectName": "chromium",
+              "annotations": [
+                {"type": "owner", "description": "Payments Team"},
+                {"type": "feature", "description": "Checkout"}
+              ],
+              "expectedStatus": "passed",
+              "results": [
+                {
+                  "status": "failed",
+                  "duration": 1200,
+                  "error": {
+                    "message": "Error: iframe did not load",
+                    "stack": "Error: iframe did not load\n    at tests/checkout.spec.ts:12:7"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "duration": 900
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "testPayPalRedirect",
+          "file": "tests/checkout.spec.ts",
+          "tests": [
+            {
+              "testId": "checkout-paypal-firefox",
+              "projectName": "firefox",
+              "expectedStatus": "passed",
+              "results": [
+                {
+                  "status": "timedOut",
+                  "duration": 30000,
+                  "error": {
+                    "message": "TimeoutError: page.goto timed out",
+                    "stack": "TimeoutError: page.goto timed out\n    at tests/checkout.spec.ts:30:5"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "testApplyCoupon",
+          "file": "tests/checkout.spec.ts",
+          "tests": [
+            {
+              "testId": "checkout-coupon-webkit",
+              "projectName": "webkit",
+              "expectedStatus": "skipped",
+              "results": [
+                {
+                  "status": "skipped",
+                  "duration": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

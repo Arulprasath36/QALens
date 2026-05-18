@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcreditcardpaymen-002",
+  "name": "testCreditCardPayment()",
+  "fullName": "com.example.tests.PaymentTest#testCreditCardPayment",
+  "historyId": "hist-tc-testcreditcardpaymen-002",
+  "testId": "com.example.tests.PaymentTest#testCreditCardPayment",
+  "status": "passed",
+  "time": {
+    "start": 1767344424534,
+    "stop": 1767344426434,
+    "duration": 1900
+  },
+  "description": "Verify testCreditCardPayment behaves as expected.",
+  "descriptionHtml": "<p>Verify testCreditCardPayment behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Credit Card"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

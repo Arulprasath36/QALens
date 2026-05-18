@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testorderhistorylist-043",
+  "name": "testOrderHistoryList()",
+  "fullName": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "historyId": "hist-tc-testorderhistorylist-043",
+  "testId": "com.example.tests.OrderApiTest#testOrderHistoryList",
+  "status": "failed",
+  "time": {
+    "start": 1770886851029,
+    "stop": 1770886853384,
+    "duration": 2355
+  },
+  "description": "Verify testOrderHistoryList behaves as expected.",
+  "descriptionHtml": "<p>Verify testOrderHistoryList behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "History"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Search result count was 0, expected \u22651 for query 'laptop'",
+  "statusTrace": "AssertionError: Search result count was 0, expected \u22651 for query 'laptop'\n\tat com.example.tests.OrderApiTest.testOrderHistoryList(Test.java:130)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:312)\n"
+}

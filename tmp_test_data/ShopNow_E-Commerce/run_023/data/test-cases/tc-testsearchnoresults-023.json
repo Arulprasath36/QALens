@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchnoresults-023",
+  "name": "testSearchNoResults()",
+  "fullName": "com.example.tests.SearchTest#testSearchNoResults",
+  "historyId": "hist-tc-testsearchnoresults-023",
+  "testId": "com.example.tests.SearchTest#testSearchNoResults",
+  "status": "failed",
+  "time": {
+    "start": 1769158834773,
+    "stop": 1769158836075,
+    "duration": 1302
+  },
+  "description": "Verify testSearchNoResults behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchNoResults behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Empty State"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Search result count was 0, expected \u22651 for query 'laptop'",
+  "statusTrace": "AssertionError: Search result count was 0, expected \u22651 for query 'laptop'\n\tat com.example.tests.SearchTest.testSearchNoResults(Test.java:76)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:101)\n"
+}

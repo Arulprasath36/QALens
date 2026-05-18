@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdownloadinvoicep-004",
+  "name": "testDownloadInvoicePdf()",
+  "fullName": "com.example.tests.DocumentUploadTest#testDownloadInvoicePdf",
+  "historyId": "hist-tc-testdownloadinvoicep-004",
+  "testId": "com.example.tests.DocumentUploadTest#testDownloadInvoicePdf",
+  "status": "passed",
+  "time": {
+    "start": 1767517258960,
+    "stop": 1767517260276,
+    "duration": 1316
+  },
+  "description": "Verify testDownloadInvoicePdf behaves as expected.",
+  "descriptionHtml": "<p>Verify testDownloadInvoicePdf behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Document Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Documents"
+    },
+    {
+      "name": "story",
+      "value": "Download"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

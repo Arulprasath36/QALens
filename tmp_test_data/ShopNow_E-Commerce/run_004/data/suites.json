@@ -1,0 +1,654 @@
+{
+  "uid": "suites-root",
+  "name": "suites",
+  "children": [
+    {
+      "uid": "suite-authentication-tests",
+      "name": "Authentication Tests",
+      "children": [
+        {
+          "uid": "tc-testvaliduserlogin-004",
+          "name": "testValidUserLogin()",
+          "status": "passed",
+          "time": {
+            "start": 1767517200000,
+            "stop": 1767517201598,
+            "duration": 1598
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testloginwithinvalid-004",
+          "name": "testLoginWithInvalidPassword()",
+          "status": "passed",
+          "time": {
+            "start": 1767517201693,
+            "stop": 1767517203235,
+            "duration": 1542
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testloginwithlockeda-004",
+          "name": "testLoginWithLockedAccount()",
+          "status": "passed",
+          "time": {
+            "start": 1767517203317,
+            "stop": 1767517206215,
+            "duration": 2898
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testlogoutclearssess-004",
+          "name": "testLogoutClearsSession()",
+          "status": "passed",
+          "time": {
+            "start": 1767517206272,
+            "stop": 1767517207517,
+            "duration": 1245
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testremembermetoken-004",
+          "name": "testRememberMeToken()",
+          "status": "broken",
+          "time": {
+            "start": 1767517207547,
+            "stop": 1767517207938,
+            "duration": 391
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testpasswordresetema-004",
+          "name": "testPasswordResetEmail()",
+          "status": "failed",
+          "time": {
+            "start": 1767517207973,
+            "stop": 1767517210036,
+            "duration": 2063
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testtwofactorauthflo-004",
+          "name": "testTwoFactorAuthFlow()",
+          "status": "broken",
+          "time": {
+            "start": 1767517210118,
+            "stop": 1767517212550,
+            "duration": 2432
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-cart-&-checkout-test",
+      "name": "Cart & Checkout Tests",
+      "children": [
+        {
+          "uid": "tc-testadditemtocart-004",
+          "name": "testAddItemToCart()",
+          "status": "passed",
+          "time": {
+            "start": 1767517212561,
+            "stop": 1767517213220,
+            "duration": 659
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testremoveitemfromca-004",
+          "name": "testRemoveItemFromCart()",
+          "status": "passed",
+          "time": {
+            "start": 1767517213292,
+            "stop": 1767517215322,
+            "duration": 2030
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testcartpersistsafte-004",
+          "name": "testCartPersistsAfterLogin()",
+          "status": "failed",
+          "time": {
+            "start": 1767517215422,
+            "stop": 1767517216009,
+            "duration": 587
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testapplycouponcode-004",
+          "name": "testApplyCouponCode()",
+          "status": "broken",
+          "time": {
+            "start": 1767517216097,
+            "stop": 1767517218645,
+            "duration": 2548
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testentershippingadd-004",
+          "name": "testEnterShippingAddress()",
+          "status": "passed",
+          "time": {
+            "start": 1767517218686,
+            "stop": 1767517219955,
+            "duration": 1269
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testselectpaymentmet-004",
+          "name": "testSelectPaymentMethod()",
+          "status": "broken",
+          "time": {
+            "start": 1767517220000,
+            "stop": 1767517222896,
+            "duration": 2896
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testplaceorderconfir-004",
+          "name": "testPlaceOrderConfirmation()",
+          "status": "passed",
+          "time": {
+            "start": 1767517222929,
+            "stop": 1767517225551,
+            "duration": 2622
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-payment-tests",
+      "name": "Payment Tests",
+      "children": [
+        {
+          "uid": "tc-testcreditcardpaymen-004",
+          "name": "testCreditCardPayment()",
+          "status": "passed",
+          "time": {
+            "start": 1767517225588,
+            "stop": 1767517227205,
+            "duration": 1617
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testdebitcarddecline-004",
+          "name": "testDebitCardDeclined()",
+          "status": "passed",
+          "time": {
+            "start": 1767517227291,
+            "stop": 1767517229980,
+            "duration": 2689
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testpaypalredirect-004",
+          "name": "testPayPalRedirect()",
+          "status": "passed",
+          "time": {
+            "start": 1767517230061,
+            "stop": 1767517231248,
+            "duration": 1187
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testrefundprocessing-004",
+          "name": "testRefundProcessing()",
+          "status": "passed",
+          "time": {
+            "start": 1767517231288,
+            "stop": 1767517231778,
+            "duration": 490
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testpartialrefund-004",
+          "name": "testPartialRefund()",
+          "status": "passed",
+          "time": {
+            "start": 1767517231850,
+            "stop": 1767517232215,
+            "duration": 365
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-search-tests",
+      "name": "Search Tests",
+      "children": [
+        {
+          "uid": "tc-testsearchreturnsrel-004",
+          "name": "testSearchReturnsRelevantProducts()",
+          "status": "passed",
+          "time": {
+            "start": 1767517232307,
+            "stop": 1767517235156,
+            "duration": 2849
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testsearchwithfilter-004",
+          "name": "testSearchWithFilters()",
+          "status": "passed",
+          "time": {
+            "start": 1767517235168,
+            "stop": 1767517236354,
+            "duration": 1186
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testsearchnoresults-004",
+          "name": "testSearchNoResults()",
+          "status": "broken",
+          "time": {
+            "start": 1767517236448,
+            "stop": 1767517237876,
+            "duration": 1428
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testautocompletesugg-004",
+          "name": "testAutocompleteSuggestions()",
+          "status": "passed",
+          "time": {
+            "start": 1767517237940,
+            "stop": 1767517238519,
+            "duration": 579
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-product-tests",
+      "name": "Product Tests",
+      "children": [
+        {
+          "uid": "tc-testproductdetailpag-004",
+          "name": "testProductDetailPage()",
+          "status": "passed",
+          "time": {
+            "start": 1767517238563,
+            "stop": 1767517239713,
+            "duration": 1150
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testproductimagegall-004",
+          "name": "testProductImageGallery()",
+          "status": "failed",
+          "time": {
+            "start": 1767517239755,
+            "stop": 1767517240377,
+            "duration": 622
+          },
+          "flaky": false,
+          "newFailed": true,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testoutofstockbadge-004",
+          "name": "testOutOfStockBadge()",
+          "status": "passed",
+          "time": {
+            "start": 1767517240462,
+            "stop": 1767517242440,
+            "duration": 1978
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-notification-tests",
+      "name": "Notification Tests",
+      "children": [
+        {
+          "uid": "tc-testenableemailnotif-004",
+          "name": "testEnableEmailNotifications()",
+          "status": "passed",
+          "time": {
+            "start": 1767517242462,
+            "stop": 1767517243844,
+            "duration": 1382
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testdisablenotificat-004",
+          "name": "testDisableNotifications()",
+          "status": "passed",
+          "time": {
+            "start": 1767517243855,
+            "stop": 1767517245792,
+            "duration": 1937
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testordershippedemai-004",
+          "name": "testOrderShippedEmail()",
+          "status": "passed",
+          "time": {
+            "start": 1767517245837,
+            "stop": 1767517248712,
+            "duration": 2875
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-order-tests",
+      "name": "Order Tests",
+      "children": [
+        {
+          "uid": "tc-testcreateorder-004",
+          "name": "testCreateOrder()",
+          "status": "passed",
+          "time": {
+            "start": 1767517248811,
+            "stop": 1767517250517,
+            "duration": 1706
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testcancelorder-004",
+          "name": "testCancelOrder()",
+          "status": "passed",
+          "time": {
+            "start": 1767517250608,
+            "stop": 1767517251528,
+            "duration": 920
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testorderhistorylist-004",
+          "name": "testOrderHistoryList()",
+          "status": "passed",
+          "time": {
+            "start": 1767517251598,
+            "stop": 1767517253196,
+            "duration": 1598
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testtrackshipment-004",
+          "name": "testTrackShipment()",
+          "status": "passed",
+          "time": {
+            "start": 1767517253262,
+            "stop": 1767517254731,
+            "duration": 1469
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-document-tests",
+      "name": "Document Tests",
+      "children": [
+        {
+          "uid": "tc-testrejectunsupporte-004",
+          "name": "testRejectUnsupportedFileType()",
+          "status": "passed",
+          "time": {
+            "start": 1767517254802,
+            "stop": 1767517256044,
+            "duration": 1242
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testuploadpdfattachm-004",
+          "name": "testUploadPdfAttachment()",
+          "status": "passed",
+          "time": {
+            "start": 1767517256062,
+            "stop": 1767517258931,
+            "duration": 2869
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testdownloadinvoicep-004",
+          "name": "testDownloadInvoicePdf()",
+          "status": "passed",
+          "time": {
+            "start": 1767517258960,
+            "stop": 1767517260276,
+            "duration": 1316
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-profile-tests",
+      "name": "Profile Tests",
+      "children": [
+        {
+          "uid": "tc-testupdatephonenumbe-004",
+          "name": "testUpdatePhoneNumber()",
+          "status": "passed",
+          "time": {
+            "start": 1767517260358,
+            "stop": 1767517263453,
+            "duration": 3095
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testchangepassword-004",
+          "name": "testChangePassword()",
+          "status": "passed",
+          "time": {
+            "start": 1767517263478,
+            "stop": 1767517266301,
+            "duration": 2823
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testuploadprofilepic-004",
+          "name": "testUploadProfilePicture()",
+          "status": "passed",
+          "time": {
+            "start": 1767517266388,
+            "stop": 1767517266835,
+            "duration": 447
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    },
+    {
+      "uid": "suite-dashboard-tests",
+      "name": "Dashboard Tests",
+      "children": [
+        {
+          "uid": "tc-testdownloadmonthlyr-004",
+          "name": "testDownloadMonthlyReportPdf()",
+          "status": "passed",
+          "time": {
+            "start": 1767517266902,
+            "stop": 1767517269427,
+            "duration": 2525
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testdashboardloadsin-004",
+          "name": "testDashboardLoadsInUnder3s()",
+          "status": "passed",
+          "time": {
+            "start": 1767517269475,
+            "stop": 1767517272709,
+            "duration": 3234
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        },
+        {
+          "uid": "tc-testwidgetrefreshonf-004",
+          "name": "testWidgetRefreshOnFilter()",
+          "status": "passed",
+          "time": {
+            "start": 1767517272797,
+            "stop": 1767517273528,
+            "duration": 731
+          },
+          "flaky": false,
+          "newFailed": false,
+          "newBroken": false,
+          "newPassed": false
+        }
+      ]
+    }
+  ]
+}

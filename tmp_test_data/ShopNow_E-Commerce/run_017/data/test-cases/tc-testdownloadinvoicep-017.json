@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdownloadinvoicep-017",
+  "name": "testDownloadInvoicePdf()",
+  "fullName": "com.example.tests.DocumentUploadTest#testDownloadInvoicePdf",
+  "historyId": "hist-tc-testdownloadinvoicep-017",
+  "testId": "com.example.tests.DocumentUploadTest#testDownloadInvoicePdf",
+  "status": "passed",
+  "time": {
+    "start": 1768640457074,
+    "stop": 1768640458360,
+    "duration": 1286
+  },
+  "description": "Verify testDownloadInvoicePdf behaves as expected.",
+  "descriptionHtml": "<p>Verify testDownloadInvoicePdf behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Document Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Documents"
+    },
+    {
+      "name": "story",
+      "value": "Download"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchwithfilter-045",
+  "name": "testSearchWithFilters()",
+  "fullName": "com.example.tests.SearchTest#testSearchWithFilters",
+  "historyId": "hist-tc-testsearchwithfilter-045",
+  "testId": "com.example.tests.SearchTest#testSearchWithFilters",
+  "status": "broken",
+  "time": {
+    "start": 1771059634306,
+    "stop": 1771059635218,
+    "duration": 912
+  },
+  "description": "Verify testSearchWithFilters behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchWithFilters behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Filters"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Search result count was 0, expected \u22651 for query 'laptop'",
+  "statusTrace": "AssertionError: Search result count was 0, expected \u22651 for query 'laptop'\n\tat com.example.tests.SearchTest.testSearchWithFilters(Test.java:42)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:184)\n"
+}

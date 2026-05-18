@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcancelorder-034",
+  "name": "testCancelOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCancelOrder",
+  "historyId": "hist-tc-testcancelorder-034",
+  "testId": "com.example.tests.OrderApiTest#testCancelOrder",
+  "status": "failed",
+  "time": {
+    "start": 1770109251181,
+    "stop": 1770109252172,
+    "duration": 991
+  },
+  "description": "Verify testCancelOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCancelOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Cancel"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Connection reset by peer during POST /api/payments/charge",
+  "statusTrace": "ConnectionResetError: Connection reset by peer during POST /api/payments/charge\n\tat com.example.tests.OrderApiTest.testCancelOrder(Test.java:144)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:142)\n"
+}

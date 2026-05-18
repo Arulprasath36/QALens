@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdebitcarddecline-026",
+  "name": "testDebitCardDeclined()",
+  "fullName": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "historyId": "hist-tc-testdebitcarddecline-026",
+  "testId": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "status": "failed",
+  "time": {
+    "start": 1769418028044,
+    "stop": 1769418030563,
+    "duration": 2519
+  },
+  "description": "Verify testDebitCardDeclined behaves as expected.",
+  "descriptionHtml": "<p>Verify testDebitCardDeclined behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Declined"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected redirect to /dashboard but got /error?code=403",
+  "statusTrace": "AssertionError: Expected redirect to /dashboard but got /error?code=403\n\tat com.example.tests.PaymentTest.testDebitCardDeclined(Test.java:153)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:358)\n"
+}

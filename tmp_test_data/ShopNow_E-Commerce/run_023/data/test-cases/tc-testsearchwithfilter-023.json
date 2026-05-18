@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchwithfilter-023",
+  "name": "testSearchWithFilters()",
+  "fullName": "com.example.tests.SearchTest#testSearchWithFilters",
+  "historyId": "hist-tc-testsearchwithfilter-023",
+  "testId": "com.example.tests.SearchTest#testSearchWithFilters",
+  "status": "broken",
+  "time": {
+    "start": 1769158833571,
+    "stop": 1769158834749,
+    "duration": 1178
+  },
+  "description": "Verify testSearchWithFilters behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchWithFilters behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Filters"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cannot read properties of undefined (reading 'price') at ProductPage.js:87",
+  "statusTrace": "JavaScriptException: Cannot read properties of undefined (reading 'price') at ProductPage.js:87\n\tat com.example.tests.SearchTest.testSearchWithFilters(Test.java:188)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:286)\n"
+}

@@ -1,4 +1,4 @@
-"""Contract-test suite for QARA LLM orchestration.
+"""Contract-test suite for QA Lens LLM orchestration.
 
 Locks down the deterministic layers of the five core answer families:
 REGRESSION_DIFF, FLAKINESS_BINARY, FLAKINESS_RANKING, RISK_RANKING, TREND.
@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from qara.llm.answer_types import (
+from qalens.llm.answer_types import (
     AnswerIntent,
     AnswerScope,
     AnswerType,
@@ -23,14 +23,14 @@ from qara.llm.answer_types import (
     RankingMetric,
     StructuredPayload,
 )
-from qara.llm.intent_detection import (
+from qalens.llm.intent_detection import (
     detect_answer_intent,
     detect_answer_type,
     detect_ranking_metric,
     detect_secondary_intent,
 )
-from qara.llm.answer_plan import AnswerPlan, build_answer_plan
-from qara.llm.routing import (
+from qalens.llm.answer_plan import AnswerPlan, build_answer_plan
+from qalens.llm.routing import (
     _build_newly_failing_scope,
     _build_flakiness_binary_payload,
     _build_regression_diff_payload,
@@ -39,7 +39,7 @@ from qara.llm.routing import (
     gather_comparison_context,
 )
 
-from qara.llm.context_history import (
+from qalens.llm.context_history import (
     ResolvedQueryContext,
     extract_query_context_from_plan,
     is_followup_question,
@@ -468,8 +468,8 @@ class TestFlakinessBinaryFlipCountSymbolConsistency:
     def test_skipped_status_does_not_show_as_pass(self, tmp_path):
         """If a test has skipped runs in history, they must show as ⏭ not ✅."""
         from tests.conftest_contracts import make_tc, make_run
-        from qara.db.repository import RunRepository
-        from qara.db.schema import get_connection, init_db
+        from qalens.db.repository import RunRepository
+        from qalens.db.schema import get_connection, init_db
 
         db_path = str(tmp_path / "skip_test.db")
         conn = get_connection(db_path)
@@ -803,7 +803,7 @@ class TestRiskRankingPlan:
         )
 
     def test_plan_distinguishes_ranking_from_pass_rate(self):
-        """Rules must clarify ranking is by QARA risk, not by pass rate."""
+        """Rules must clarify ranking is by QA Lens risk, not by pass rate."""
         q = "Which tests are most likely to fail next?"
         intent = detect_answer_intent(q)
         plan = build_answer_plan(intent, question=q)
@@ -1420,7 +1420,7 @@ class TestAnswerTypeEnumCompleteness:
 # 10. Follow-up scope-preservation & payload-awareness contracts
 # ═══════════════════════════════════════════════════════════════════════════
 
-from qara.llm.followups import generate_follow_ups
+from qalens.llm.followups import generate_follow_ups
 
 
 class TestFollowupScopePreservationContract:

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testwidgetrefreshonf-030",
+  "name": "testWidgetRefreshOnFilter()",
+  "fullName": "com.example.tests.DashboardTest#testWidgetRefreshOnFilter",
+  "historyId": "hist-tc-testwidgetrefreshonf-030",
+  "testId": "com.example.tests.DashboardTest#testWidgetRefreshOnFilter",
+  "status": "passed",
+  "time": {
+    "start": 1769763673763,
+    "stop": 1769763674613,
+    "duration": 850
+  },
+  "description": "Verify testWidgetRefreshOnFilter behaves as expected.",
+  "descriptionHtml": "<p>Verify testWidgetRefreshOnFilter behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Dashboard"
+    },
+    {
+      "name": "story",
+      "value": "Filters"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

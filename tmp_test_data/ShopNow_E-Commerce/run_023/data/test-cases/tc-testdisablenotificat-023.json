@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdisablenotificat-023",
+  "name": "testDisableNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testDisableNotifications",
+  "historyId": "hist-tc-testdisablenotificat-023",
+  "testId": "com.example.tests.NotificationTest#testDisableNotifications",
+  "status": "failed",
+  "time": {
+    "start": 1769158841971,
+    "stop": 1769158844106,
+    "duration": 2135
+  },
+  "description": "Verify testDisableNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testDisableNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Preferences"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cannot read properties of undefined (reading 'price') at ProductPage.js:87",
+  "statusTrace": "JavaScriptException: Cannot read properties of undefined (reading 'price') at ProductPage.js:87\n\tat com.example.tests.NotificationTest.testDisableNotifications(Test.java:106)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:155)\n"
+}

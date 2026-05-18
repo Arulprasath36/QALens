@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testapplycouponcode-048",
+  "name": "testApplyCouponCode()",
+  "fullName": "com.example.tests.CartTest#testApplyCouponCode",
+  "historyId": "hist-tc-testapplycouponcode-048",
+  "testId": "com.example.tests.CartTest#testApplyCouponCode",
+  "status": "failed",
+  "time": {
+    "start": 1771318815474,
+    "stop": 1771318818015,
+    "duration": 2541
+  },
+  "description": "Verify testApplyCouponCode behaves as expected.",
+  "descriptionHtml": "<p>Verify testApplyCouponCode behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Discounts"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": "HTTP 503 Service Unavailable \u2014 payment gateway unreachable",
+  "statusTrace": "HttpError: HTTP 503 Service Unavailable \u2014 payment gateway unreachable\n\tat com.example.tests.CartTest.testApplyCouponCode(Test.java:71)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:270)\n"
+}

@@ -1,0 +1,52 @@
+name: Bug report
+description: Report something that is broken or behaving incorrectly.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve QA Lens. Please include enough detail for maintainers to reproduce the issue.
+  - type: input
+    id: version
+    attributes:
+      label: QA Lens version
+      description: Run `qalens --version`.
+      placeholder: "0.1.0"
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include commands, report type, and database path if relevant.
+      placeholder: |
+        1. Run `qalens ingest ...`
+        2. Run `qalens serve ...`
+        3. Open ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - CLI
+        - Parser
+        - Web UI
+        - Reports/export
+        - LLM/chat
+        - Auth/security
+        - Documentation
+        - Other
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove secrets, tokens, internal hostnames, and customer data before posting.
+      render: text

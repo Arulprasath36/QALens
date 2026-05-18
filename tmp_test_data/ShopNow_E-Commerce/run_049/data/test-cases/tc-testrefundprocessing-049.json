@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testrefundprocessing-049",
+  "name": "testRefundProcessing()",
+  "fullName": "com.example.tests.PaymentTest#testRefundProcessing",
+  "historyId": "hist-tc-testrefundprocessing-049",
+  "testId": "com.example.tests.PaymentTest#testRefundProcessing",
+  "status": "broken",
+  "time": {
+    "start": 1771405231400,
+    "stop": 1771405232086,
+    "duration": 686
+  },
+  "description": "Verify testRefundProcessing behaves as expected.",
+  "descriptionHtml": "<p>Verify testRefundProcessing behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Refunds"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cannot read properties of undefined (reading 'price') at ProductPage.js:87",
+  "statusTrace": "JavaScriptException: Cannot read properties of undefined (reading 'price') at ProductPage.js:87\n\tat com.example.tests.PaymentTest.testRefundProcessing(Test.java:32)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:367)\n"
+}

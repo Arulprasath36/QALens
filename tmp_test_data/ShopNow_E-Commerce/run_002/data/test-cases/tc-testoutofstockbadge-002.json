@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testoutofstockbadge-002",
+  "name": "testOutOfStockBadge()",
+  "fullName": "com.example.tests.ProductTest#testOutOfStockBadge",
+  "historyId": "hist-tc-testoutofstockbadge-002",
+  "testId": "com.example.tests.ProductTest#testOutOfStockBadge",
+  "status": "passed",
+  "time": {
+    "start": 1767344439633,
+    "stop": 1767344441454,
+    "duration": 1821
+  },
+  "description": "Verify testOutOfStockBadge behaves as expected.",
+  "descriptionHtml": "<p>Verify testOutOfStockBadge behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Stock Status"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

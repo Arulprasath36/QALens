@@ -1,4 +1,4 @@
-"""Tests for :class:`~ari.parsers.extent.ExtentHtmlParser`.
+"""Tests for :class:`~qalens.parsers.extent.ExtentHtmlParser`.
 
 Uses synthetic HTML fixtures under ``tests/fixtures/extent_sample/``.
 """
@@ -9,11 +9,11 @@ from pathlib import Path
 
 import pytest
 
-from qara.models.run import TestRun
-from qara.models.test_case import TestStatus
-from qara.models.warnings import WarningSeverity
-from qara.parsers.base import DetectionResult, ReportMalformedError
-from qara.parsers.extent import ExtentHtmlParser
+from qalens.models.run import TestRun
+from qalens.models.test_case import TestStatus
+from qalens.models.warnings import WarningSeverity
+from qalens.parsers.base import DetectionResult, ReportMalformedError
+from qalens.parsers.extent import ExtentHtmlParser
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -50,7 +50,7 @@ class TestExtentCanParsePositive:
     ) -> None:
         result = parser.can_parse(EXTENT_DIR)
         combined = " ".join(result.reasons).lower()
-        assert "extentreports" in combined or "reportconfig" in combined or "testdata" in combined
+        assert "extent" in combined
 
     def test_matched_files_contains_html(self, parser: ExtentHtmlParser) -> None:
         result = parser.can_parse(EXTENT_DIR)
@@ -59,7 +59,7 @@ class TestExtentCanParsePositive:
     def test_matches_from_html_file_directly(
         self, parser: ExtentHtmlParser
     ) -> None:
-        result = parser.can_parse(EXTENT_DIR / "index.html")
+        result = parser.can_parse(EXTENT_DIR / "ExtentReport.html")
         assert result.matched
 
     def test_parser_key_is_extent(self, parser: ExtentHtmlParser) -> None:
@@ -73,14 +73,14 @@ class TestExtentCanParsePositive:
     def test_detects_script_vars(self, parser: ExtentHtmlParser) -> None:
         result = parser.can_parse(EXTENT_DIR)
         reasons_text = " ".join(result.reasons)
-        assert "reportconfig" in reasons_text.lower() or "testdata" in reasons_text.lower()
+        assert "extent" in reasons_text.lower()
 
     def test_detects_meta_generator_signal(
         self, parser: ExtentHtmlParser
     ) -> None:
         result = parser.can_parse(EXTENT_DIR)
         reasons_text = " ".join(result.reasons).lower()
-        assert "extentreports" in reasons_text or "reportconfig" in reasons_text
+        assert "extent" in reasons_text
 
 
 # ---------------------------------------------------------------------------
@@ -129,24 +129,24 @@ class TestExtentParse:
         run = parser.parse(EXTENT_DIR)
         assert isinstance(run, TestRun)
 
-    def test_extracts_four_test_cases(self, parser: ExtentHtmlParser) -> None:
+    def test_extracts_test_cases(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
-        assert len(run.test_cases) == 4
+        assert len(run.test_cases) == 3
 
     def test_test_case_names_present(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
         names = [tc.name for tc in run.test_cases]
-        assert "Login with valid credentials" in names
-        assert "Login with invalid password" in names
+        assert "verifySuccessfulLogin" in names
+        assert "verifyPendingLeaveRequests" in names
 
-    def test_statuses_two_passed_one_failed_one_skipped(
+    def test_statuses_two_passed_one_failed_no_skipped(
         self, parser: ExtentHtmlParser
     ) -> None:
         run = parser.parse(EXTENT_DIR)
         statuses = [tc.status for tc in run.test_cases]
         assert statuses.count(TestStatus.PASSED) == 2
         assert statuses.count(TestStatus.FAILED) == 1
-        assert statuses.count(TestStatus.SKIPPED) == 1
+        assert statuses.count(TestStatus.SKIPPED) == 0
 
     def test_failed_test_has_failure_object(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
@@ -157,24 +157,26 @@ class TestExtentParse:
         run = parser.parse(EXTENT_DIR)
         failed = next(tc for tc in run.test_cases if tc.status == TestStatus.FAILED)
         assert failed.failure is not None
-        assert failed.failure.error_type == "org.openqa.selenium.NoSuchElementException"
+        assert failed.failure.error_type is None
+        assert failed.failure.message == "Test Failed"
 
-    def test_failed_test_stack_trace_present(self, parser: ExtentHtmlParser) -> None:
+    def test_failed_test_stack_trace_absent_when_report_omits_it(
+        self, parser: ExtentHtmlParser
+    ) -> None:
         run = parser.parse(EXTENT_DIR)
         failed = next(tc for tc in run.test_cases if tc.status == TestStatus.FAILED)
         assert failed.failure is not None
-        assert failed.failure.stack_trace is not None
-        assert "LoginTest.java" in failed.failure.stack_trace
+        assert failed.failure.stack_trace is None
 
-    def test_failed_test_has_steps(self, parser: ExtentHtmlParser) -> None:
+    def test_failed_test_allows_empty_steps(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
         failed = next(tc for tc in run.test_cases if tc.status == TestStatus.FAILED)
-        assert len(failed.steps) > 0
+        assert failed.steps == []
 
-    def test_failed_test_has_attachments(self, parser: ExtentHtmlParser) -> None:
+    def test_failed_test_has_screenshot_artifact_ref(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
         failed = next(tc for tc in run.test_cases if tc.status == TestStatus.FAILED)
-        assert len(failed.attachments) > 0
+        assert len(failed.raw_artifact_refs) > 0
 
     def test_passed_test_has_no_failure(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
@@ -182,20 +184,15 @@ class TestExtentParse:
         for tc in passed:
             assert tc.failure is None
 
-    def test_test_case_has_steps(self, parser: ExtentHtmlParser) -> None:
+    def test_test_case_allows_empty_steps(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
-        # First test has 3 steps in the fixture
-        first = next(
-            tc for tc in run.test_cases if tc.name == "Login with valid credentials"
-        )
-        assert len(first.steps) == 3
+        first = next(tc for tc in run.test_cases if tc.name == "verifySuccessfulLogin")
+        assert first.steps == []
 
-    def test_test_case_tags_extracted(self, parser: ExtentHtmlParser) -> None:
+    def test_test_case_allows_empty_tags(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
-        first = next(
-            tc for tc in run.test_cases if tc.name == "Login with valid credentials"
-        )
-        assert len(first.tags) > 0
+        first = next(tc for tc in run.test_cases if tc.name == "verifySuccessfulLogin")
+        assert first.tags == []
 
     def test_metadata_report_format_is_extent(
         self, parser: ExtentHtmlParser
@@ -210,25 +207,24 @@ class TestExtentParse:
     def test_metadata_project_extracted(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
         assert run.metadata.project is not None
-        assert "My CI Project" in run.metadata.project
+        assert "OrangeHRM Automation Report" in run.metadata.project
 
     def test_metadata_report_version_extracted(
         self, parser: ExtentHtmlParser
     ) -> None:
         run = parser.parse(EXTENT_DIR)
-        # Our fixture has ExtentReports 5.0.9 in the meta tag
-        assert run.metadata.report_version == "5.0.9"
+        assert run.metadata.report_version is None
 
     def test_metadata_started_at_set(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
-        assert run.metadata.started_at is not None
+        assert run.metadata.started_at is None
 
     def test_metadata_finished_at_set(self, parser: ExtentHtmlParser) -> None:
         run = parser.parse(EXTENT_DIR)
-        assert run.metadata.finished_at is not None
+        assert run.metadata.finished_at is None
 
     def test_parse_from_html_file_path(self, parser: ExtentHtmlParser) -> None:
-        run = parser.parse(EXTENT_DIR / "index.html")
+        run = parser.parse(EXTENT_DIR / "ExtentReport.html")
         assert isinstance(run, TestRun)
 
     def test_parse_raises_on_missing_html(

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testadditemtocart-017",
+  "name": "testAddItemToCart()",
+  "fullName": "com.example.tests.CartTest#testAddItemToCart",
+  "historyId": "hist-tc-testadditemtocart-017",
+  "testId": "com.example.tests.CartTest#testAddItemToCart",
+  "status": "passed",
+  "time": {
+    "start": 1768640412548,
+    "stop": 1768640413223,
+    "duration": 675
+  },
+  "description": "Verify testAddItemToCart behaves as expected.",
+  "descriptionHtml": "<p>Verify testAddItemToCart behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Add Item"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcartpersistsafte-046",
+  "name": "testCartPersistsAfterLogin()",
+  "fullName": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "historyId": "hist-tc-testcartpersistsafte-046",
+  "testId": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "status": "failed",
+  "time": {
+    "start": 1771146015224,
+    "stop": 1771146015671,
+    "duration": 447
+  },
+  "description": "Verify testCartPersistsAfterLogin behaves as expected.",
+  "descriptionHtml": "<p>Verify testCartPersistsAfterLogin behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Persistence"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "PDF download response was empty (Content-Length: 0)",
+  "statusTrace": "AssertionError: PDF download response was empty (Content-Length: 0)\n\tat com.example.tests.CartTest.testCartPersistsAfterLogin(Test.java:149)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:262)\n"
+}

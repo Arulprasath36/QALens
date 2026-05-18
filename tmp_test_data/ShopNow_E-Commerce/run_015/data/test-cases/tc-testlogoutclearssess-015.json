@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testlogoutclearssess-015",
+  "name": "testLogoutClearsSession()",
+  "fullName": "com.example.tests.AuthTest#testLogoutClearsSession",
+  "historyId": "hist-tc-testlogoutclearssess-015",
+  "testId": "com.example.tests.AuthTest#testLogoutClearsSession",
+  "status": "passed",
+  "time": {
+    "start": 1768467606538,
+    "stop": 1768467607829,
+    "duration": 1291
+  },
+  "description": "Verify testLogoutClearsSession behaves as expected.",
+  "descriptionHtml": "<p>Verify testLogoutClearsSession behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Logout"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

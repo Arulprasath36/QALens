@@ -1,0 +1,36 @@
+name: Parser request
+description: Request support for a new report format or report variant.
+title: "[Parser]: "
+labels: ["parser", "enhancement"]
+body:
+  - type: input
+    id: tool
+    attributes:
+      label: Report tool or framework
+      placeholder: "pytest-html, Robot Framework, custom JUnit variant, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sample report structure
+      description: Describe the files in the report folder. If you can share a sanitized sample, link it here.
+      placeholder: |
+        report/
+          index.html
+          data/results.json
+    validations:
+      required: true
+  - type: textarea
+    id: fields
+    attributes:
+      label: Data available in the report
+      description: Which fields are present?
+      placeholder: "test name, suite, status, start time, duration, owner, error message, stack trace, screenshots..."
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Sanitization
+      options:
+        - label: I removed secrets, tokens, internal hostnames, customer data, and proprietary stack traces from shared samples.
+          required: true

@@ -10,16 +10,24 @@ Covers:
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 import pytest
 
-from qara.llm.answer_types import AnswerIntent, DefaultScopeInfo
-from qara.llm.answer_plan import build_answer_plan
-from qara.llm.intent_detection import (
+from qalens.llm.answer_types import AnswerIntent, DefaultScopeInfo
+from qalens.llm.answer_plan import build_answer_plan
+from qalens.llm.intent_detection import (
     has_explicit_scope,
     _is_threshold_filter_query,
     detect_answer_intent,
 )
-from qara.llm.prompts import build_prompt
+from qalens.llm.prompts import build_prompt
+from qalens.server.routes_llm import (
+    _build_stability_trend_result,
+    _risk_ranking_result_from_fact_bundle,
+    _trend_query_kind,
+    _trend_threshold,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -132,6 +140,133 @@ class TestThresholdRoutingToRankingList:
 
 
 # ---------------------------------------------------------------------------
+# Result-workspace stability query routing
+# ---------------------------------------------------------------------------
+
+class TestStabilityWorkspaceQueries:
+    def _result(self, name: str, *, passed: int, failed: int, history: list[str]):
+        run_count = passed + failed
+        return SimpleNamespace(
+            canonical_name=name.lower(),
+            display_name=name,
+            owner=None,
+            suite=None,
+            classification="stable" if failed == 0 else "consistently_broken",
+            pass_rate=passed / run_count,
+            flip_score=0.0,
+            fail_count=failed,
+            pass_count=passed,
+            run_count=run_count,
+            current_streak=passed if failed == 0 else -failed,
+            last_passed_seq=run_count if passed else None,
+            last_failed_seq=run_count if failed else None,
+            history=history,
+        )
+
+    @pytest.mark.parametrize(
+        ("question", "kind"),
+        [
+            ("Which tests failed in every run?", "failed_every_run"),
+            ("Which tests never failed?", "never_failed"),
+            ("What is the most reliable test?", "high_pass_rate"),
+            ("Which tests are problematic?", "unstable_tests"),
+            ("Show tests that need attention", "unstable_tests"),
+        ],
+    )
+    def test_query_kind_for_result_workspace_questions(self, question: str, kind: str):
+        assert _trend_query_kind(question) == kind
+
+    def test_most_reliable_default_threshold_is_ninety_percent(self):
+        assert _trend_threshold("What is the most reliable test?", default_threshold=0.90) == 0.90
+
+    def test_failed_every_run_result_filters_to_consistently_failed_tests(self):
+        result = _build_stability_trend_result(
+            kind="failed_every_run",
+            scope_label="Last 3 runs",
+            run_count=3,
+            query_threshold=None,
+            fail_count_threshold=None,
+            results=[
+                self._result("testAlwaysFails", passed=0, failed=3, history=["failed", "failed", "failed"]),
+                self._result("testSometimesFails", passed=1, failed=2, history=["passed", "failed", "failed"]),
+                self._result("testNeverFails", passed=3, failed=0, history=["passed", "passed", "passed"]),
+            ],
+            total_evaluated=3,
+            latest_run_label="Run #3",
+        )
+
+        assert result["type"] == "stability_trend"
+        assert result["query"]["kind"] == "failed_every_run"
+        assert [item["testName"] for item in result["tests"]] == ["testAlwaysFails"]
+
+    def test_never_failed_result_filters_to_zero_failure_tests(self):
+        result = _build_stability_trend_result(
+            kind="never_failed",
+            scope_label="Last 3 runs",
+            run_count=3,
+            query_threshold=None,
+            fail_count_threshold=None,
+            results=[
+                self._result("testAlwaysFails", passed=0, failed=3, history=["failed", "failed", "failed"]),
+                self._result("testNeverFails", passed=3, failed=0, history=["passed", "passed", "passed"]),
+            ],
+            total_evaluated=2,
+            latest_run_label="Run #3",
+        )
+
+        assert result["type"] == "stability_trend"
+        assert result["query"]["kind"] == "never_failed"
+        assert [item["testName"] for item in result["tests"]] == ["testNeverFails"]
+
+
+# ---------------------------------------------------------------------------
+# Result-workspace recommendation routing
+# ---------------------------------------------------------------------------
+
+class TestRecommendationWorkspaceResult:
+    def test_fix_first_intent_is_recommendation(self):
+        assert detect_answer_intent("What should I fix first?") == AnswerIntent.RECOMMENDATION_ACTION
+
+    def test_fix_first_can_render_as_risk_ranking_workspace(self):
+        result = _risk_ranking_result_from_fact_bundle(
+            {
+                "scope_label": "Last 10 runs",
+                "eligible_tests": 12,
+                "high_risk": 1,
+                "medium_risk": 1,
+                "low_risk": 0,
+                "top_tests": [
+                    {
+                        "rank": 1,
+                        "name": "testCheckout",
+                        "tier": "HIGH",
+                        "risk_pct": 87,
+                        "pass_rate": 0.42,
+                        "driver": "fail streak + low pass rate",
+                    },
+                    {
+                        "rank": 2,
+                        "name": "testProfile",
+                        "tier": "MEDIUM",
+                        "risk_pct": 54,
+                        "pass_rate": 0.67,
+                        "driver": "recent decline",
+                    },
+                ],
+            },
+            title="What to fix first",
+            subtitle="Prioritized by predicted failure risk and historical stability signals",
+        )
+
+        assert result["type"] == "risk_ranking"
+        assert result["title"] == "What to fix first"
+        assert result["scope"]["label"] == "Last 10 runs"
+        assert result["summary"]["highRisk"] == 1
+        assert result["ranking"][0]["testName"] == "testCheckout"
+        assert "Prioritize this test first" in result["ranking"][0]["primaryReason"]
+
+
+# ---------------------------------------------------------------------------
 # AnswerPlan.default_scope annotation
 # ---------------------------------------------------------------------------
 
@@ -225,34 +360,36 @@ class TestScopeDisclosureInPrompt:
         )
         assert "Last 10 runs" in prompt
 
-    def test_scope_disclosure_includes_scope_used_instruction(self):
+    def test_scope_disclosure_omits_scope_used_footer_instruction(self):
         plan = self._make_plan_with_scope()
         prompt = build_prompt(
             "Which test has the highest failure frequency?",
             "some context",
             answer_plan=plan,
         )
-        assert "## Scope used" in prompt
+        assert "## Scope used" not in prompt
+        assert "Do not add 'Scope used'" in prompt
 
-    def test_scope_disclosure_includes_want_more_specific(self):
+    def test_scope_disclosure_omits_want_more_specific_footer_instruction(self):
         plan = self._make_plan_with_scope()
         prompt = build_prompt(
             "Which test has the highest failure frequency?",
             "some context",
             answer_plan=plan,
         )
-        assert "## Want something more specific?" in prompt
+        assert "## Want something more specific?" not in prompt
+        assert "Want something more specific?" in prompt
 
-    def test_scope_disclosure_includes_refinement_options(self):
+    def test_scope_disclosure_does_not_include_refinement_options(self):
         plan = self._make_plan_with_scope()
         prompt = build_prompt(
             "Which test has the highest failure frequency?",
             "some context",
             answer_plan=plan,
         )
-        assert "Run number" in prompt
-        assert "Module or owner" in prompt
-        assert "Environment" in prompt
+        assert "Run number" not in prompt
+        assert "Module or owner" not in prompt
+        assert "Environment" not in prompt
 
     def test_no_scope_disclosure_when_explicit_run_specified(self):
         plan = self._make_plan_without_scope()

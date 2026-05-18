@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testremoveitemfromca-009",
+  "name": "testRemoveItemFromCart()",
+  "fullName": "com.example.tests.CartTest#testRemoveItemFromCart",
+  "historyId": "hist-tc-testremoveitemfromca-009",
+  "testId": "com.example.tests.CartTest#testRemoveItemFromCart",
+  "status": "passed",
+  "time": {
+    "start": 1767949212459,
+    "stop": 1767949214243,
+    "duration": 1784
+  },
+  "description": "Verify testRemoveItemFromCart behaves as expected.",
+  "descriptionHtml": "<p>Verify testRemoveItemFromCart behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Remove Item"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

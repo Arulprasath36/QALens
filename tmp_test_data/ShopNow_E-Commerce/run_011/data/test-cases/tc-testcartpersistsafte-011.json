@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcartpersistsafte-011",
+  "name": "testCartPersistsAfterLogin()",
+  "fullName": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "historyId": "hist-tc-testcartpersistsafte-011",
+  "testId": "com.example.tests.CartTest#testCartPersistsAfterLogin",
+  "status": "failed",
+  "time": {
+    "start": 1768122015315,
+    "stop": 1768122015858,
+    "duration": 543
+  },
+  "description": "Verify testCartPersistsAfterLogin behaves as expected.",
+  "descriptionHtml": "<p>Verify testCartPersistsAfterLogin behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Persistence"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Element not found within timeout: button[data-testid='submit']",
+  "statusTrace": "TimeoutException: Element not found within timeout: button[data-testid='submit']\n\tat com.example.tests.CartTest.testCartPersistsAfterLogin(Test.java:32)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:248)\n"
+}

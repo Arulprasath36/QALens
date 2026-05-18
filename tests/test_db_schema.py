@@ -1,4 +1,4 @@
-"""Tests for ari.db.schema — table creation and connection helpers."""
+"""Tests for qalens.db.schema — table creation and connection helpers."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import sqlite3
 
 import pytest
 
-from qara.db.schema import get_connection, init_db, table_names
+from qalens.db.schema import get_connection, init_db, table_names
 
 
 @pytest.fixture()
@@ -26,6 +26,21 @@ def test_get_connection_returns_connection():
     c = get_connection(":memory:")
     assert isinstance(c, sqlite3.Connection)
     c.close()
+
+
+def test_get_connection_rejects_unsupported_db_extension(tmp_path):
+    with pytest.raises(ValueError, match="Unsupported SQLite database extension"):
+        get_connection(tmp_path / "qalens.txt")
+
+
+def test_get_connection_rejects_sqlite_uri_path():
+    with pytest.raises(ValueError, match="URI"):
+        get_connection("file:/tmp/qalens.db?mode=memory")
+
+
+def test_get_connection_rejects_directory_path(tmp_path):
+    with pytest.raises(ValueError, match="must be a file"):
+        get_connection(tmp_path)
 
 
 def test_row_factory_enabled():

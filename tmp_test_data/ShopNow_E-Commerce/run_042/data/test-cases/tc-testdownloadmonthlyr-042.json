@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdownloadmonthlyr-042",
+  "name": "testDownloadMonthlyReportPdf()",
+  "fullName": "com.example.tests.ReportTest#testDownloadMonthlyReportPdf",
+  "historyId": "hist-tc-testdownloadmonthlyr-042",
+  "testId": "com.example.tests.ReportTest#testDownloadMonthlyReportPdf",
+  "status": "passed",
+  "time": {
+    "start": 1770800468419,
+    "stop": 1770800471194,
+    "duration": 2775
+  },
+  "description": "Verify testDownloadMonthlyReportPdf behaves as expected.",
+  "descriptionHtml": "<p>Verify testDownloadMonthlyReportPdf behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Reports"
+    },
+    {
+      "name": "story",
+      "value": "Export"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

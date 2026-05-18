@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testautocompletesugg-024",
+  "name": "testAutocompleteSuggestions()",
+  "fullName": "com.example.tests.SearchTest#testAutocompleteSuggestions",
+  "historyId": "hist-tc-testautocompletesugg-024",
+  "testId": "com.example.tests.SearchTest#testAutocompleteSuggestions",
+  "status": "failed",
+  "time": {
+    "start": 1769245237225,
+    "stop": 1769245237677,
+    "duration": 452
+  },
+  "description": "Verify testAutocompleteSuggestions behaves as expected.",
+  "descriptionHtml": "<p>Verify testAutocompleteSuggestions behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Autocomplete"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Stale element reference: element is not attached to the page document",
+  "statusTrace": "StaleElementReferenceException: Stale element reference: element is not attached to the page document\n\tat com.example.tests.SearchTest.testAutocompleteSuggestions(Test.java:159)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:374)\n"
+}

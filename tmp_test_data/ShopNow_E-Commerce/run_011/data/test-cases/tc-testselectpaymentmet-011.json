@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testselectpaymentmet-011",
+  "name": "testSelectPaymentMethod()",
+  "fullName": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "historyId": "hist-tc-testselectpaymentmet-011",
+  "testId": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "status": "passed",
+  "time": {
+    "start": 1768122019654,
+    "stop": 1768122022616,
+    "duration": 2962
+  },
+  "description": "Verify testSelectPaymentMethod behaves as expected.",
+  "descriptionHtml": "<p>Verify testSelectPaymentMethod behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Payment"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

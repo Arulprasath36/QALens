@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchreturnsrel-040",
+  "name": "testSearchReturnsRelevantProducts()",
+  "fullName": "com.example.tests.SearchTest#testSearchReturnsRelevantProducts",
+  "historyId": "hist-tc-testsearchreturnsrel-040",
+  "testId": "com.example.tests.SearchTest#testSearchReturnsRelevantProducts",
+  "status": "failed",
+  "time": {
+    "start": 1770627631396,
+    "stop": 1770627634421,
+    "duration": 3025
+  },
+  "description": "Verify testSearchReturnsRelevantProducts behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchReturnsRelevantProducts behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Keyword Search"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Search result count was 0, expected \u22651 for query 'laptop'",
+  "statusTrace": "AssertionError: Search result count was 0, expected \u22651 for query 'laptop'\n\tat com.example.tests.SearchTest.testSearchReturnsRelevantProducts(Test.java:107)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:294)\n"
+}

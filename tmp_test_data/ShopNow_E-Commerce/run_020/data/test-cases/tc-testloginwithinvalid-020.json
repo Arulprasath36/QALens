@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testloginwithinvalid-020",
+  "name": "testLoginWithInvalidPassword()",
+  "fullName": "com.example.tests.AuthTest#testLoginWithInvalidPassword",
+  "historyId": "hist-tc-testloginwithinvalid-020",
+  "testId": "com.example.tests.AuthTest#testLoginWithInvalidPassword",
+  "status": "passed",
+  "time": {
+    "start": 1768899601864,
+    "stop": 1768899603636,
+    "duration": 1772
+  },
+  "description": "Verify testLoginWithInvalidPassword behaves as expected.",
+  "descriptionHtml": "<p>Verify testLoginWithInvalidPassword behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Login"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

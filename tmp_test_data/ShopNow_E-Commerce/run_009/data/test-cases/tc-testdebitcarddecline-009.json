@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdebitcarddecline-009",
+  "name": "testDebitCardDeclined()",
+  "fullName": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "historyId": "hist-tc-testdebitcarddecline-009",
+  "testId": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "status": "passed",
+  "time": {
+    "start": 1767949226231,
+    "stop": 1767949229162,
+    "duration": 2931
+  },
+  "description": "Verify testDebitCardDeclined behaves as expected.",
+  "descriptionHtml": "<p>Verify testDebitCardDeclined behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Declined"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

@@ -1,4 +1,4 @@
-"""Tests for the :class:`~ari.parsers.detector.Detector` class.
+"""Tests for the :class:`~qalens.parsers.detector.Detector` class.
 
 These tests use the real file-system fixtures under
 ``tests/fixtures/`` to exercise detection end-to-end.
@@ -10,10 +10,14 @@ from pathlib import Path
 
 import pytest
 
-from qara.parsers.allure import AllureHtmlParser
-from qara.parsers.base import DetectionResult, ParserNotFoundError
-from qara.parsers.detector import Detector
-from qara.parsers.extent import ExtentHtmlParser
+from qalens.parsers.allure import AllureHtmlParser
+from qalens.parsers.base import ParserNotFoundError
+from qalens.parsers.cypress import CypressJsonParser
+from qalens.parsers.detector import Detector
+from qalens.parsers.extent import ExtentHtmlParser
+from qalens.parsers.junit import JUnitXmlParser
+from qalens.parsers.playwright import PlaywrightReportParser
+from qalens.parsers.testng import TestNGXmlParser
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -22,6 +26,11 @@ from qara.parsers.extent import ExtentHtmlParser
 FIXTURES = Path(__file__).parent / "fixtures"
 EXTENT_DIR = FIXTURES / "extent_sample"
 ALLURE_DIR = FIXTURES / "allure_sample"
+JUNIT_DIR = FIXTURES / "junit_sample"
+TESTNG_DIR = FIXTURES / "testng_sample"
+PLAYWRIGHT_DIR = FIXTURES / "playwright_json_sample"
+PLAYWRIGHT_HTML_DIR = FIXTURES / "playwright_html_sample"
+CYPRESS_DIR = FIXTURES / "cypress_mochawesome_sample"
 
 
 # ---------------------------------------------------------------------------
@@ -34,6 +43,10 @@ class TestDetectorConstruction:
         d = Detector()
         assert "allure" in d.registered_keys
         assert "extent" in d.registered_keys
+        assert "junit" in d.registered_keys
+        assert "testng" in d.registered_keys
+        assert "playwright" in d.registered_keys
+        assert "cypress" in d.registered_keys
 
     def test_empty_registry_when_explicit_empty_list(self) -> None:
         d = Detector(parsers=[])
@@ -114,6 +127,76 @@ class TestDetectorExtentDetection:
         assert result.matched, f"expected matched=True, reasons={result.reasons}"
         assert result.parser_key == "extent"
 
+
+# ---------------------------------------------------------------------------
+# Detection — JUnit XML
+# ---------------------------------------------------------------------------
+
+
+class TestDetectorJUnitDetection:
+    def test_detects_junit_directory(self) -> None:
+        d = Detector()
+        result = d.detect(JUNIT_DIR)
+        assert result.matched, f"expected matched=True, reasons={result.reasons}"
+        assert result.parser_key == "junit"
+
+
+# ---------------------------------------------------------------------------
+# Detection — TestNG XML
+# ---------------------------------------------------------------------------
+
+
+class TestDetectorTestNGDetection:
+    def test_detects_testng_directory(self) -> None:
+        d = Detector()
+        result = d.detect(TESTNG_DIR)
+        assert result.matched, f"expected matched=True, reasons={result.reasons}"
+        assert result.parser_key == "testng"
+
+    def test_detects_testng_xml_file(self) -> None:
+        d = Detector()
+        result = d.detect(TESTNG_DIR / "testng-results.xml")
+        assert result.matched
+        assert result.parser_key == "testng"
+
+
+# ---------------------------------------------------------------------------
+# Detection — Playwright
+# ---------------------------------------------------------------------------
+
+
+class TestDetectorPlaywrightDetection:
+    def test_detects_playwright_json_directory(self) -> None:
+        d = Detector()
+        result = d.detect(PLAYWRIGHT_DIR)
+        assert result.matched, f"expected matched=True, reasons={result.reasons}"
+        assert result.parser_key == "playwright"
+
+
+# ---------------------------------------------------------------------------
+# Detection — Cypress/Mocha
+# ---------------------------------------------------------------------------
+
+
+class TestDetectorCypressDetection:
+    def test_detects_cypress_mochawesome_directory(self) -> None:
+        d = Detector()
+        result = d.detect(CYPRESS_DIR)
+        assert result.matched, f"expected matched=True, reasons={result.reasons}"
+        assert result.parser_key == "cypress"
+
+    def test_detects_playwright_html_directory(self) -> None:
+        d = Detector()
+        result = d.detect(PLAYWRIGHT_HTML_DIR)
+        assert result.matched
+        assert result.parser_key == "playwright"
+
+    def test_detects_junit_xml_file(self) -> None:
+        d = Detector()
+        result = d.detect(JUNIT_DIR / "TEST-shopnow.xml")
+        assert result.matched
+        assert result.parser_key == "junit"
+
     def test_extent_confidence_high(self) -> None:
         d = Detector()
         result = d.detect(EXTENT_DIR)
@@ -126,7 +209,7 @@ class TestDetectorExtentDetection:
 
     def test_detects_extent_from_html_file(self) -> None:
         d = Detector()
-        result = d.detect(EXTENT_DIR / "index.html")
+        result = d.detect(EXTENT_DIR / "ExtentReport.html")
         assert result.matched
         assert result.parser_key == "extent"
 
@@ -183,6 +266,26 @@ class TestDetectorGetParser:
         d = Detector()
         parser = d.get_parser_for_path(EXTENT_DIR)
         assert isinstance(parser, ExtentHtmlParser)
+
+    def test_get_parser_for_path_returns_junit(self) -> None:
+        d = Detector()
+        parser = d.get_parser_for_path(JUNIT_DIR)
+        assert isinstance(parser, JUnitXmlParser)
+
+    def test_get_parser_for_path_returns_testng(self) -> None:
+        d = Detector()
+        parser = d.get_parser_for_path(TESTNG_DIR)
+        assert isinstance(parser, TestNGXmlParser)
+
+    def test_get_parser_for_path_returns_playwright(self) -> None:
+        d = Detector()
+        parser = d.get_parser_for_path(PLAYWRIGHT_DIR)
+        assert isinstance(parser, PlaywrightReportParser)
+
+    def test_get_parser_for_path_returns_cypress(self) -> None:
+        d = Detector()
+        parser = d.get_parser_for_path(CYPRESS_DIR)
+        assert isinstance(parser, CypressJsonParser)
 
     def test_get_parser_for_path_raises_on_no_match(
         self, tmp_path: Path

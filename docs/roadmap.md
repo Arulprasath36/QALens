@@ -1,56 +1,79 @@
-# QARA Roadmap
+# QA Lens Roadmap
 
-> QARA — Quality Analysis & Root Automation  
 > This roadmap reflects the current development direction. Priorities may shift based on community feedback.
 
 ---
 
-## v1.0 — Foundation (Current)
+## v1.0 — Foundation
 
 **Goal**: Reliable, local, explainable insights from Extent and Allure reports.
 
 | Area | Status |
 |---|---|
 | Canonical Pydantic models | ✅ Done |
-| Extent HTML parser | 🔄 In progress |
-| Allure HTML/JSON parser | 🔄 In progress |
-| Report type detector | 🔄 In progress |
-| Failure signature engine | 🔄 In progress |
-| Rule-based categorization | 🔄 In progress |
-| Deterministic failure clustering | 🔄 In progress |
-| Flaky scoring (with history) | 🔄 In progress |
-| Summary generators | 🔄 In progress |
-| JSON output writer | 🔄 In progress |
-| Markdown output writer | 🔄 In progress |
-| Console (Rich) output writer | 🔄 In progress |
-| Typer CLI | 🔄 In progress |
-| Python library API | 🔄 In progress |
-| Unit + fixture-based tests | 🔄 In progress |
-| Ruff + mypy + pre-commit | ✅ Done |
+| Extent HTML parser | ✅ Done |
+| Allure HTML/JSON parser | ✅ Done |
+| Report type detector | ✅ Done |
+| Failure signature engine | ✅ Done |
+| Rule-based categorization | ✅ Done |
+| Deterministic failure clustering | ✅ Done |
+| Flaky scoring with run history | ✅ Done |
+| Summary generators | ✅ Done |
+| JSON output | ✅ Done |
+| Markdown output | ✅ Done |
+| Console/Rich output | ✅ Done |
+| Typer CLI | ✅ Done |
+| Python library API | ✅ Done |
+| SQLite run history store | ✅ Done |
+| Web UI/API server | ✅ Done |
+| Run comparison engine | ✅ Done |
+| LLM chat/ask integration | ✅ Done |
+| Security hardening baseline | ✅ Done |
+| Unit + fixture-based tests | ✅ Done |
+| Ruff + mypy cleanup | 🔄 In progress |
+| Pre-commit configuration | 🔄 In progress |
 
 ---
 
-## v1.1 — Polish and Breadth
+## v1.1 — Current Polish
 
-- pytest-html report parser
-- JUnit XML parser (widely supported by CI systems)
-- Improved Extent v5 parser coverage
-- CI-friendly exit code semantics (fail on N product defects)
-- GitHub Actions example workflow
-- Shell completion for CLI (Typer built-in)
-- `--threshold` flags for CI gate integration
-- Machine-readable JSON output for all CLI commands
+| Area | Status |
+|---|---|
+| CI-friendly exit code semantics | ✅ Done |
+| GitHub Actions example workflow | ✅ Done |
+| Machine-readable analysis output | ✅ Done |
+| Demo dataset for GitHub users | ✅ Done |
+| Deterministic `qalens ask` answers for factual aggregate questions | ✅ Done |
+| Frontend XSS sanitizer regression coverage | ✅ Done |
+| Dependency/security CI checks | 🔄 In progress |
+| Improved Extent v5 parser coverage | 🔄 Ongoing |
+| Shell completion documentation | ⏳ Planned |
+| Broader CLI JSON output coverage | ⏳ Planned |
 
 ---
 
 ## v1.2 — Historical Intelligence
 
-- File-based run history store (JSON lines)
-- New/recurring/resolved failure detection across runs
-- Trend charts in Markdown (sparklines)
-- Historical flaky leaderboard
-- `qara history list` command
-- `qara compare <run1> <run2>` command
+| Area | Status |
+|---|---|
+| SQLite-backed run history | ✅ Done |
+| New/recurring/recovered failure detection | ✅ Done |
+| Historical flaky leaderboard | ✅ Done |
+| Run comparison API and UI | ✅ Done |
+| Trend analysis facts | ✅ Done |
+| Trend charts in Markdown | ⏳ Planned |
+| `qalens history` command | ✅ Done |
+| Explicit-run `qalens compare --run-id ...` support | ✅ Done |
+
+---
+
+## v1.3 — Parser Breadth
+
+- pytest-html report parser
+- More JUnit XML fixture variants
+- More TestNG XML fixture variants
+- More Cypress / Playwright fixture variants
+- More real-world Extent and Allure fixture variants
 
 ---
 
@@ -76,25 +99,24 @@
 ## Future Considerations
 
 - Plugin marketplace / entry-point auto-discovery
-- TestNG XML parser
-- Cypress / Playwright report parsers
-- Test execution database (SQLite) for longer history windows
 - VS Code extension for inline insight annotations
+- Slack/Teams notification plugins
+- SARIF export
 
 ---
 
 ## Non-Goals (Permanent)
 
-- QARA will never be a test reporting framework
-- QARA will never replace Extent Reports or Allure
-- QARA v1 will never require cloud connectivity
-- QARA will never silently discard data without an `ExtractionWarning`
+- QA Lens will never be a test reporting framework
+- QA Lens will never replace Extent Reports or Allure
+- QA Lens v1 will never require cloud connectivity
+- QA Lens will never silently discard data without an `ExtractionWarning`
 
 ---
 
 ## Contributing to the Roadmap
 
-If you have a use case that is not covered here, open a [GitHub Discussion](https://github.com/your-org/qara/discussions) or a feature request issue. We especially welcome:
+If you have a use case that is not covered here, open a [GitHub Discussion](https://github.com/Arulprasath36/QALens/discussions) or a feature request issue. We especially welcome:
 
 - Report format parsers for tools used in your organization
 - Heuristic categorization signals from your real-world failure patterns

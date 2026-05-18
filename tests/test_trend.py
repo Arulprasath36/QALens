@@ -1,4 +1,4 @@
-"""Tests for the trend computation module (ari.llm.trend).
+"""Tests for the trend computation module (qalens.llm.trend).
 
 Covers:
 - compute_trend Direction detection (declining / improving / stable / insufficient_data)
@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from qara.llm.trend import RunRate, TrendResult, compute_trend, render_trend_facts
+from qalens.llm.trend import RunRate, TrendResult, compute_trend, render_trend_facts
 
 
 # ---------------------------------------------------------------------------
@@ -240,13 +240,13 @@ class TestIsTrendQuestionRouting:
     """Verify detect_answer_intent + build_answer_plan sets is_trend_question."""
 
     def _plan(self, question: str):
-        from qara.llm.answer_plan import AnswerIntent, build_answer_plan, detect_answer_intent
+        from qalens.llm.answer_plan import AnswerIntent, build_answer_plan, detect_answer_intent
         intent = detect_answer_intent(question)
         return intent, build_answer_plan(intent, question=question)
 
     def test_pass_rate_improving_declining_is_comparison(self) -> None:
         intent, plan = self._plan("Is our test pass rate improving or declining over time?")
-        from qara.llm.answer_plan import AnswerIntent
+        from qalens.llm.answer_plan import AnswerIntent
         assert intent == AnswerIntent.COMPARISON_CHANGE
 
     def test_is_trend_question_flag_set(self) -> None:
@@ -307,11 +307,11 @@ class TestGatherComparisonContextTrend:
     def db_path(self, tmp_path: Path) -> str:
         from datetime import datetime, timezone
 
-        from qara.db.repository import RunRepository
-        from qara.db.schema import get_connection
-        from qara.models.failure import FailureInfo
-        from qara.models.run import RunMetadata, TestRun
-        from qara.models.test_case import TestCaseResult, TestStatus
+        from qalens.db.repository import RunRepository
+        from qalens.db.schema import get_connection
+        from qalens.models.failure import FailureInfo
+        from qalens.models.run import RunMetadata, TestRun
+        from qalens.models.test_case import TestCaseResult, TestStatus
 
         db = tmp_path / "trend_test.db"
         conn = get_connection(str(db))
@@ -364,21 +364,21 @@ class TestGatherComparisonContextTrend:
         return str(db)
 
     def test_trend_facts_injected_when_is_trend_true(self, db_path: str) -> None:
-        from qara.llm.routing import gather_comparison_context
+        from qalens.llm.routing import gather_comparison_context
         _, facts, _ = gather_comparison_context(
             project="TrendProject", db_path=db_path, is_trend=True
         )
         assert "[TREND ANALYSIS]" in facts
 
     def test_trend_facts_direction_declining(self, db_path: str) -> None:
-        from qara.llm.routing import gather_comparison_context
+        from qalens.llm.routing import gather_comparison_context
         _, facts, _ = gather_comparison_context(
             project="TrendProject", db_path=db_path, is_trend=True
         )
         assert "declining" in facts
 
     def test_trend_facts_contain_real_percentages(self, db_path: str) -> None:
-        from qara.llm.routing import gather_comparison_context
+        from qalens.llm.routing import gather_comparison_context
         _, facts, _ = gather_comparison_context(
             project="TrendProject", db_path=db_path, is_trend=True
         )
@@ -388,7 +388,7 @@ class TestGatherComparisonContextTrend:
         assert "40%" in facts
 
     def test_trend_facts_no_placeholder_run_n(self, db_path: str) -> None:
-        from qara.llm.routing import gather_comparison_context
+        from qalens.llm.routing import gather_comparison_context
         _, facts, _ = gather_comparison_context(
             project="TrendProject", db_path=db_path, is_trend=True
         )
@@ -396,24 +396,24 @@ class TestGatherComparisonContextTrend:
         assert "PASS_RATE%" not in facts
 
     def test_no_trend_facts_when_is_trend_false(self, db_path: str) -> None:
-        from qara.llm.routing import gather_comparison_context
+        from qalens.llm.routing import gather_comparison_context
         _, facts, _ = gather_comparison_context(
             project="TrendProject", db_path=db_path, is_trend=False
         )
         assert "[TREND ANALYSIS]" not in facts
 
     def test_trend_facts_contain_confidence(self, db_path: str) -> None:
-        from qara.llm.routing import gather_comparison_context
+        from qalens.llm.routing import gather_comparison_context
         _, facts, _ = gather_comparison_context(
             project="TrendProject", db_path=db_path, is_trend=True
         )
         assert "confidence" in facts
 
     def test_insufficient_data_message_when_only_one_run(self, tmp_path: Path) -> None:
-        from qara.db.repository import RunRepository
-        from qara.db.schema import get_connection
-        from qara.models.run import RunMetadata, TestRun
-        from qara.models.test_case import TestCaseResult, TestStatus
+        from qalens.db.repository import RunRepository
+        from qalens.db.schema import get_connection
+        from qalens.models.run import RunMetadata, TestRun
+        from qalens.models.test_case import TestCaseResult, TestStatus
 
         db = tmp_path / "one_run.db"
         conn = get_connection(str(db))
@@ -431,7 +431,7 @@ class TestGatherComparisonContextTrend:
         ))
         conn.close()
 
-        from qara.llm.routing import gather_comparison_context
+        from qalens.llm.routing import gather_comparison_context
         ctx, facts, _ = gather_comparison_context(
             project="Solo", db_path=str(db), is_trend=True
         )

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testloginwithlockeda-034",
+  "name": "testLoginWithLockedAccount()",
+  "fullName": "com.example.tests.AuthTest#testLoginWithLockedAccount",
+  "historyId": "hist-tc-testloginwithlockeda-034",
+  "testId": "com.example.tests.AuthTest#testLoginWithLockedAccount",
+  "status": "passed",
+  "time": {
+    "start": 1770109203120,
+    "stop": 1770109205746,
+    "duration": 2626
+  },
+  "description": "Verify testLoginWithLockedAccount behaves as expected.",
+  "descriptionHtml": "<p>Verify testLoginWithLockedAccount behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Login"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

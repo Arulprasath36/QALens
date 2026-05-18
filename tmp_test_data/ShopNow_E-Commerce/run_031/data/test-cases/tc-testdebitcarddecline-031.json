@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdebitcarddecline-031",
+  "name": "testDebitCardDeclined()",
+  "fullName": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "historyId": "hist-tc-testdebitcarddecline-031",
+  "testId": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "status": "failed",
+  "time": {
+    "start": 1769850027822,
+    "stop": 1769850030139,
+    "duration": 2317
+  },
+  "description": "Verify testDebitCardDeclined behaves as expected.",
+  "descriptionHtml": "<p>Verify testDebitCardDeclined behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Declined"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Stale element reference: element is not attached to the page document",
+  "statusTrace": "StaleElementReferenceException: Stale element reference: element is not attached to the page document\n\tat com.example.tests.PaymentTest.testDebitCardDeclined(Test.java:99)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:268)\n"
+}

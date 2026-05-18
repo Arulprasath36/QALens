@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcancelorder-012",
+  "name": "testCancelOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCancelOrder",
+  "historyId": "hist-tc-testcancelorder-012",
+  "testId": "com.example.tests.OrderApiTest#testCancelOrder",
+  "status": "passed",
+  "time": {
+    "start": 1768208448667,
+    "stop": 1768208449508,
+    "duration": 841
+  },
+  "description": "Verify testCancelOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCancelOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Cancel"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

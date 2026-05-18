@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcancelorder-031",
+  "name": "testCancelOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCancelOrder",
+  "historyId": "hist-tc-testcancelorder-031",
+  "testId": "com.example.tests.OrderApiTest#testCancelOrder",
+  "status": "passed",
+  "time": {
+    "start": 1769850052211,
+    "stop": 1769850053067,
+    "duration": 856
+  },
+  "description": "Verify testCancelOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCancelOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Cancel"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

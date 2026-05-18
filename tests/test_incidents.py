@@ -7,20 +7,20 @@ from pathlib import Path
 
 import pytest
 
-from qara.analyzers.incidents import (
+from qalens.analyzers.incidents import (
     _build_evidence,
     _confidence,
     _incident_title,
     _severity,
     assemble_incidents,
 )
-from qara.analyzers.categorizer import FailureCategory
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection
-from qara.models.failure import FailureInfo
-from qara.models.incident import IncidentSummary
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.analyzers.categorizer import FailureCategory
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection
+from qalens.models.failure import FailureInfo
+from qalens.models.incident import IncidentSummary
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 
 # ---------------------------------------------------------------------------
@@ -175,7 +175,7 @@ class TestAssembleIncidents:
         assert result == [] or True  # empty run → pass by construction
 
     def test_no_failures_returns_no_incidents(self, tmp_path):
-        db = tmp_path / "qara.db"
+        db = tmp_path / "qalens.db"
         conn = get_connection(str(db))
         r = RunRepository(conn)
         r.save_run(TestRun(
@@ -192,7 +192,7 @@ class TestAssembleIncidents:
         assert result == []
 
     def test_single_failure_creates_one_incident(self, tmp_path):
-        db = tmp_path / "qara.db"
+        db = tmp_path / "qalens.db"
         conn = get_connection(str(db))
         r = RunRepository(conn)
         r.save_run(TestRun(
@@ -214,7 +214,7 @@ class TestAssembleIncidents:
         assert "loginTest" in inc.impacted_tests
 
     def _save_run(self, tmp_path, run_id, tests):
-        db = tmp_path / "qara.db"
+        db = tmp_path / "qalens.db"
         conn = get_connection(str(db))
         r = RunRepository(conn)
         r.save_run(TestRun(

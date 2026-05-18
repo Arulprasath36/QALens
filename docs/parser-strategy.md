@@ -1,6 +1,6 @@
 # Parser Strategy
 
-This document is the authoritative reference for QARA's parser layer (Phase 3+).
+This document is the authoritative reference for QA Lens's parser layer (Phase 3+).
 It covers the abstraction contract, format detection logic, extraction strategy,
 extension points, and the reasoning behind key design decisions.
 
@@ -24,7 +24,7 @@ extension points, and the reasoning behind key design decisions.
 
 ## Parser Contract
 
-Every QARA parser **must** subclass `BaseParser` (defined in `src/qara/parsers/base.py`):
+Every QA Lens parser **must** subclass `BaseParser` (defined in `src/qalens/parsers/base.py`):
 
 ```python
 class BaseParser(ABC):
@@ -77,7 +77,7 @@ which is acceptable for the small number of expected implementations.
 
 ## Detector
 
-`Detector` (in `src/qara/parsers/detector.py`) is a registry and dispatcher:
+`Detector` (in `src/qalens/parsers/detector.py`) is a registry and dispatcher:
 
 ```python
 detector = Detector()                    # registers AllureHtmlParser + ExtentHtmlParser
@@ -285,12 +285,12 @@ everything that was already parsed.
 
 ## Adding a New Parser
 
-1. Create `src/qara/parsers/<format>.py` and subclass `BaseParser`.
+1. Create `src/qalens/parsers/<format>.py` and subclass `BaseParser`.
 2. Set `parser_key` and `parser_name` as class-level string attributes.
 3. Implement `can_parse()` → return `DetectionResult` with confidence evidence.
 4. Implement `parse()` → return `TestRun`; use `self._warn()` for missing fields.
 5. Add fixtures under `tests/fixtures/<format>_sample/`.
 6. Add tests in `tests/test_<format>_parser.py`.
-7. Export from `src/qara/parsers/__init__.py`.
+7. Export from `src/qalens/parsers/__init__.py`.
 8. The `Detector` will pick it up automatically if registered via
    `Detector(parsers=[..., MyParser()])` or `detector.register(MyParser())`.

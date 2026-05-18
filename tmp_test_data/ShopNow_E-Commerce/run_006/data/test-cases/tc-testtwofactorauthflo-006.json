@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testtwofactorauthflo-006",
+  "name": "testTwoFactorAuthFlow()",
+  "fullName": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "historyId": "hist-tc-testtwofactorauthflo-006",
+  "testId": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "status": "failed",
+  "time": {
+    "start": 1767690009452,
+    "stop": 1767690011867,
+    "duration": 2415
+  },
+  "description": "Verify testTwoFactorAuthFlow behaves as expected.",
+  "descriptionHtml": "<p>Verify testTwoFactorAuthFlow behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "2FA"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Email not received within 30 s timeout for testOrderShippedEmail",
+  "statusTrace": "AssertionError: Email not received within 30 s timeout for testOrderShippedEmail\n\tat com.example.tests.AuthTest.testTwoFactorAuthFlow(Test.java:62)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:253)\n"
+}

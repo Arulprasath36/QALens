@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdisablenotificat-004",
+  "name": "testDisableNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testDisableNotifications",
+  "historyId": "hist-tc-testdisablenotificat-004",
+  "testId": "com.example.tests.NotificationTest#testDisableNotifications",
+  "status": "passed",
+  "time": {
+    "start": 1767517243855,
+    "stop": 1767517245792,
+    "duration": 1937
+  },
+  "description": "Verify testDisableNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testDisableNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Preferences"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

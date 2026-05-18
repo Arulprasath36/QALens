@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testautocompletesugg-034",
+  "name": "testAutocompleteSuggestions()",
+  "fullName": "com.example.tests.SearchTest#testAutocompleteSuggestions",
+  "historyId": "hist-tc-testautocompletesugg-034",
+  "testId": "com.example.tests.SearchTest#testAutocompleteSuggestions",
+  "status": "broken",
+  "time": {
+    "start": 1770109238115,
+    "stop": 1770109238695,
+    "duration": 580
+  },
+  "description": "Verify testAutocompleteSuggestions behaves as expected.",
+  "descriptionHtml": "<p>Verify testAutocompleteSuggestions behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Autocomplete"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Element not found within timeout: button[data-testid='submit']",
+  "statusTrace": "TimeoutException: Element not found within timeout: button[data-testid='submit']\n\tat com.example.tests.SearchTest.testAutocompleteSuggestions(Test.java:168)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:346)\n"
+}

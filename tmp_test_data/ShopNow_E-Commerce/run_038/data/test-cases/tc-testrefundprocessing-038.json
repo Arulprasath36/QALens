@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testrefundprocessing-038",
+  "name": "testRefundProcessing()",
+  "fullName": "com.example.tests.PaymentTest#testRefundProcessing",
+  "historyId": "hist-tc-testrefundprocessing-038",
+  "testId": "com.example.tests.PaymentTest#testRefundProcessing",
+  "status": "failed",
+  "time": {
+    "start": 1770454831995,
+    "stop": 1770454832656,
+    "duration": 661
+  },
+  "description": "Verify testRefundProcessing behaves as expected.",
+  "descriptionHtml": "<p>Verify testRefundProcessing behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Refunds"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Tom Kowalski"
+    }
+  ],
+  "links": [],
+  "statusMessage": "HTTP 503 Service Unavailable \u2014 payment gateway unreachable",
+  "statusTrace": "HttpError: HTTP 503 Service Unavailable \u2014 payment gateway unreachable\n\tat com.example.tests.PaymentTest.testRefundProcessing(Test.java:134)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:144)\n"
+}

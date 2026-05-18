@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testwidgetrefreshonf-012",
+  "name": "testWidgetRefreshOnFilter()",
+  "fullName": "com.example.tests.DashboardTest#testWidgetRefreshOnFilter",
+  "historyId": "hist-tc-testwidgetrefreshonf-012",
+  "testId": "com.example.tests.DashboardTest#testWidgetRefreshOnFilter",
+  "status": "passed",
+  "time": {
+    "start": 1768208471330,
+    "stop": 1768208472093,
+    "duration": 763
+  },
+  "description": "Verify testWidgetRefreshOnFilter behaves as expected.",
+  "descriptionHtml": "<p>Verify testWidgetRefreshOnFilter behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Dashboard Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Dashboard"
+    },
+    {
+      "name": "story",
+      "value": "Filters"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

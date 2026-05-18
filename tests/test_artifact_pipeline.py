@@ -18,12 +18,12 @@ from pathlib import Path
 
 import pytest
 
-from qara.artifacts.config import ArtifactConfig, ArtifactMode
-from qara.artifacts.models import ArtifactIngestStats
-from qara.artifacts.policy import ArtifactIngestionPolicy
-from qara.artifacts.selector import select_screenshots
-from qara.artifacts.storage import LocalFilesystemStore
-from qara.models.artifact_ref import ArtifactRef
+from qalens.artifacts.config import ArtifactConfig, ArtifactMode
+from qalens.artifacts.models import ArtifactIngestStats
+from qalens.artifacts.policy import ArtifactIngestionPolicy
+from qalens.artifacts.selector import select_screenshots
+from qalens.artifacts.storage import LocalFilesystemStore
+from qalens.models.artifact_ref import ArtifactRef
 
 # ---------------------------------------------------------------------------
 # Helpers — minimal valid PNG builder
@@ -217,6 +217,18 @@ class TestMetadataOnlyMode:
         assert len(records) == 1
         assert stats.records_created == 1
         assert records[0].sha256 == hashlib.sha256(_PNG_1x1).hexdigest()
+
+    def test_svg_data_uri_is_rejected(self):
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"></svg>'
+        config = ArtifactConfig(mode=ArtifactMode.METADATA_ONLY)
+        policy = ArtifactIngestionPolicy(config)
+        ref = _make_ref(
+            uri=_data_uri(svg, "image/svg+xml"),
+            mime_type="image/svg+xml",
+        )
+        records, stats = policy.process("tc::1", [ref])
+        assert records == []
+        assert stats.errors_skipped == 1
 
 
 # ---------------------------------------------------------------------------
@@ -465,6 +477,42 @@ class TestFailureTolerance:
         records, stats = policy.process("tc::1", [])
         assert records == []
         assert stats.refs_found == 0
+
+    def test_oversized_screenshot_skipped(self):
+        config = ArtifactConfig(
+            mode=ArtifactMode.METADATA_ONLY,
+            max_screenshot_bytes=max(1, len(_PNG_1x1) - 1),
+        )
+        policy = ArtifactIngestionPolicy(config)
+        ref = _make_ref(uri=_data_uri(_PNG_1x1))
+        records, stats = policy.process("tc::1", [ref])
+        assert records == []
+        assert stats.errors_skipped == 1
+
+    def test_svg_screenshot_rejected(self):
+        svg = b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
+        config = ArtifactConfig(mode=ArtifactMode.METADATA_ONLY)
+        policy = ArtifactIngestionPolicy(config)
+        ref = _make_ref(uri=_data_uri(svg, "image/svg+xml"), mime_type="image/svg+xml", name="x.svg")
+        records, stats = policy.process("tc::1", [ref])
+        assert records == []
+        assert stats.errors_skipped == 1
+
+    def test_total_screenshot_byte_limit_skips_later_refs(self):
+        config = ArtifactConfig(
+            mode=ArtifactMode.METADATA_ONLY,
+            max_screenshots_per_failure=2,
+            max_total_screenshot_bytes_per_run=len(_PNG_1x1) + 1,
+        )
+        policy = ArtifactIngestionPolicy(config)
+        refs = [
+            _make_ref(uri=_data_uri(_PNG_1x1), sequence_no=0),
+            _make_ref(uri=_data_uri(_PNG_1x1), sequence_no=1),
+        ]
+        records, stats = policy.process("tc::1", refs)
+        assert len(records) == 1
+        assert stats.records_created == 1
+        assert stats.errors_skipped == 1
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcancelorder-024",
+  "name": "testCancelOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCancelOrder",
+  "historyId": "hist-tc-testcancelorder-024",
+  "testId": "com.example.tests.OrderApiTest#testCancelOrder",
+  "status": "failed",
+  "time": {
+    "start": 1769245249642,
+    "stop": 1769245250593,
+    "duration": 951
+  },
+  "description": "Verify testCancelOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCancelOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Cancel"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Search result count was 0, expected \u22651 for query 'laptop'",
+  "statusTrace": "AssertionError: Search result count was 0, expected \u22651 for query 'laptop'\n\tat com.example.tests.OrderApiTest.testCancelOrder(Test.java:36)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:207)\n"
+}

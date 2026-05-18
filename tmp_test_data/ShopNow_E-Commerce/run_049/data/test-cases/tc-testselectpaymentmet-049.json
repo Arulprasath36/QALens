@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testselectpaymentmet-049",
+  "name": "testSelectPaymentMethod()",
+  "fullName": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "historyId": "hist-tc-testselectpaymentmet-049",
+  "testId": "com.example.tests.CheckoutTest#testSelectPaymentMethod",
+  "status": "passed",
+  "time": {
+    "start": 1771405220502,
+    "stop": 1771405223349,
+    "duration": 2847
+  },
+  "description": "Verify testSelectPaymentMethod behaves as expected.",
+  "descriptionHtml": "<p>Verify testSelectPaymentMethod behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Checkout"
+    },
+    {
+      "name": "story",
+      "value": "Payment"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

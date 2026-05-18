@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchwithfilter-048",
+  "name": "testSearchWithFilters()",
+  "fullName": "com.example.tests.SearchTest#testSearchWithFilters",
+  "historyId": "hist-tc-testsearchwithfilter-048",
+  "testId": "com.example.tests.SearchTest#testSearchWithFilters",
+  "status": "failed",
+  "time": {
+    "start": 1771318834873,
+    "stop": 1771318835841,
+    "duration": 968
+  },
+  "description": "Verify testSearchWithFilters behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchWithFilters behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Filters"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "PDF download response was empty (Content-Length: 0)",
+  "statusTrace": "AssertionError: PDF download response was empty (Content-Length: 0)\n\tat com.example.tests.SearchTest.testSearchWithFilters(Test.java:52)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:256)\n"
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testloginwithlockeda-011",
+  "name": "testLoginWithLockedAccount()",
+  "fullName": "com.example.tests.AuthTest#testLoginWithLockedAccount",
+  "historyId": "hist-tc-testloginwithlockeda-011",
+  "testId": "com.example.tests.AuthTest#testLoginWithLockedAccount",
+  "status": "passed",
+  "time": {
+    "start": 1768122003600,
+    "stop": 1768122006007,
+    "duration": 2407
+  },
+  "description": "Verify testLoginWithLockedAccount behaves as expected.",
+  "descriptionHtml": "<p>Verify testLoginWithLockedAccount behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Login"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

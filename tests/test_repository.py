@@ -1,4 +1,4 @@
-"""Tests for ari.db.repository — RunRepository persistence and queries."""
+"""Tests for qalens.db.repository — RunRepository persistence and queries."""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ from datetime import datetime, timezone
 
 import pytest
 
-from qara.db.repository import RunRepository, TestHistoryEntry
-from qara.db.schema import get_connection
-from qara.models.attachment import Attachment, AttachmentKind
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.db.repository import RunRepository, TestHistoryEntry
+from qalens.db.schema import get_connection
+from qalens.models.attachment import Attachment, AttachmentKind
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 
 # ---------------------------------------------------------------------------

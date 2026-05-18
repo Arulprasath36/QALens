@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testordershippedemai-039",
+  "name": "testOrderShippedEmail()",
+  "fullName": "com.example.tests.NotificationTest#testOrderShippedEmail",
+  "historyId": "hist-tc-testordershippedemai-039",
+  "testId": "com.example.tests.NotificationTest#testOrderShippedEmail",
+  "status": "passed",
+  "time": {
+    "start": 1770541247269,
+    "stop": 1770541250098,
+    "duration": 2829
+  },
+  "description": "Verify testOrderShippedEmail behaves as expected.",
+  "descriptionHtml": "<p>Verify testOrderShippedEmail behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Transactional"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testrefundprocessing-001",
+  "name": "testRefundProcessing()",
+  "fullName": "com.example.tests.PaymentTest#testRefundProcessing",
+  "historyId": "hist-tc-testrefundprocessing-001",
+  "testId": "com.example.tests.PaymentTest#testRefundProcessing",
+  "status": "passed",
+  "time": {
+    "start": 1767258030454,
+    "stop": 1767258030944,
+    "duration": 490
+  },
+  "description": "Verify testRefundProcessing behaves as expected.",
+  "descriptionHtml": "<p>Verify testRefundProcessing behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Refunds"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

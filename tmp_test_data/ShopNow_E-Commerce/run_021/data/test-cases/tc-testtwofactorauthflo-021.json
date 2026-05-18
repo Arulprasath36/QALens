@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testtwofactorauthflo-021",
+  "name": "testTwoFactorAuthFlow()",
+  "fullName": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "historyId": "hist-tc-testtwofactorauthflo-021",
+  "testId": "com.example.tests.AuthTest#testTwoFactorAuthFlow",
+  "status": "failed",
+  "time": {
+    "start": 1768986009894,
+    "stop": 1768986012255,
+    "duration": 2361
+  },
+  "description": "Verify testTwoFactorAuthFlow behaves as expected.",
+  "descriptionHtml": "<p>Verify testTwoFactorAuthFlow behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "2FA"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected redirect to /dashboard but got /error?code=403",
+  "statusTrace": "AssertionError: Expected redirect to /dashboard but got /error?code=403\n\tat com.example.tests.AuthTest.testTwoFactorAuthFlow(Test.java:133)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:208)\n"
+}

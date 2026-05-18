@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchnoresults-010",
+  "name": "testSearchNoResults()",
+  "fullName": "com.example.tests.SearchTest#testSearchNoResults",
+  "historyId": "hist-tc-testsearchnoresults-010",
+  "testId": "com.example.tests.SearchTest#testSearchNoResults",
+  "status": "broken",
+  "time": {
+    "start": 1768035635027,
+    "stop": 1768035636423,
+    "duration": 1396
+  },
+  "description": "Verify testSearchNoResults behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchNoResults behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Empty State"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Cannot read properties of undefined (reading 'price') at ProductPage.js:87",
+  "statusTrace": "JavaScriptException: Cannot read properties of undefined (reading 'price') at ProductPage.js:87\n\tat com.example.tests.SearchTest.testSearchNoResults(Test.java:145)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:202)\n"
+}

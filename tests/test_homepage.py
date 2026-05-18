@@ -8,12 +8,12 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
-from qara.server.app import create_app
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
+from qalens.server.app import create_app
 
 
 # ---------------------------------------------------------------------------

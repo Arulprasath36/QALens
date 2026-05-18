@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testdebitcarddecline-007",
+  "name": "testDebitCardDeclined()",
+  "fullName": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "historyId": "hist-tc-testdebitcarddecline-007",
+  "testId": "com.example.tests.PaymentTest#testDebitCardDeclined",
+  "status": "failed",
+  "time": {
+    "start": 1767776427753,
+    "stop": 1767776430579,
+    "duration": 2826
+  },
+  "description": "Verify testDebitCardDeclined behaves as expected.",
+  "descriptionHtml": "<p>Verify testDebitCardDeclined behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Payment Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Payments"
+    },
+    {
+      "name": "story",
+      "value": "Declined"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": "PDF download response was empty (Content-Length: 0)",
+  "statusTrace": "AssertionError: PDF download response was empty (Content-Length: 0)\n\tat com.example.tests.PaymentTest.testDebitCardDeclined(Test.java:102)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:108)\n"
+}

@@ -1,18 +1,21 @@
-"""Integration tests for the ``qara ingest`` CLI command."""
+"""Integration tests for the ``qalens ingest`` CLI command."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
 from typer.testing import CliRunner
 
-from qara.cli import app
+from qalens.cli import app
 
 runner = CliRunner()
 
-EXTENT_FIXTURE = Path(__file__).parent / "fixtures" / "extent_sample" / "index.html"
+EXTENT_FIXTURE = Path(__file__).parent / "fixtures" / "extent_sample" / "ExtentReport.html"
 ALLURE_FIXTURE = Path(__file__).parent / "fixtures" / "allure_sample"
+JUNIT_FIXTURE = Path(__file__).parent / "fixtures" / "junit_sample"
+TESTNG_FIXTURE = Path(__file__).parent / "fixtures" / "testng_sample"
+PLAYWRIGHT_FIXTURE = Path(__file__).parent / "fixtures" / "playwright_json_sample"
+CYPRESS_FIXTURE = Path(__file__).parent / "fixtures" / "cypress_mochawesome_sample"
 
 
 # ---------------------------------------------------------------------------
@@ -43,6 +46,30 @@ def test_ingest_extent_exits_zero(tmp_path):
 def test_ingest_allure_exits_zero(tmp_path):
     db = tmp_path / "test.db"
     result = _ingest(ALLURE_FIXTURE, db=db)
+    assert result.exit_code == 0, result.output
+
+
+def test_ingest_junit_exits_zero(tmp_path):
+    db = tmp_path / "test.db"
+    result = _ingest(JUNIT_FIXTURE, db=db)
+    assert result.exit_code == 0, result.output
+
+
+def test_ingest_testng_exits_zero(tmp_path):
+    db = tmp_path / "test.db"
+    result = _ingest(TESTNG_FIXTURE, db=db)
+    assert result.exit_code == 0, result.output
+
+
+def test_ingest_playwright_exits_zero(tmp_path):
+    db = tmp_path / "test.db"
+    result = _ingest(PLAYWRIGHT_FIXTURE, db=db)
+    assert result.exit_code == 0, result.output
+
+
+def test_ingest_cypress_exits_zero(tmp_path):
+    db = tmp_path / "test.db"
+    result = _ingest(CYPRESS_FIXTURE, db=db)
     assert result.exit_code == 0, result.output
 
 
@@ -100,8 +127,8 @@ def test_ingest_verbose_shows_failed_tests(tmp_path):
 
 def test_ingest_extent_populates_db(tmp_path):
     """After ingest the DB must contain the run."""
-    from qara.db.repository import RunRepository
-    from qara.db.schema import get_connection
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
 
     db = tmp_path / "test.db"
     _ingest(EXTENT_FIXTURE, db=db)
@@ -117,8 +144,8 @@ def test_ingest_extent_populates_db(tmp_path):
 
 def test_ingest_allure_populates_db(tmp_path):
     """After ingest the DB must have test cases."""
-    from qara.db.repository import RunRepository
-    from qara.db.schema import get_connection
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
 
     db = tmp_path / "test.db"
     _ingest(ALLURE_FIXTURE, db=db)
@@ -134,10 +161,118 @@ def test_ingest_allure_populates_db(tmp_path):
     assert len(tcs) == 4
 
 
+def test_ingest_junit_populates_db(tmp_path):
+    """After ingest the DB must have JUnit test cases."""
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
+
+    db = tmp_path / "test.db"
+    _ingest(JUNIT_FIXTURE, db=db)
+
+    conn = get_connection(str(db))
+    repo = RunRepository(conn)
+    runs = repo.list_runs()
+    assert len(runs) == 1
+    assert runs[0].report_format == "junit"
+    tcs = repo.get_test_cases_for_run(runs[0].run_id)
+    conn.close()
+
+    assert len(tcs) == 4
+
+
+def test_ingest_testng_populates_db(tmp_path):
+    """After ingest the DB must have TestNG test cases."""
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
+
+    db = tmp_path / "test.db"
+    _ingest(TESTNG_FIXTURE, db=db)
+
+    conn = get_connection(str(db))
+    repo = RunRepository(conn)
+    runs = repo.list_runs()
+    assert len(runs) == 1
+    assert runs[0].report_format == "testng"
+    tcs = repo.get_test_cases_for_run(runs[0].run_id)
+    conn.close()
+
+    assert len(tcs) == 3
+
+
+def test_ingest_playwright_populates_db(tmp_path):
+    """After ingest the DB must have Playwright test cases."""
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
+
+    db = tmp_path / "test.db"
+    _ingest(PLAYWRIGHT_FIXTURE, db=db)
+
+    conn = get_connection(str(db))
+    repo = RunRepository(conn)
+    runs = repo.list_runs()
+    assert len(runs) == 1
+    assert runs[0].report_format == "playwright"
+    tcs = repo.get_test_cases_for_run(runs[0].run_id)
+    conn.close()
+
+    assert len(tcs) == 3
+
+
+def test_ingest_cypress_populates_db(tmp_path):
+    """After ingest the DB must have Cypress test cases."""
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
+
+    db = tmp_path / "test.db"
+    _ingest(CYPRESS_FIXTURE, db=db)
+
+    conn = get_connection(str(db))
+    repo = RunRepository(conn)
+    runs = repo.list_runs()
+    assert len(runs) == 1
+    assert runs[0].report_format == "cypress"
+    tcs = repo.get_test_cases_for_run(runs[0].run_id)
+    conn.close()
+
+    assert len(tcs) == 3
+
+
+def test_ingest_applies_owner_mapping(tmp_path):
+    """--owner-map fills owner metadata before saving the run."""
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
+
+    db = tmp_path / "test.db"
+    owner_map = tmp_path / "owners.toml"
+    owner_map.write_text(
+        """
+[[owners]]
+owner = "Auth Team"
+suites = ["Authentication*"]
+""".strip(),
+        encoding="utf-8",
+    )
+
+    result = _ingest(
+        ALLURE_FIXTURE,
+        extra_args=["--owner-map", str(owner_map), "--override-owners"],
+        db=db,
+    )
+    assert result.exit_code == 0, result.output
+
+    conn = get_connection(str(db))
+    repo = RunRepository(conn)
+    run_id = repo.list_runs()[0].run_id
+    owners = {tc.owner for tc in repo.get_test_cases_for_run(run_id)}
+    conn.close()
+
+    assert "Auth Team" in owners
+
+
 def test_ingest_run_sequence_increments(tmp_path):
     """Two different runs of the same project get sequence 1 and 2."""
-    from qara.db.repository import RunRepository
-    from qara.db.schema import get_connection
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
 
     db = tmp_path / "test.db"
     _ingest(EXTENT_FIXTURE, db=db)

@@ -12,8 +12,8 @@ import time
 
 import pytest
 
-from qara.analyzers.comparison import ComparisonService
-from qara.db.schema import init_db
+from qalens.analyzers.comparison import ComparisonService
+from qalens.db.schema import init_db
 
 
 # ---------------------------------------------------------------------------

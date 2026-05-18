@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testproductdetailpag-036",
+  "name": "testProductDetailPage()",
+  "fullName": "com.example.tests.ProductTest#testProductDetailPage",
+  "historyId": "hist-tc-testproductdetailpag-036",
+  "testId": "com.example.tests.ProductTest#testProductDetailPage",
+  "status": "failed",
+  "time": {
+    "start": 1770282038753,
+    "stop": 1770282040348,
+    "duration": 1595
+  },
+  "description": "Verify testProductDetailPage behaves as expected.",
+  "descriptionHtml": "<p>Verify testProductDetailPage behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Detail View"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Fatima Al-Rashid"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Search result count was 0, expected \u22651 for query 'laptop'",
+  "statusTrace": "AssertionError: Search result count was 0, expected \u22651 for query 'laptop'\n\tat com.example.tests.ProductTest.testProductDetailPage(Test.java:141)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:354)\n"
+}

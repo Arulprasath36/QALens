@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.predictor — RiskPredictor."""
+"""Tests for qalens.analyzers.predictor — RiskPredictor."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from qara.analyzers.predictor import (
+from qalens.analyzers.predictor import (
     RiskPredictor,
     RiskPrediction,
     RiskSignals,
@@ -15,12 +15,12 @@ from qara.analyzers.predictor import (
     _duration_trend,
     _module_label,
 )
-from qara.analyzers.flaky import FlakyResult, FlakyClassification
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.analyzers.flaky import FlakyResult, FlakyClassification
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 
 # ---------------------------------------------------------------------------
@@ -174,7 +174,7 @@ def test_module_label_empty_suite():
 
 def _make_result(history: list[str], current_streak: int = 0) -> FlakyResult:
     """Construct a minimal FlakyResult from a history list."""
-    from qara.analyzers.flaky import _compute_flip_score, _classify
+    from qalens.analyzers.flaky import _compute_flip_score, _classify
 
     pass_count = sum(1 for s in history if s == "passed")
     fail_count = sum(1 for s in history if s in ("failed", "broken"))
@@ -285,7 +285,7 @@ def test_predict_all_sorted_by_risk(predictor_db):
 
 def test_predict_stable_test_has_low_risk(predictor_db):
     predictor, _ = predictor_db
-    from qara.analyzers.canonical import to_canonical_name
+    from qalens.analyzers.canonical import to_canonical_name
     p = predictor.predict(to_canonical_name("testLogout"), project="MyProject")
     assert p.tier == RiskTier.LOW
     assert p.risk_pct < 35
@@ -293,21 +293,21 @@ def test_predict_stable_test_has_low_risk(predictor_db):
 
 def test_predict_broken_test_has_elevated_risk(predictor_db):
     predictor, _ = predictor_db
-    from qara.analyzers.canonical import to_canonical_name
+    from qalens.analyzers.canonical import to_canonical_name
     p = predictor.predict(to_canonical_name("testRegister"), project="MyProject")
     assert p.risk_pct >= 35  # at least Medium (has failure_burden + streak)
 
 
 def test_predict_flaky_test_has_high_volatility(predictor_db):
     predictor, _ = predictor_db
-    from qara.analyzers.canonical import to_canonical_name
+    from qalens.analyzers.canonical import to_canonical_name
     p = predictor.predict(to_canonical_name("testLogin"), project="MyProject")
     assert p.signals.volatility > 0
 
 
 def test_predict_suite_populated_from_db(predictor_db):
     predictor, _ = predictor_db
-    from qara.analyzers.canonical import to_canonical_name
+    from qalens.analyzers.canonical import to_canonical_name
     p = predictor.predict(to_canonical_name("testLogin"), project="MyProject")
     assert p.suite == "AuthSuite"
     assert p.module == "AuthSuite"
@@ -315,7 +315,7 @@ def test_predict_suite_populated_from_db(predictor_db):
 
 def test_predict_module_derived_from_name_when_no_suite(predictor_db):
     predictor, _ = predictor_db
-    from qara.analyzers.canonical import to_canonical_name
+    from qalens.analyzers.canonical import to_canonical_name
     p = predictor.predict(to_canonical_name("testDashboard"), project="MyProject")
     assert p.suite is None
     assert p.module == "Dashboard"
@@ -330,7 +330,7 @@ def test_predict_min_runs_filter(predictor_db):
 
 def test_predict_sparkline_present(predictor_db):
     predictor, _ = predictor_db
-    from qara.analyzers.canonical import to_canonical_name
+    from qalens.analyzers.canonical import to_canonical_name
     p = predictor.predict(to_canonical_name("testLogin"), project="MyProject")
     assert p.sparkline
     # Should contain ✓ or ✗
@@ -358,6 +358,6 @@ def test_predict_all_no_project_filter(predictor_db):
 def test_predict_duration_trend_growing(predictor_db):
     """testDashboard has a big duration spike on final run — should score > 0."""
     predictor, _ = predictor_db
-    from qara.analyzers.canonical import to_canonical_name
+    from qalens.analyzers.canonical import to_canonical_name
     p = predictor.predict(to_canonical_name("testDashboard"), project="MyProject")
     assert p.signals.duration_spike > 0.0

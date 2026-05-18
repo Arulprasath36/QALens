@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testsearchnoresults-021",
+  "name": "testSearchNoResults()",
+  "fullName": "com.example.tests.SearchTest#testSearchNoResults",
+  "historyId": "hist-tc-testsearchnoresults-021",
+  "testId": "com.example.tests.SearchTest#testSearchNoResults",
+  "status": "broken",
+  "time": {
+    "start": 1768986036539,
+    "stop": 1768986038100,
+    "duration": 1561
+  },
+  "description": "Verify testSearchNoResults behaves as expected.",
+  "descriptionHtml": "<p>Verify testSearchNoResults behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Search Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Search"
+    },
+    {
+      "name": "story",
+      "value": "Empty State"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Lucas Ferreira"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Stale element reference: element is not attached to the page document",
+  "statusTrace": "StaleElementReferenceException: Stale element reference: element is not attached to the page document\n\tat com.example.tests.SearchTest.testSearchNoResults(Test.java:116)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:278)\n"
+}

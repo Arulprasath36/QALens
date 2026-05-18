@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testremembermetoken-048",
+  "name": "testRememberMeToken()",
+  "fullName": "com.example.tests.AuthTest#testRememberMeToken",
+  "historyId": "hist-tc-testremembermetoken-048",
+  "testId": "com.example.tests.AuthTest#testRememberMeToken",
+  "status": "broken",
+  "time": {
+    "start": 1771318807026,
+    "stop": 1771318807381,
+    "duration": 355
+  },
+  "description": "Verify testRememberMeToken behaves as expected.",
+  "descriptionHtml": "<p>Verify testRememberMeToken behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Authentication Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Authentication"
+    },
+    {
+      "name": "story",
+      "value": "Remember Me"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Connection reset by peer during POST /api/payments/charge",
+  "statusTrace": "ConnectionResetError: Connection reset by peer during POST /api/payments/charge\n\tat com.example.tests.AuthTest.testRememberMeToken(Test.java:160)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:143)\n"
+}

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testcreateorder-026",
+  "name": "testCreateOrder()",
+  "fullName": "com.example.tests.OrderApiTest#testCreateOrder",
+  "historyId": "hist-tc-testcreateorder-026",
+  "testId": "com.example.tests.OrderApiTest#testCreateOrder",
+  "status": "passed",
+  "time": {
+    "start": 1769418049350,
+    "stop": 1769418051088,
+    "duration": 1738
+  },
+  "description": "Verify testCreateOrder behaves as expected.",
+  "descriptionHtml": "<p>Verify testCreateOrder behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Order Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Orders"
+    },
+    {
+      "name": "story",
+      "value": "Create"
+    },
+    {
+      "name": "severity",
+      "value": "critical"
+    },
+    {
+      "name": "owner",
+      "value": "Mei Lin"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

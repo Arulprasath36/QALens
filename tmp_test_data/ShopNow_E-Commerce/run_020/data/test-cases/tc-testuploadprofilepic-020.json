@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testuploadprofilepic-020",
+  "name": "testUploadProfilePicture()",
+  "fullName": "com.example.tests.ProfileTest#testUploadProfilePicture",
+  "historyId": "hist-tc-testuploadprofilepic-020",
+  "testId": "com.example.tests.ProfileTest#testUploadProfilePicture",
+  "status": "passed",
+  "time": {
+    "start": 1768899666400,
+    "stop": 1768899666946,
+    "duration": 546
+  },
+  "description": "Verify testUploadProfilePicture behaves as expected.",
+  "descriptionHtml": "<p>Verify testUploadProfilePicture behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Profile Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Profile"
+    },
+    {
+      "name": "story",
+      "value": "Avatar"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Priya Sharma"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

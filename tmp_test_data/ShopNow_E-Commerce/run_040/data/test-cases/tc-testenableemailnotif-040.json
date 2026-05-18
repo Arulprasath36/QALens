@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testenableemailnotif-040",
+  "name": "testEnableEmailNotifications()",
+  "fullName": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "historyId": "hist-tc-testenableemailnotif-040",
+  "testId": "com.example.tests.NotificationTest#testEnableEmailNotifications",
+  "status": "broken",
+  "time": {
+    "start": 1770627641869,
+    "stop": 1770627643130,
+    "duration": 1261
+  },
+  "description": "Verify testEnableEmailNotifications behaves as expected.",
+  "descriptionHtml": "<p>Verify testEnableEmailNotifications behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": true,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Notification Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Notifications"
+    },
+    {
+      "name": "story",
+      "value": "Email"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "James Carter"
+    }
+  ],
+  "links": [],
+  "statusMessage": "Expected redirect to /dashboard but got /error?code=403",
+  "statusTrace": "AssertionError: Expected redirect to /dashboard but got /error?code=403\n\tat com.example.tests.NotificationTest.testEnableEmailNotifications(Test.java:147)\n\tat com.example.framework.TestRunner.runTest(TestRunner.java:42)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat org.testng.TestRunner.runTestMethods(TestRunner.java:138)\n"
+}

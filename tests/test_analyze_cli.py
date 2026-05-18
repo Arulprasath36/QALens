@@ -1,4 +1,4 @@
-"""Integration tests for the ``qara analyze`` CLI command (Phase 5)."""
+"""Integration tests for the ``qalens analyze`` CLI command (Phase 5)."""
 
 from __future__ import annotations
 
@@ -8,13 +8,13 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from qara.analyzers.flaky import FlakyClassification
-from qara.cli import app
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.analyzers.flaky import FlakyClassification
+from qalens.cli import app
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 runner = CliRunner()
 

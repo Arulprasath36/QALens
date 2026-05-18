@@ -6,19 +6,22 @@ event loop is needed in the test process.
 
 from __future__ import annotations
 
-import json
+import re
 from datetime import datetime, timezone
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from fastapi.testclient import TestClient
 
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
-from qara.server.app import create_app
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
+from qalens.server.app import create_app
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 # ---------------------------------------------------------------------------
@@ -123,6 +126,15 @@ def test_health_returns_ok(client: TestClient) -> None:
     assert "version" in data
 
 
+def test_security_headers_present(client: TestClient) -> None:
+    res = client.get("/api/health")
+    assert res.headers["x-content-type-options"] == "nosniff"
+    assert res.headers["referrer-policy"] == "no-referrer"
+    assert res.headers["x-frame-options"] == "DENY"
+    assert "frame-ancestors 'none'" in res.headers["content-security-policy"]
+    assert "camera=()" in res.headers["permissions-policy"]
+
+
 # ---------------------------------------------------------------------------
 # SPA index
 # ---------------------------------------------------------------------------
@@ -133,9 +145,8 @@ def test_index_returns_html(client: TestClient) -> None:
     assert res.status_code == 200
     assert "text/html" in res.headers["content-type"]
     body = res.text
-    assert "<title>QARA" in body
-    assert "chat-messages" in body  # Chat panel present
-    assert "panel-runs" in body     # Runs panel present
+    assert "<title>QA Lens" in body
+    assert '<div id="root"' in body   # React root present
 
 
 def test_index_includes_default_project(db_path: Path) -> None:
@@ -151,7 +162,7 @@ def test_index_no_default_project(db_path: Path) -> None:
     res = c.get("/")
     assert res.status_code == 200
     # Empty default project should render as empty string via injection shim
-    assert 'window._QARA_DEFAULT_PROJECT = ""' in res.text
+    assert 'window._QALENS_DEFAULT_PROJECT = ""' in res.text
 
 
 # ---------------------------------------------------------------------------
@@ -159,16 +170,20 @@ def test_index_no_default_project(db_path: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_static_css_served(client: TestClient) -> None:
-    res = client.get("/static/app.css")
-    assert res.status_code == 200
-    assert "text/css" in res.headers["content-type"]
+def test_static_assets_served(client: TestClient) -> None:
+    """Assets referenced by the Vite-built index.html must all return 200.
 
-
-def test_static_js_served(client: TestClient) -> None:
-    res = client.get("/static/app.js")
-    assert res.status_code == 200
-    assert "javascript" in res.headers["content-type"]
+    The asset filenames are content-hashed (e.g. index-DoZ8iY13.js), so we
+    extract the paths from the served HTML rather than hardcoding them.
+    """
+    body = client.get("/").text
+    js_paths  = re.findall(r'src="(/static/assets/[^"]+\.js)"', body)
+    css_paths = re.findall(r'href="(/static/assets/[^"]+\.css)"', body)
+    assert js_paths,  "No JS asset found in index.html — run make build-ui"
+    assert css_paths, "No CSS asset found in index.html — run make build-ui"
+    for url in js_paths + css_paths:
+        res = client.get(url)
+        assert res.status_code == 200, f"Asset not served: {url}"
 
 
 # ---------------------------------------------------------------------------
@@ -206,8 +221,8 @@ def test_list_projects_is_sorted(db_path: Path) -> None:
 def test_list_projects_empty_db(tmp_path: Path) -> None:
     empty_db = tmp_path / "empty.db"
     # Use RunRepository to initialize the schema, then close.
-    from qara.db.repository import RunRepository
-    from qara.db.schema import get_connection
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
     conn = get_connection(str(empty_db))
     RunRepository(conn)  # triggers init_db
     conn.close()
@@ -220,6 +235,308 @@ def test_list_projects_empty_db(tmp_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Decision intelligence
+# ---------------------------------------------------------------------------
+
+
+def test_decision_summary_latest_run(client: TestClient) -> None:
+    res = client.get("/api/decision-summary?project=ServerProject")
+
+    assert res.status_code == 200
+    data = res.json()
+    assert data["scope"]["run_sequence"] == 2
+    assert data["executive_summary"]
+    assert data["trend_intelligence"]
+    assert data["fix_first"]
+    assert data["fix_first"][0]["category"] in {"regression", "incident", "risk"}
+
+
+def test_decision_summary_project_scope(db_path: Path) -> None:
+    conn = get_connection(str(db_path))
+    repo = RunRepository(conn)
+    repo.save_run(
+        _make_run(
+            "other-run",
+            [_tc("other", TestStatus.PASSED)],
+            seq=1,
+            project="OtherProject",
+        )
+    )
+    conn.close()
+
+    appl = create_app(db_path=str(db_path))
+    c = TestClient(appl)
+    data = c.get("/api/decision-summary?project=OtherProject").json()
+
+    assert data["scope"]["project"] == "OtherProject"
+    assert data["scope"]["run_id"] == "other-run"
+
+
+def test_decision_summary_empty_database(tmp_path: Path) -> None:
+    empty_db = tmp_path / "empty-decision.db"
+    conn = get_connection(str(empty_db))
+    RunRepository(conn)
+    conn.close()
+
+    appl = create_app(db_path=str(empty_db))
+    c = TestClient(appl)
+    res = c.get("/api/decision-summary")
+
+    assert res.status_code == 200
+    data = res.json()
+    assert data["scope"]["run_id"] is None
+    assert data["fix_first"] == []
+    assert "No QA Lens runs" in data["executive_summary"][0]
+
+
+# ---------------------------------------------------------------------------
+# Settings
+# ---------------------------------------------------------------------------
+
+
+def test_settings_returns_runtime_and_llm_config(db_path: Path, tmp_path: Path) -> None:
+    config = tmp_path / "config.toml"
+    appl = create_app(db_path=str(db_path), config_path=str(config))
+    c = TestClient(appl)
+
+    res = c.get("/api/settings")
+
+    assert res.status_code == 200
+    data = res.json()
+    assert data["runtime"]["database_path"] == str(db_path)
+    assert data["runtime"]["config_path"] == str(config)
+    assert data["llm"]["provider"] == "ollama"
+    assert data["llm"]["api_key_configured"] is False
+    assert data["artifacts"]["svg_enabled"] is False
+    assert data["security"]["redaction_enabled"] is True
+
+
+def test_settings_updates_llm_config(db_path: Path, tmp_path: Path) -> None:
+    config = tmp_path / "config.toml"
+    appl = create_app(db_path=str(db_path), config_path=str(config))
+    c = TestClient(appl)
+
+    res = c.patch(
+        "/api/settings/llm",
+        json={
+            "provider": "lmstudio",
+            "model": "google/gemma-4-e4b",
+            "base_url": "http://localhost:1234/v1",
+            "max_tokens": 4096,
+            "timeout": 90,
+            "temperature": 0.1,
+            "allow_external": False,
+        },
+    )
+
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["llm"]["provider"] == "lmstudio"
+    assert body["llm"]["model"] == "google/gemma-4-e4b"
+    assert "allow_external = false" in config.read_text(encoding="utf-8")
+
+
+def test_settings_rejects_unknown_llm_provider(
+    db_path: Path,
+    tmp_path: Path,
+) -> None:
+    config = tmp_path / "config.toml"
+    appl = create_app(db_path=str(db_path), config_path=str(config))
+    c = TestClient(appl)
+
+    res = c.patch("/api/settings/llm", json={"provider": "not-real"})
+
+    assert res.status_code == 422
+    assert "Unsupported provider" in res.text
+
+
+def test_auth_status_reports_disabled_by_default(db_path: Path) -> None:
+    appl = create_app(db_path=str(db_path), auth_token="")
+    c = TestClient(appl)
+
+    res = c.get("/api/auth/status")
+
+    assert res.status_code == 200
+    body = res.json()
+    assert body["mode"] == "none"
+    assert body["required"] is False
+    assert body["authenticated"] is True
+
+
+def test_auth_token_protects_api_routes(db_path: Path) -> None:
+    appl = create_app(db_path=str(db_path), auth_token="secret-token")
+    c = TestClient(appl)
+
+    assert c.get("/api/health").status_code == 200
+    status = c.get("/api/auth/status").json()
+    assert status["mode"] == "token"
+    assert status["required"] is True
+    assert status["authenticated"] is False
+
+    unauthorized = c.get("/api/projects")
+    assert unauthorized.status_code == 401
+    assert unauthorized.headers["www-authenticate"] == "Bearer"
+
+    authorized = c.get(
+        "/api/projects",
+        headers={"Authorization": "Bearer secret-token"},
+    )
+    assert authorized.status_code == 200
+
+
+def test_auth_status_accepts_valid_bearer_token(db_path: Path) -> None:
+    appl = create_app(db_path=str(db_path), auth_token="secret-token")
+    c = TestClient(appl)
+
+    res = c.get(
+        "/api/auth/status",
+        headers={"Authorization": "Bearer secret-token"},
+    )
+
+    assert res.status_code == 200
+    body = res.json()
+    assert body["mode"] == "token"
+    assert body["required"] is True
+    assert body["authenticated"] is True
+
+
+def test_github_auth_redirects_home_to_login(
+    db_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("QALENS_AUTH_MODE", "github")
+    monkeypatch.setenv("QALENS_GITHUB_CLIENT_ID", "client-id")
+    monkeypatch.setenv("QALENS_GITHUB_CLIENT_SECRET", "client-secret")
+    monkeypatch.setenv("QALENS_SESSION_SECRET", "session-secret")
+    appl = create_app(db_path=str(db_path))
+    c = TestClient(appl, follow_redirects=False)
+
+    res = c.get("/")
+
+    assert res.status_code == 303
+    assert res.headers["location"] == "/login"
+
+
+def test_github_login_page_is_available(
+    db_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("QALENS_AUTH_MODE", "github")
+    monkeypatch.setenv("QALENS_GITHUB_CLIENT_ID", "client-id")
+    monkeypatch.setenv("QALENS_GITHUB_CLIENT_SECRET", "client-secret")
+    monkeypatch.setenv("QALENS_SESSION_SECRET", "session-secret")
+    appl = create_app(db_path=str(db_path))
+    c = TestClient(appl)
+
+    res = c.get("/login")
+
+    assert res.status_code == 200
+    assert "Continue with GitHub" in res.text
+    assert "/auth/github/start" in res.text
+
+
+def test_github_oauth_callback_sets_session_cookie(
+    db_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from qalens.server.auth import GitHubUser
+    import qalens.server.auth as auth_module
+
+    monkeypatch.setenv("QALENS_AUTH_MODE", "github")
+    monkeypatch.setenv("QALENS_GITHUB_CLIENT_ID", "client-id")
+    monkeypatch.setenv("QALENS_GITHUB_CLIENT_SECRET", "client-secret")
+    monkeypatch.setenv("QALENS_SESSION_SECRET", "session-secret")
+    monkeypatch.setenv("QALENS_ALLOWED_GITHUB_USERS", "octocat")
+
+    async def fake_fetch_github_identity(**kwargs):
+        return (
+            GitHubUser(
+                login="octocat",
+                name="The Octocat",
+                avatar_url="https://github.com/images/error/octocat_happy.gif",
+                html_url="https://github.com/octocat",
+            ),
+            frozenset(),
+        )
+
+    monkeypatch.setattr(auth_module, "_fetch_github_identity", fake_fetch_github_identity)
+    appl = create_app(db_path=str(db_path))
+    c = TestClient(appl, follow_redirects=False)
+
+    start = c.get("/auth/github/start")
+    assert start.status_code == 303
+    # State is now stored server-side; read it from the GitHub redirect URL
+    from urllib.parse import urlparse, parse_qs
+    location = start.headers["location"]
+    state = parse_qs(urlparse(location).query).get("state", [None])[0]
+    assert state
+
+    callback = c.get(f"/auth/github/callback?code=fake-code&state={state}")
+    assert callback.status_code == 303
+    assert callback.headers["location"] == "/"
+    assert c.cookies.get("qalens_session")
+
+    me = c.get("/api/auth/me")
+    assert me.status_code == 200
+    body = me.json()
+    assert body["authenticated"] is True
+    assert body["user"]["login"] == "octocat"
+
+
+def test_ask_fix_test_returns_deterministic_playbook(db_path: Path) -> None:
+    conn = get_connection(str(db_path))
+    repo = RunRepository(conn)
+    for idx in range(3, 6):
+        status = TestStatus.FAILED if idx in {3, 5} else TestStatus.PASSED
+        failure = None
+        if status == TestStatus.FAILED:
+            failure = FailureInfo(
+                error_type="com.shopnow.db.ConnectionPoolException",
+                message=(
+                    "No connections available in pool "
+                    "(pool_size=10, active=10, waiting=0)"
+                ),
+                stack_trace="at com.shopnow.CartRepository.add(CartRepository.java:42)",
+            )
+        repo.save_run(
+            _make_run(
+                f"run-cart-{idx}",
+                [
+                    TestCaseResult(
+                        test_id=f"cart-{idx}",
+                        name="testAddItemToCart()",
+                        status=status,
+                        failure=failure,
+                    )
+                ],
+                seq=idx,
+            )
+        )
+    conn.close()
+
+    appl = create_app(db_path=str(db_path))
+    c = TestClient(appl)
+    res = c.post(
+        "/api/ask",
+        json={"question": "How can I fix testAddItemToCart()?", "project": "ServerProject"},
+    )
+
+    assert res.status_code == 200
+    data = res.json()
+    assert data["intent"] == "deterministic"
+    assert "database connection pool exhaustion" in data["answer"]
+    assert "Open the workspace" in data["answer"]
+    assert "Verification steps" not in data["answer"]
+    assert data["uiHints"]["activeTab"] == "results"
+    assert data["uiHints"]["openWorkspace"] is True
+    assert data["result"]["type"] == "test_fix_playbook"
+    assert data["result"]["testName"] == "testAddItemToCart()"
+    assert data["result"]["diagnosis"] == "database connection pool exhaustion"
+    assert data["result"]["checks"]
+    assert data["result"]["verification"]
+
+
+# ---------------------------------------------------------------------------
 # Runs
 # ---------------------------------------------------------------------------
 
@@ -229,6 +546,12 @@ def test_list_runs_returns_two(client: TestClient) -> None:
     assert res.status_code == 200
     runs = res.json()
     assert len(runs) == 2
+
+
+def test_list_runs_allows_ui_catalogue_limit(client: TestClient) -> None:
+    res = client.get("/api/runs?limit=500")
+    assert res.status_code == 200
+    assert isinstance(res.json(), list)
 
 
 def test_list_runs_project_filter(client: TestClient) -> None:
@@ -275,6 +598,35 @@ def test_get_run_tests_status_filter(client: TestClient) -> None:
     assert all(t["status"] == "failed" for t in tests)
 
 
+def test_get_run_tests_invalid_status_rejected(client: TestClient) -> None:
+    runs = client.get("/api/runs").json()
+    run_id = runs[0]["run_id"]
+    res = client.get(f"/api/runs/{run_id}/tests?status=failed' OR 1=1 --")
+    assert res.status_code == 422
+
+
+def test_compare_custom_rejects_invalid_status_filter(client: TestClient) -> None:
+    res = client.post(
+        "/api/compare/custom",
+        json={
+            "run_ids": ["run-001", "run-002"],
+            "filters": {"status": "failed' OR 1=1 --"},
+        },
+    )
+    assert res.status_code == 422
+
+
+def test_compare_custom_rejects_invalid_category_filter(client: TestClient) -> None:
+    res = client.post(
+        "/api/compare/custom",
+        json={
+            "run_ids": ["run-001", "run-002"],
+            "filters": {"category": "xss<script>"},
+        },
+    )
+    assert res.status_code == 422
+
+
 def test_get_run_tests_not_found(client: TestClient) -> None:
     res = client.get("/api/runs/no-such/tests")
     assert res.status_code == 404
@@ -305,8 +657,8 @@ def test_stability_flaky_endpoint(client: TestClient) -> None:
 
 def test_stability_no_results_empty_db(tmp_path: Path) -> None:
     empty_db = tmp_path / "empty2.db"
-    from qara.db.repository import RunRepository
-    from qara.db.schema import get_connection
+    from qalens.db.repository import RunRepository
+    from qalens.db.schema import get_connection
     conn = get_connection(str(empty_db))
     RunRepository(conn)  # triggers init_db
     conn.close()
@@ -340,6 +692,17 @@ def test_failure_groups_limit(client: TestClient) -> None:
     assert len(groups) <= 1
 
 
+def test_failure_groups_rejects_too_many_run_ids(client: TestClient) -> None:
+    run_ids = ",".join(f"run-{i}" for i in range(51))
+    res = client.get(f"/api/failure-groups?run_ids={run_ids}")
+    assert res.status_code == 422
+
+
+def test_risk_rejects_invalid_tier(client: TestClient) -> None:
+    res = client.get("/api/risk?tier=HIGH' OR 1=1 --")
+    assert res.status_code == 422
+
+
 # ---------------------------------------------------------------------------
 # Digest
 # ---------------------------------------------------------------------------
@@ -356,9 +719,16 @@ def test_ask_empty_question(client: TestClient) -> None:
     assert res.status_code == 400
 
 
-def test_ask_llm_error_returns_503(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
-    """When LLMClient.chat raises LLMError the endpoint should return 503."""
-    from qara.llm.client import LLMError
+def test_ask_rejects_oversized_question(client: TestClient) -> None:
+    res = client.post("/api/ask", json={"question": "x" * 4001, "project": "ServerProject"})
+    assert res.status_code == 422
+
+
+def test_ask_llm_error_returns_deterministic_fallback(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """When LLMClient.chat raises LLMError the endpoint should fall back locally."""
+    from qalens.llm.client import LLMError
 
     class _BrokenClient:
         def __init__(self, *_a: object, **_kw: object) -> None:
@@ -370,11 +740,12 @@ def test_ask_llm_error_returns_503(client: TestClient, monkeypatch: pytest.Monke
     class _FakeCfg:
         pass
 
-    monkeypatch.setattr("qara.llm.config.load_config", lambda *_a, **_kw: _FakeCfg())
-    monkeypatch.setattr("qara.llm.client.LLMClient", _BrokenClient)
+    monkeypatch.setattr("qalens.llm.config.load_config", lambda *_a, **_kw: _FakeCfg())
+    monkeypatch.setattr("qalens.llm.client.LLMClient", _BrokenClient)
 
     res = client.post("/api/ask", json={"question": "What failed?", "project": "ServerProject"})
-    assert res.status_code == 503
+    assert res.status_code == 200
+    assert "could not reach the configured LLM" in res.json()["answer"]
 
 
 def test_ask_returns_answer(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -390,8 +761,8 @@ def test_ask_returns_answer(client: TestClient, monkeypatch: pytest.MonkeyPatch)
     class _MockCfg:
         pass
 
-    monkeypatch.setattr("qara.llm.config.load_config", lambda *_a, **_kw: _MockCfg())
-    monkeypatch.setattr("qara.llm.client.LLMClient", _MockClient)
+    monkeypatch.setattr("qalens.llm.config.load_config", lambda *_a, **_kw: _MockCfg())
+    monkeypatch.setattr("qalens.llm.client.LLMClient", _MockClient)
 
     res = client.post(
         "/api/ask",
@@ -403,7 +774,7 @@ def test_ask_returns_answer(client: TestClient, monkeypatch: pytest.MonkeyPatch)
     assert "context_mode" in data
     assert "sources" in data
     assert isinstance(data["sources"], list)
-    assert data["answer"] == "testCreate is consistently broken."
+    assert data["answer"].startswith("testCreate is consistently broken.")
 
 
 def test_ask_surrogate_chars_in_llm_answer_do_not_crash(
@@ -430,8 +801,8 @@ def test_ask_surrogate_chars_in_llm_answer_do_not_crash(
     class _MockCfg:
         pass
 
-    monkeypatch.setattr("qara.llm.config.load_config", lambda *_a, **_kw: _MockCfg())
-    monkeypatch.setattr("qara.llm.client.LLMClient", _MockClient)
+    monkeypatch.setattr("qalens.llm.config.load_config", lambda *_a, **_kw: _MockCfg())
+    monkeypatch.setattr("qalens.llm.client.LLMClient", _MockClient)
 
     res = client.post(
         "/api/ask",
@@ -449,7 +820,7 @@ def test_ask_surrogate_chars_in_llm_answer_do_not_crash(
 
 def test_ask_response_model_sanitizes_sources_surrogates() -> None:
     """AskResponse.sources validator strips surrogates from nested DB content."""
-    from qara.server.models import AskResponse
+    from qalens.server.models import AskResponse
 
     dirty_sources = [
         {

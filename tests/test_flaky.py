@@ -1,4 +1,4 @@
-"""Tests for ari.analyzers.flaky — FlakyScorer."""
+"""Tests for qalens.analyzers.flaky — FlakyScorer."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from qara.analyzers.flaky import (
+from qalens.analyzers.flaky import (
     FlakyClassification,
     FlakyResult,
     FlakyScorer,
@@ -14,11 +14,11 @@ from qara.analyzers.flaky import (
     _compute_streak,
     _classify,
 )
-from qara.db.repository import RunRepository
-from qara.db.schema import get_connection
-from qara.models.failure import FailureInfo
-from qara.models.run import RunMetadata, TestRun
-from qara.models.test_case import TestCaseResult, TestStatus
+from qalens.db.repository import RunRepository
+from qalens.db.schema import get_connection
+from qalens.models.failure import FailureInfo
+from qalens.models.run import RunMetadata, TestRun
+from qalens.models.test_case import TestCaseResult, TestStatus
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testproductdetailpag-023",
+  "name": "testProductDetailPage()",
+  "fullName": "com.example.tests.ProductTest#testProductDetailPage",
+  "historyId": "hist-tc-testproductdetailpag-023",
+  "testId": "com.example.tests.ProductTest#testProductDetailPage",
+  "status": "passed",
+  "time": {
+    "start": 1769158836788,
+    "stop": 1769158837732,
+    "duration": 944
+  },
+  "description": "Verify testProductDetailPage behaves as expected.",
+  "descriptionHtml": "<p>Verify testProductDetailPage behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Product Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Products"
+    },
+    {
+      "name": "story",
+      "value": "Detail View"
+    },
+    {
+      "name": "severity",
+      "value": "normal"
+    },
+    {
+      "name": "owner",
+      "value": "Sofia Nguyen"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

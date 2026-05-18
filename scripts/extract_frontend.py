@@ -1,11 +1,11 @@
-"""One-off script: extract the ARI frontend f-string into static files.
+"""One-off script: extract the QALens frontend f-string into static files.
 
-Reads src/ari/server/ui.py, pulls out the giant f-string, converts
+Reads src/qalens/server/ui.py, pulls out the giant f-string, converts
 all {{ / }} escaping back to real JS braces, and writes three files:
 
-  src/ari/server/static/index.html
-  src/ari/server/static/app.css
-  src/ari/server/static/app.js
+  src/qalens/server/static/index.html
+  src/qalens/server/static/app.css
+  src/qalens/server/static/app.js
 
 Run once from the repo root:
   python scripts/extract_frontend.py
@@ -18,8 +18,8 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent
-UI_PY     = REPO_ROOT / "src/ari/server/ui.py"
-STATIC    = REPO_ROOT / "src/ari/server/static"
+UI_PY     = REPO_ROOT / "src/qalens/server/ui.py"
+STATIC    = REPO_ROOT / "src/qalens/server/static"
 
 
 # ---------------------------------------------------------------------------
@@ -54,7 +54,7 @@ def patch_default_project(body: str) -> str:
     # We remove it from the JS block so app.js is fully static.
     body = re.sub(
         r'const DEFAULT_PROJECT\s*=\s*\{default_proj_js\};',
-        r'const DEFAULT_PROJECT = window._QARA_DEFAULT_PROJECT ?? "";',
+        r'const DEFAULT_PROJECT = window._QALENS_DEFAULT_PROJECT ?? "";',
         body,
     )
     return body
@@ -111,7 +111,7 @@ def split_html_css_js(html: str) -> tuple[str, str, str]:
     # Replace the main inline <script> block with the injection shim +
     # the external app.js reference.
     inject_shim = (
-        '<script>window._QARA_DEFAULT_PROJECT = __DEFAULT_PROJECT__;</script>\n'
+        '<script>window._QALENS_DEFAULT_PROJECT = __DEFAULT_PROJECT__;</script>\n'
         '    <script src="/static/app.js"></script>'
     )
     html_shell = (

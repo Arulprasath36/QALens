@@ -1,0 +1,49 @@
+{
+  "uid": "tc-testapplycouponcode-035",
+  "name": "testApplyCouponCode()",
+  "fullName": "com.example.tests.CartTest#testApplyCouponCode",
+  "historyId": "hist-tc-testapplycouponcode-035",
+  "testId": "com.example.tests.CartTest#testApplyCouponCode",
+  "status": "passed",
+  "time": {
+    "start": 1770195616303,
+    "stop": 1770195618789,
+    "duration": 2486
+  },
+  "description": "Verify testApplyCouponCode behaves as expected.",
+  "descriptionHtml": "<p>Verify testApplyCouponCode behaves as expected.</p>",
+  "flaky": false,
+  "newFailed": false,
+  "newBroken": false,
+  "newPassed": false,
+  "retriesCount": 0,
+  "retriesStatusChange": false,
+  "steps": [],
+  "attachments": [],
+  "parameters": [],
+  "labels": [
+    {
+      "name": "suite",
+      "value": "Cart & Checkout Tests"
+    },
+    {
+      "name": "feature",
+      "value": "Shopping Cart"
+    },
+    {
+      "name": "story",
+      "value": "Discounts"
+    },
+    {
+      "name": "severity",
+      "value": "minor"
+    },
+    {
+      "name": "owner",
+      "value": "Arjun Patel"
+    }
+  ],
+  "links": [],
+  "statusMessage": null,
+  "statusTrace": null
+}

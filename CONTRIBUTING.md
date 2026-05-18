@@ -1,8 +1,8 @@
-# Contributing to QARA
+# Contributing to QA Lens
 
-Thank you for your interest in contributing to QARA — Quality Analysis & Root Automation!
+Thank you for your interest in contributing to QA Lens.
 
-QARA is an open-source project welcoming contributions from QA engineers, platform engineers, developers, and technical writers.
+QA Lens is an open-source project welcoming contributions from QA engineers, platform engineers, developers, and technical writers.
 
 ---
 
@@ -32,8 +32,8 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 ### Clone and install
 
 ```bash
-git clone https://github.com/your-org/qara.git
-cd qara
+git clone https://github.com/Arulprasath36/QALens.git
+cd QALens
 python -m venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
@@ -44,20 +44,24 @@ pre-commit install
 
 ```bash
 pytest
-ruff check src/ tests/
-mypy src/
+cd frontend && npm run typecheck && npm test
 ```
+
+The repository also has strict `ruff`, `ruff format`, and `mypy` configuration.
+Those checks are still being cleaned up across the full codebase, so treat them
+as quality-improvement targets unless the issue or pull request specifically
+touches that area.
 
 ---
 
 ## Project Structure
 
 ```
-src/qara/
+src/qalens/
 ├── parsers/      # Report-specific HTML/JSON extractors
 ├── models/       # Canonical Pydantic data models
 ├── analyzers/    # Heuristic analysis and categorization
-├── outputs/      # JSON, Markdown, console output writers
+├── reports/      # Standalone HTML, Markdown, and JSON report builders/renderers
 ├── utils/        # Shared utilities (text, hashing, FS)
 └── api/          # Public Python library surface
 
@@ -93,12 +97,11 @@ refactor: extract signature normalization into standalone fn
 
 Before opening a PR:
 
-1. Run the full test suite: `pytest --cov=src/qara`
-2. Run the linter: `ruff check src/ tests/`
-3. Run type checks: `mypy src/`
-4. Ensure pre-commit passes: `pre-commit run --all-files`
-5. Add or update tests for your change
-6. Update docstrings and docs if relevant
+1. Run the full test suite: `pytest`
+2. Run frontend checks if you touched UI code: `cd frontend && npm run typecheck && npm test`
+3. Add or update tests for your change
+4. Update docstrings and docs if relevant
+5. Run targeted `ruff`/`mypy` checks for files you changed when practical
 
 PR titles should follow the same Conventional Commits format.
 
@@ -106,8 +109,8 @@ PR titles should follow the same Conventional Commits format.
 
 ## Adding a New Report Parser
 
-1. Create `src/qara/parsers/<format>.py` implementing `BaseParser` from `src/qara/parsers/base.py`.
-2. Register the parser in `src/qara/parsers/detector.py`.
+1. Create `src/qalens/parsers/<format>.py` implementing `BaseParser` from `src/qalens/parsers/base.py`.
+2. Register the parser in `src/qalens/parsers/detector.py`.
 3. Add fixture HTML files under `tests/fixtures/<format>_sample/`.
 4. Add tests in `tests/test_<format>_parser.py`.
 5. Document the format signatures in `docs/parser-strategy.md`.
@@ -118,7 +121,7 @@ See [docs/parser-strategy.md](docs/parser-strategy.md) for the parser contract.
 
 ## Adding a New Analysis Rule
 
-1. Identify the relevant module: `src/qara/analyzers/categorizer.py` or `src/qara/analyzers/signatures.py`.
+1. Identify the relevant module: `src/qalens/analyzers/categorizer.py` or `src/qalens/analyzers/signatures.py`.
 2. Add the rule as a named function with a docstring explaining the heuristic.
 3. Each rule must return a result with `category`, `confidence`, `explanation`, and `evidence`.
 4. Add tests in `tests/test_categorizer.py` with realistic failure scenarios.
@@ -146,6 +149,6 @@ See [docs/parser-strategy.md](docs/parser-strategy.md) for the parser contract.
 
 ## Questions?
 
-Open a [GitHub Discussion](https://github.com/your-org/qara/discussions) or an Issue.
+Open a [GitHub Discussion](https://github.com/Arulprasath36/QALens/discussions) or an Issue.
 
-Thank you for helping make QARA better!
+Thank you for helping make QA Lens better.
