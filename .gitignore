@@ -109,16 +109,6 @@ site/
 *.sqlite3-wal
 
 # QA Lens — local test data and generated reports
-tmp_test_data/
-!tmp_test_data/
-tmp_test_data/*
-!tmp_test_data/ShopNow_E-Commerce/
-!tmp_test_data/ShopNow_E-Commerce/**
-tmp_test_data/ShopNow_E-Commerce/*.db
-tmp_test_data/ShopNow_E-Commerce/*.db-shm
-tmp_test_data/ShopNow_E-Commerce/*.db-wal
-tmp_test_data/ShopNow_E-Commerce/*.db-journal
-tmp_test_data/ShopNow_E-Commerce/**/.DS_Store
 ExtentReport.html
 !tests/fixtures/extent_sample/ExtentReport.html
 
@@ -152,3 +142,4 @@ frontend/.vitest/
 # The .gitkeep marker keeps the directory tracked; everything else is ignored.
 src/qalens/server/static/*
 !src/qalens/server/static/.gitkeep
+tmp_test_data/

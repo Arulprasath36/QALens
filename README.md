@@ -7,7 +7,7 @@
 [![PyPI](https://img.shields.io/badge/pypi-qalens-blue.svg)](https://pypi.org/project/qalens/)
 
 <p align="center">
-  <img src="docs/assets/qa-lens-dashboard.png" alt="QA Lens dashboard" width="720">
+  <img src="https://raw.githubusercontent.com/Arulprasath36/QALens/master/docs/assets/qa-lens-dashboard.png" alt="QA Lens dashboard" width="720">
 </p>
 
 ---
@@ -222,26 +222,22 @@ qalens clusters path/to/report
 
 ## Demo Dataset
 
-The repo includes a synthetic 53-run ShopNow E-Commerce dataset:
-
-```text
-tmp_test_data/ShopNow_E-Commerce/run_001/ … run_053/
-```
-
-Build a demo database:
+A pre-built demo database with 50 runs of synthetic ShopNow E-Commerce test data is available as a release asset:
 
 ```bash
-for report in tmp_test_data/ShopNow_E-Commerce/run_*; do
-  qalens ingest "$report" --db ./shopnow-demo.db
-done
+curl -L https://github.com/Arulprasath36/QALens/releases/download/v0.1.2/shopnow-demo.zip \
+  -o shopnow-demo.zip && unzip shopnow-demo.zip
+
+qalens serve --db shopnow-demo.db
 ```
 
-Explore it:
+Open `http://127.0.0.1:8080` — the full UI with 50 runs of history, failure clusters, risk scores, and trends is ready immediately.
+
+You can also run CLI commands against it:
 
 ```bash
-qalens serve --db ./shopnow-demo.db
-qalens analyze --db ./shopnow-demo.db
-qalens report --db ./shopnow-demo.db --out shopnow-report.html
+qalens analyze --db shopnow-demo.db
+qalens report --db shopnow-demo.db --out shopnow-report.html
 ```
 
 ---
@@ -513,7 +509,6 @@ QALens/
 ├── tests/                   # Python test suite
 │   └── fixtures/            # Sample reports for all supported formats
 ├── docs/                    # Architecture and design documentation
-├── tmp_test_data/           # Synthetic ShopNow demo dataset
 ├── Makefile                 # Build shortcuts
 ├── pyproject.toml           # Python package metadata
 ├── SECURITY.md              # Security policy
@@ -526,42 +521,6 @@ QALens/
 |---|---|
 | `make build-ui` | Compile React app into `src/qalens/server/static/` |
 | `make build` | `build-ui` + build the Python wheel |
-| `make check-package` | Build distributions and run `twine check` |
-| `make release-test` | Build, check, and publish to TestPyPI |
-| `make release` | Build, check, and publish to PyPI |
-
-### Publishing to PyPI
-
-The package name is `qalens`; the CLI command is also `qalens`.
-
-Recommended release flow:
-
-```bash
-# 1. Make sure the version in src/qalens/version.py is final.
-
-# 2. Run local verification.
-pytest
-cd frontend && npm test -- --run && npm audit --audit-level=high && cd ..
-pip-audit --desc
-bandit -r src/ -ll -x src/qalens/server/static/
-
-# 3. Build and validate distributions.
-make check-package
-
-# 4. Publish to TestPyPI first.
-make release-test
-
-# 5. Install from TestPyPI in a clean environment and smoke test.
-python -m venv /tmp/qalens-smoke
-source /tmp/qalens-smoke/bin/activate
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ qalens
-qalens --help
-
-# 6. Publish to PyPI.
-make release
-```
-
-For GitHub-based publishing, use the `Publish Python package` workflow and configure PyPI/TestPyPI Trusted Publishing for the matching GitHub environments.
 
 ---
 

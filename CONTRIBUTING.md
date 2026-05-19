@@ -152,3 +152,17 @@ See [docs/parser-strategy.md](docs/parser-strategy.md) for the parser contract.
 Open a [GitHub Discussion](https://github.com/Arulprasath36/QALens/discussions) or an Issue.
 
 Thank you for helping make QA Lens better.
+
+## Releasing a new version
+
+This section is for maintainers only.
+
+1. Bump the version in `src/qalens/version.py`
+2. Update `CHANGELOG.md`
+3. Run verification: `pytest` and `cd frontend && npm test -- --run && cd ..`
+4. Build and validate: `make check-package`
+5. Publish to TestPyPI first: `make release-test`
+6. Smoke test the TestPyPI install in a clean venv
+7. Publish to PyPI: `make release`
+
+For automated releases, trigger the **Publish Python package** GitHub Actions workflow and select the target index.
