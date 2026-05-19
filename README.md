@@ -10,6 +10,9 @@
   <img src="https://raw.githubusercontent.com/Arulprasath36/QALens/master/docs/assets/qa-lens-dashboard.png" alt="QA Lens dashboard" width="720">
 </p>
 
+**[Try the live demo →](https://qalens-demo.onrender.com)**
+> Demo site — sample data only. Data may reset periodically.
+
 ---
 
 ## What is QA Lens?
