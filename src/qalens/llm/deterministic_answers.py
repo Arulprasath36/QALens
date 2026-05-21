@@ -60,6 +60,7 @@ def answer_question(
         _flaky_tests_answer,
         _slowest_tests_answer,
         _recurring_failures_answer,
+        _run_pass_rate_extrema_answer,
         _summary_answer,
     )
 
@@ -83,6 +84,8 @@ def answer_test_fix_question(
 ) -> str | None:
     """Return a deterministic test-fix playbook when the question asks for one."""
     normalized = _normalize(question)
+    if not _is_test_fix_question(normalized):
+        return None
     conn = get_connection(db_path)
     try:
         init_db(conn)
@@ -99,6 +102,8 @@ def answer_test_fix_payload(
 ) -> dict[str, Any] | None:
     """Return a concise answer plus workspace payload for a test-fix question."""
     normalized = _normalize(question)
+    if not _is_test_fix_question(normalized):
+        return None
     conn = get_connection(db_path)
     try:
         init_db(conn)
@@ -1079,6 +1084,139 @@ def _recurring_failures_answer(
             f"{row['affected_tests']} tests; example `{row['example_test']}`"
         )
     return "\n".join(lines)
+
+
+def _run_pass_rate_extrema_answer(
+    conn: sqlite3.Connection, question: str, project: str | None
+) -> str | None:
+    if not _is_run_pass_rate_extrema_question(question):
+        return None
+
+    limit = _run_window_limit(question)
+    where, params = _project_filter("r", project, prefix="WHERE")
+    rows = conn.execute(
+        f"""
+        WITH selected_runs AS (
+            SELECT r.*
+            FROM runs r
+            {where}
+            ORDER BY r.run_sequence DESC, r.ingested_at DESC, r.id DESC
+            LIMIT ?
+        )
+        SELECT
+            sr.run_id,
+            sr.run_sequence,
+            COUNT(tc.id) AS total_tests,
+            SUM(CASE WHEN tc.status = 'passed' THEN 1 ELSE 0 END) AS passed_count,
+            SUM(CASE WHEN tc.status IN ('failed', 'broken') THEN 1 ELSE 0 END) AS failed_count
+        FROM selected_runs sr
+        LEFT JOIN test_cases tc ON tc.run_id = sr.run_id
+        GROUP BY sr.run_id, sr.run_sequence
+        ORDER BY sr.run_sequence DESC
+        """,
+        [*params, limit],
+    ).fetchall()
+    rows = [row for row in rows if int(row["total_tests"] or 0) > 0]
+    if not rows:
+        return "I could not find runs with test counts to calculate pass percentage."
+
+    scored = [
+        {
+            "label": _format_run_sequence(row["run_sequence"], row["run_id"]),
+            "rate": int(row["passed_count"] or 0) / int(row["total_tests"] or 1),
+            "passed": int(row["passed_count"] or 0),
+            "total": int(row["total_tests"] or 0),
+        }
+        for row in rows
+    ]
+    highest_rate = max(item["rate"] for item in scored)
+    lowest_rate = min(item["rate"] for item in scored)
+    highest = [item for item in scored if item["rate"] == highest_rate]
+    lowest = [item for item in scored if item["rate"] == lowest_rate]
+
+    is_failure_framing = any(
+        phrase in question
+        for phrase in (
+            "failure rate", "fail rate", "failing rate",
+            "failure percentage", "fail percentage",
+            "fewest failures", "most failures", "fewest failed", "most failed",
+        )
+    )
+    wants_highest = any(word in question for word in ("highest", "best", "maximum", "max", "fewest"))
+    wants_lowest = any(word in question for word in ("lowest", "worst", "minimum", "min", "most"))
+    if is_failure_framing:
+        wants_highest, wants_lowest = wants_lowest, wants_highest
+    if not wants_highest and not wants_lowest:
+        wants_highest = wants_lowest = True
+
+    metric = "failure percentage" if is_failure_framing else "pass percentage"
+    lines = [f"I checked {metric} across the last {min(limit, len(scored))} run(s)."]
+    if wants_highest:
+        label = "Lowest failure percentage" if is_failure_framing else "Highest pass percentage"
+        lines.append(f"{label}: {_format_extrema_items(highest)}.")
+    if wants_lowest:
+        label = "Highest failure percentage" if is_failure_framing else "Lowest pass percentage"
+        lines.append(f"{label}: {_format_extrema_items(lowest)}.")
+    lines.append("Pass percentage is passed tests divided by total tests in that run.")
+    return "\n".join(lines)
+
+
+def _is_run_pass_rate_extrema_question(question: str) -> bool:
+    has_run_scope = "run" in question or "runs" in question
+    has_pass_rate = any(
+        phrase in question
+        for phrase in (
+            "pass rate", "pass percentage", "pass percent",
+            "passing rate", "passing percentage", "passing percent", "pass %",
+            "failure rate", "fail rate", "failing rate",
+            "failure percentage", "fail percentage", "fail %",
+            "fewest failures", "most failures", "fewest failed", "most failed",
+            "performed best", "performed worst", "best performing", "worst performing",
+            "best run", "worst run",
+        )
+    )
+    has_extrema = any(
+        word in question
+        for word in (
+            "highest", "lowest", "best", "worst",
+            "maximum", "minimum", "max", "min",
+            "fewest", "most",
+        )
+    )
+    return has_run_scope and has_pass_rate and has_extrema
+
+
+def _run_window_limit(question: str) -> int:
+    match = re.search(r"\blast\s+(\d+)\s+runs?\b", question)
+    if not match:
+        return 10
+    try:
+        return max(1, int(match.group(1)))
+    except ValueError:
+        return 10
+
+
+def _format_extrema_items(items: list[dict[str, Any]]) -> str:
+    if len(items) == 1:
+        item = items[0]
+        return (
+            f"Run {item['label']} at {_format_rate(item['rate'])} "
+            f"({item['passed']}/{item['total']} passed)"
+        )
+    labels = ", ".join(f"Run {item['label']}" for item in items[:4])
+    suffix = f", and {len(items) - 4} more" if len(items) > 4 else ""
+    first = items[0]
+    return (
+        f"{labels}{suffix} tied at {_format_rate(first['rate'])} "
+        f"({first['passed']}/{first['total']} passed)"
+    )
+
+
+def _format_rate(rate: float) -> str:
+    value = round(rate * 100, 1)
+    if value.is_integer():
+        return f"{int(value)}%"
+    return f"{value:.1f}%"
 
 
 def _summary_answer(
