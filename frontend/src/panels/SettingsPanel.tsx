@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   AlertTriangle,
+  Bot,
   CheckCircle2,
+  Cpu,
   Database,
   HardDrive,
   KeyRound,
   Lock,
+  Pencil,
   RotateCcw,
   Save,
   Settings,
@@ -28,6 +31,7 @@ type SettingsPayload = {
     config_exists: boolean;
   };
   llm: {
+    enabled?: boolean;
     provider: string;
     provider_display: string;
     base_url: string;
@@ -38,6 +42,7 @@ type SettingsPayload = {
     temperature: number;
     allow_external: boolean;
     external_llm_allowed: boolean;
+    endpoint_is_local: boolean;
     api_key_configured: boolean;
     api_key_env_configured: boolean;
     system_prompt: string;
@@ -68,6 +73,7 @@ type SettingsPayload = {
 };
 
 type LLMForm = {
+  enabled: boolean;
   provider: string;
   base_url: string;
   model: string;
@@ -77,6 +83,18 @@ type LLMForm = {
   temperature: string;
   system_prompt: string;
   allow_external: boolean;
+};
+
+type LlmLocation = 'local' | 'cloud';
+
+const PROVIDER_DEFAULTS: Record<string, { model: string; base_url: string }> = {
+  ollama: { model: 'llama3.2', base_url: 'http://localhost:11434/v1' },
+  lmstudio: { model: 'local-model', base_url: 'http://localhost:1234/v1' },
+  custom: { model: 'default', base_url: 'http://localhost:8080/v1' },
+  openai: { model: 'gpt-4o-mini', base_url: 'https://api.openai.com/v1' },
+  azure: { model: 'gpt-4o', base_url: '' },
+  anthropic: { model: 'claude-3-haiku-20240307', base_url: 'https://api.anthropic.com' },
+  gemini: { model: 'gemini-2.0-flash', base_url: 'https://generativelanguage.googleapis.com' },
 };
 
 function formatBytes(bytes: number) {
@@ -97,6 +115,7 @@ function cx(...parts: Array<string | false | null | undefined>) {
 
 function formFromSettings(settings: SettingsPayload): LLMForm {
   return {
+    enabled: settings.llm.enabled ?? true,
     provider: settings.llm.provider,
     base_url: settings.llm.base_url,
     model: settings.llm.model,
@@ -107,6 +126,12 @@ function formFromSettings(settings: SettingsPayload): LLMForm {
     system_prompt: settings.llm.system_prompt,
     allow_external: settings.llm.allow_external,
   };
+}
+
+function llmLocationFromSettings(settings: SettingsPayload): LlmLocation {
+  const provider = settings.llm.provider_options.find(option => option.value === settings.llm.provider);
+  if (settings.llm.endpoint_is_local || provider?.local) return 'local';
+  return 'cloud';
 }
 
 function StatusPill({
@@ -166,13 +191,22 @@ function ReadOnlyRow({
   );
 }
 
+function editableControlClass(editing: boolean) {
+  return cx(
+    'qalens-control w-full px-3.5 text-sm',
+    !editing && 'cursor-not-allowed bg-surface-subtle text-muted opacity-80',
+  );
+}
+
 export function SettingsPanel() {
   const [settings, setSettings] = useState<SettingsPayload | null>(null);
   const [form, setForm] = useState<LLMForm | null>(null);
+  const [llmLocation, setLlmLocation] = useState<LlmLocation>('local');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -187,6 +221,8 @@ export function SettingsPanel() {
         if (cancelled) return;
         setSettings(data);
         setForm(formFromSettings(data));
+        setLlmLocation(llmLocationFromSettings(data));
+        setEditing(false);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load settings.');
       } finally {
@@ -201,15 +237,49 @@ export function SettingsPanel() {
   }, []);
 
   const providerOptions = useMemo(
-    () => settings?.llm.provider_options.map(option => ({
+    () => settings?.llm.provider_options
+      .filter(option => (
+        llmLocation === 'local'
+          ? option.local || option.value === 'custom' || (settings.llm.endpoint_is_local && option.value === form?.provider)
+          : !option.local
+      ))
+      .map(option => ({
       value: option.value,
       label: option.local ? `${option.label} · local` : option.label,
     })) ?? [],
-    [settings],
+    [form?.provider, llmLocation, settings],
   );
 
-  const selectedProvider = settings?.llm.provider_options.find(option => option.value === form?.provider);
-  const externalProviderSelected = selectedProvider ? !selectedProvider.local : false;
+  function providerAllowedForLocation(provider: string, location: LlmLocation) {
+    const option = settings?.llm.provider_options.find(item => item.value === provider);
+    if (!option) return false;
+    return location === 'local' ? option.local || option.value === 'custom' : !option.local;
+  }
+
+  function applyProvider(provider: string) {
+    const defaults = PROVIDER_DEFAULTS[provider];
+    setForm(current => current && ({
+      ...current,
+      provider,
+      ...(defaults ? { model: defaults.model, base_url: defaults.base_url } : {}),
+    }));
+  }
+
+  function applyLlmLocation(location: LlmLocation) {
+    setLlmLocation(location);
+    setForm(current => {
+      if (!current) return current;
+      if (providerAllowedForLocation(current.provider, location)) return current;
+      const provider = location === 'local' ? 'ollama' : 'openai';
+      const defaults = PROVIDER_DEFAULTS[provider];
+      return {
+        ...current,
+        provider,
+        model: defaults.model,
+        base_url: defaults.base_url,
+      };
+    });
+  }
 
   async function saveSettings() {
     if (!form) return;
@@ -219,6 +289,7 @@ export function SettingsPanel() {
 
     try {
       const payload = {
+        enabled: form.enabled,
         provider: form.provider,
         base_url: form.base_url,
         model: form.model,
@@ -227,7 +298,7 @@ export function SettingsPanel() {
         max_tokens: Number(form.max_tokens),
         temperature: Number(form.temperature),
         system_prompt: form.system_prompt,
-        allow_external: form.allow_external,
+        allow_external: form.enabled && llmLocation === 'cloud',
       };
       const res = await fetch('/api/settings/llm', {
         method: 'PATCH',
@@ -241,7 +312,9 @@ export function SettingsPanel() {
       const data = await fresh.json() as SettingsPayload;
       setSettings(data);
       setForm(formFromSettings(data));
+      setLlmLocation(llmLocationFromSettings(data));
       setSaved(true);
+      setEditing(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save settings.');
     } finally {
@@ -252,6 +325,8 @@ export function SettingsPanel() {
   function resetForm() {
     if (!settings) return;
     setForm(formFromSettings(settings));
+    setLlmLocation(llmLocationFromSettings(settings));
+    setEditing(false);
     setSaved(false);
     setError(null);
   }
@@ -276,6 +351,34 @@ export function SettingsPanel() {
     );
   }
 
+  const activeProvider = settings.llm.provider_options.find(option => option.value === settings.llm.provider);
+  const activeProviderIsLocal = Boolean(
+    settings.llm.endpoint_is_local
+    || (activeProvider ? activeProvider.local : settings.security.local_llm_providers.includes(settings.llm.provider)),
+  );
+  const providerStatusLabel = activeProviderIsLocal
+    ? settings.llm.endpoint_is_local
+      ? 'Local endpoint'
+      : 'Local model'
+    : settings.llm.external_llm_allowed
+      ? 'External allowed'
+      : 'External blocked';
+  const savedLlmLocation = llmLocationFromSettings(settings);
+  const isDirty = (
+    form.enabled !== (settings.llm.enabled ?? true)
+    || llmLocation !== savedLlmLocation
+    || form.provider !== settings.llm.provider
+    || form.base_url !== settings.llm.base_url
+    || form.model !== settings.llm.model
+    || form.timeout !== String(settings.llm.timeout)
+    || form.max_tokens !== String(settings.llm.max_tokens)
+    || form.temperature !== String(settings.llm.temperature)
+    || form.system_prompt !== settings.llm.system_prompt
+    || form.api_key.trim() !== ''
+  );
+  const canSave = editing && isDirty && !saving;
+  const canReset = editing && isDirty && !saving;
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
       <PageHeader
@@ -288,9 +391,25 @@ export function SettingsPanel() {
             {saved && <StatusPill ok label="Saved" />}
             <button
               type="button"
-              onClick={resetForm}
+              onClick={() => {
+                if (editing) {
+                  if (!isDirty) setEditing(false);
+                  return;
+                }
+                setEditing(true);
+                setSaved(false);
+              }}
               className="qalens-control px-3.5 text-sm"
               disabled={saving}
+            >
+              <Pencil className="h-4 w-4" />
+              {editing ? (isDirty ? 'Editing' : 'Done') : 'Edit'}
+            </button>
+            <button
+              type="button"
+              onClick={resetForm}
+              className="qalens-control px-3.5 text-sm"
+              disabled={!canReset}
             >
               <RotateCcw className="h-4 w-4" />
               Reset
@@ -298,8 +417,13 @@ export function SettingsPanel() {
             <button
               type="button"
               onClick={saveSettings}
-              className="qalens-control bg-indigo-600 px-3.5 text-sm font-semibold text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400"
-              disabled={saving}
+              className={cx(
+                'qalens-control px-3.5 text-sm font-semibold transition',
+                canSave
+                  ? 'bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400'
+                  : 'cursor-not-allowed border-border-subtle bg-surface-subtle text-muted opacity-70',
+              )}
+              disabled={!canSave}
             >
               <Save className="h-4 w-4" />
               {saving ? 'Saving' : 'Save'}
@@ -322,120 +446,237 @@ export function SettingsPanel() {
               <h2 className="text-base font-semibold text-primary">LLM provider</h2>
             </div>
             <StatusPill
-              ok={settings.llm.external_llm_allowed}
-              label={settings.llm.external_llm_allowed ? 'Allowed' : 'External disabled'}
+              ok={activeProviderIsLocal || settings.llm.external_llm_allowed}
+              label={providerStatusLabel}
             />
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Field label="Provider">
-              <Dropdown
-                value={form.provider}
-                onChange={provider => setForm(current => current && ({ ...current, provider }))}
-                options={providerOptions}
-                fullWidth
-                ariaLabel="LLM provider"
-                triggerClassName="px-3.5 text-sm"
-              />
-            </Field>
+          <div className="mb-5 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-500/25 dark:bg-blue-500/10">
+              <div className="flex items-center gap-2">
+                <Bot className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-300">How answers are written</p>
+              </div>
+              <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                QA Lens uses deterministic code first for factual answers, rankings, counts, and workspaces. The configured model is used only when a question path needs LLM narration, intent parsing, or a general explanation.
+              </p>
+            </div>
 
-            <Field label="Model">
-              <input
-                value={form.model}
-                onChange={event => setForm(current => current && ({ ...current, model: event.target.value }))}
-                className="qalens-control w-full px-3.5 text-sm"
-              />
-            </Field>
+            <div className="rounded-2xl border border-slate-200 bg-surface-subtle p-4 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Cpu className="h-4 w-4 text-primary" />
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Active model path</p>
+              </div>
+              <div className="mt-3 space-y-2 text-sm text-secondary">
+                <p><span className="font-semibold text-primary">Provider:</span> {settings.llm.provider_display}</p>
+                <p><span className="font-semibold text-primary">Model:</span> {settings.llm.model || 'Not set'}</p>
+                <p>
+                  <span className="font-semibold text-primary">Endpoint:</span>{' '}
+                  <span className="font-mono text-xs">{settings.llm.effective_base_url || 'Provider default'}</span>
+                  {settings.llm.endpoint_is_local && (
+                    <span className="ml-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+                      local
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
 
-            <Field label="Base URL">
-              <input
-                value={form.base_url}
-                onChange={event => setForm(current => current && ({ ...current, base_url: event.target.value }))}
-                className="qalens-control w-full px-3.5 text-sm"
-              />
-            </Field>
-
-            <Field
-              label="API key"
-              hint={
-                settings.llm.api_key_env_configured
-                  ? 'QALENS_LLM_API_KEY is set in the environment.'
-                  : settings.llm.api_key_configured
-                    ? 'A key is saved. Leave blank to keep it unchanged.'
-                    : 'Leave blank for local providers.'
-              }
-            >
-              <input
-                value={form.api_key}
-                type="password"
-                autoComplete="off"
-                placeholder={settings.llm.api_key_configured ? 'Configured' : ''}
-                onChange={event => setForm(current => current && ({ ...current, api_key: event.target.value }))}
-                className="qalens-control w-full px-3.5 text-sm"
-              />
-            </Field>
-
-            <Field label="Timeout seconds">
-              <input
-                value={form.timeout}
-                type="number"
-                min={5}
-                max={600}
-                onChange={event => setForm(current => current && ({ ...current, timeout: event.target.value }))}
-                className="qalens-control w-full px-3.5 text-sm"
-              />
-            </Field>
-
-            <Field label="Max tokens">
-              <input
-                value={form.max_tokens}
-                type="number"
-                min={128}
-                max={65536}
-                onChange={event => setForm(current => current && ({ ...current, max_tokens: event.target.value }))}
-                className="qalens-control w-full px-3.5 text-sm"
-              />
-            </Field>
-
-            <Field label="Temperature">
-              <input
-                value={form.temperature}
-                type="number"
-                min={0}
-                max={2}
-                step={0.1}
-                onChange={event => setForm(current => current && ({ ...current, temperature: event.target.value }))}
-                className="qalens-control w-full px-3.5 text-sm"
-              />
-            </Field>
-
-            <div className="flex items-end">
-              <label className="flex min-h-11 w-full items-center gap-3 rounded-[0.95rem] border border-border-default bg-surface px-3.5 text-sm text-primary">
+            <div className="mb-5 rounded-2xl border border-border-default bg-surface p-4">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Allow LLM-assisted answers?</p>
+                <p className="mt-2 text-sm leading-6 text-secondary">
+                  Deterministic QA Lens answers and workspaces stay available either way. Turn this on for model-written narration, intent parsing, and flexible follow-up questions.
+                </p>
+              </div>
+              <label className="flex min-h-11 shrink-0 cursor-pointer items-center gap-3 rounded-[0.95rem] border border-border-default bg-surface-subtle px-3.5 text-sm font-medium text-primary">
                 <input
                   type="checkbox"
-                  checked={form.allow_external}
-                  onChange={event => setForm(current => current && ({ ...current, allow_external: event.target.checked }))}
-                  className="h-4 w-4 accent-indigo-600"
+                  checked={form.enabled}
+                  onChange={event => setForm(current => current && ({ ...current, enabled: event.target.checked }))}
+                  disabled={!editing}
+                  className="peer sr-only"
                 />
-                <span>Allow external LLM providers</span>
+                <span className="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-300 transition peer-checked:bg-indigo-600 dark:bg-slate-700">
+                  <span className="inline-block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow transition peer-checked:translate-x-5" />
+                </span>
+                <span>{form.enabled ? 'LLM assistance on' : 'LLM assistance off'}</span>
               </label>
             </div>
           </div>
 
-          {externalProviderSelected && !form.allow_external && (
-            <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
-              External providers require explicit opt-in before QA Lens sends redacted report context outside this machine.
+          {!editing && (
+            <div className="mb-5 rounded-2xl border border-border-subtle bg-surface-subtle px-4 py-3 text-sm leading-6 text-secondary">
+              <div className="flex items-start gap-2">
+                <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+                <p>Settings are locked to prevent accidental changes. Click Edit before changing LLM configuration.</p>
+              </div>
             </div>
           )}
 
-          <Field label="System prompt override" hint="Optional. Leave blank to use QA Lens's default prompt.">
-            <textarea
-              value={form.system_prompt}
-              onChange={event => setForm(current => current && ({ ...current, system_prompt: event.target.value }))}
-              rows={4}
-              className="min-h-[120px] w-full resize-y rounded-[0.95rem] border border-border-default bg-surface px-3.5 py-3 text-sm text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40"
-            />
-          </Field>
+          {!form.enabled ? (
+            <div className="rounded-2xl border border-border-subtle bg-surface-subtle px-4 py-4 text-sm leading-6 text-secondary">
+              LLM-assisted narration is disabled. QA Lens will still answer deterministic questions such as run counts, failures, rankings, pass-rate extremes, and decision workspaces.
+            </div>
+          ) : (
+            <>
+              <div className="mb-5 rounded-2xl border border-border-default bg-surface p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Where should the LLM run?</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {(['local', 'cloud'] as const).map(location => (
+                    <button
+                      key={location}
+                      type="button"
+                      onClick={() => applyLlmLocation(location)}
+                      disabled={!editing}
+                      className={cx(
+                        'rounded-[0.95rem] border px-4 py-3 text-left transition',
+                        llmLocation === location
+                          ? 'border-indigo-400 bg-indigo-50 text-indigo-900 dark:border-indigo-500/50 dark:bg-indigo-500/10 dark:text-indigo-200'
+                          : 'border-border-default bg-surface-subtle text-secondary hover:bg-surface',
+                        !editing && 'cursor-not-allowed opacity-70',
+                      )}
+                    >
+                      <span className="block text-sm font-semibold text-primary">
+                        {location === 'local' ? 'Local LLM' : 'Cloud provider'}
+                      </span>
+                      <span className="mt-1 block text-xs leading-5 text-secondary">
+                        {location === 'local'
+                          ? 'Use Ollama, LM Studio, or another localhost-compatible server.'
+                          : 'Use OpenAI, Anthropic, Gemini, Azure, or another hosted endpoint.'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Model connection</p>
+                <p className="mt-1 text-sm text-secondary">
+                  {llmLocation === 'local'
+                    ? 'For local Gemma through Ollama, use the Ollama provider and a localhost endpoint such as http://localhost:11434/v1.'
+                    : 'Cloud providers may receive redacted report context. API keys can also come from QALENS_LLM_API_KEY.'}
+                </p>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <Field label={llmLocation === 'local' ? 'Local provider' : 'Cloud provider'}>
+                  <Dropdown
+                    value={form.provider}
+                    onChange={applyProvider}
+                    options={providerOptions}
+                    disabled={!editing}
+                    fullWidth
+                    ariaLabel="LLM provider"
+                    triggerClassName="px-3.5 text-sm"
+                  />
+                </Field>
+
+                <Field label="Model">
+                  <input
+                    value={form.model}
+                    disabled={!editing}
+                    onChange={event => setForm(current => current && ({ ...current, model: event.target.value }))}
+                    className={editableControlClass(editing)}
+                  />
+                </Field>
+
+                <Field label="Endpoint URL" hint={llmLocation === 'local' ? 'Local server URL, usually localhost.' : 'Leave blank to use the provider default when supported.'}>
+                  <input
+                    value={form.base_url}
+                    disabled={!editing}
+                    onChange={event => setForm(current => current && ({ ...current, base_url: event.target.value }))}
+                    className={editableControlClass(editing)}
+                  />
+                </Field>
+
+                {llmLocation === 'cloud' ? (
+                  <Field
+                    label="API key"
+                    hint={
+                      settings.llm.api_key_env_configured
+                        ? 'QALENS_LLM_API_KEY is set in the environment.'
+                        : settings.llm.api_key_configured
+                          ? 'A key is saved. Leave blank to keep it unchanged.'
+                          : 'Required for most cloud providers.'
+                    }
+                  >
+                    <input
+                      value={form.api_key}
+                      type="password"
+                      autoComplete="off"
+                      disabled={!editing}
+                      placeholder={settings.llm.api_key_configured ? 'Configured' : ''}
+                      onChange={event => setForm(current => current && ({ ...current, api_key: event.target.value }))}
+                      className={editableControlClass(editing)}
+                    />
+                  </Field>
+                ) : (
+                  <div className="rounded-[0.95rem] border border-border-subtle bg-surface-subtle px-4 py-3 text-sm leading-6 text-secondary">
+                    Local providers usually do not need an API key. If your local server requires one, set it with <span className="font-mono text-xs">QALENS_LLM_API_KEY</span>.
+                  </div>
+                )}
+
+                <Field label="Timeout seconds">
+                  <input
+                    value={form.timeout}
+                    type="number"
+                    min={5}
+                    max={600}
+                    disabled={!editing}
+                    onChange={event => setForm(current => current && ({ ...current, timeout: event.target.value }))}
+                    className={editableControlClass(editing)}
+                  />
+                </Field>
+
+                <Field label="Max tokens">
+                  <input
+                    value={form.max_tokens}
+                    type="number"
+                    min={128}
+                    max={65536}
+                    disabled={!editing}
+                    onChange={event => setForm(current => current && ({ ...current, max_tokens: event.target.value }))}
+                    className={editableControlClass(editing)}
+                  />
+                </Field>
+
+                <Field label="Temperature">
+                  <input
+                    value={form.temperature}
+                    type="number"
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    disabled={!editing}
+                    onChange={event => setForm(current => current && ({ ...current, temperature: event.target.value }))}
+                    className={editableControlClass(editing)}
+                  />
+                </Field>
+              </div>
+
+              {llmLocation === 'cloud' && (
+                <div className="mt-4 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+                  Cloud providers receive redacted report context. Save only after confirming your project permits sending this data to the selected provider.
+                </div>
+              )}
+
+              <Field label="System prompt override" hint="Optional. Leave blank to use QA Lens's default prompt.">
+                <textarea
+                  value={form.system_prompt}
+                  disabled={!editing}
+                  onChange={event => setForm(current => current && ({ ...current, system_prompt: event.target.value }))}
+                  rows={4}
+                  className={cx(
+                    'min-h-[120px] w-full resize-y rounded-[0.95rem] border border-border-default bg-surface px-3.5 py-3 text-sm text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/40',
+                    !editing && 'cursor-not-allowed bg-surface-subtle text-muted opacity-80',
+                  )}
+                />
+              </Field>
+            </>
+          )}
         </div>
 
         <div className="space-y-5">
@@ -457,6 +698,9 @@ export function SettingsPanel() {
             <div className="mb-2 flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-info" />
               <h2 className="text-base font-semibold text-primary">Security boundary</h2>
+            </div>
+            <div className="mb-3 rounded-2xl border border-border-subtle bg-surface-subtle px-4 py-3 text-sm leading-6 text-secondary">
+              Local providers can receive redacted prompt context without external opt-in. Cloud providers stay blocked until either this settings page or the environment explicitly allows external LLM use.
             </div>
             <ReadOnlyRow label="Redaction" value={settings.security.redaction_enabled ? 'Enabled' : 'Disabled'} />
             <ReadOnlyRow label="Prompt cap" value={`${settings.security.max_llm_prompt_chars.toLocaleString()} chars`} />

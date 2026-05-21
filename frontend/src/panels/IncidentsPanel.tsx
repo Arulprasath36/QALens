@@ -619,9 +619,9 @@ function EnrichedClusterCard({
           {/* RIGHT — 3 stat blocks + chevron */}
           <div className="flex items-stretch gap-1 shrink-0 self-start">
             {[
-              { value: cluster.occurrence_count, label: 'Occurrences' },
-              { value: cluster.affected_tests,   label: 'Tests impacted' },
-              { value: runsLabel,                label: 'Seen in runs' },
+              { value: cluster.occurrence_count, label: 'Failures' },
+              { value: cluster.affected_tests,   label: 'Affected tests' },
+              { value: runsLabel,                label: 'Runs affected' },
             ].map(({ value, label }, i) => (
               <div key={label} className={`min-w-[72px] px-3 text-center ${i > 0 ? 'border-l border-border-default' : ''}`}>
                 <p className="type-nums text-[1.45rem] font-semibold leading-none tracking-[-0.035em] text-primary">{value}</p>

@@ -58,6 +58,24 @@ interface ApiAskResponse {
   uiHints?:     AssistantUiHints;
 }
 
+async function apiErrorMessage(response: Response) {
+  const fallback = `API ${response.status}`;
+  try {
+    const contentType = response.headers.get('content-type') ?? '';
+    if (contentType.includes('application/json')) {
+      const data = await response.json() as { detail?: unknown; message?: unknown };
+      const detail = data.detail ?? data.message;
+      if (typeof detail === 'string' && detail.trim()) return `${fallback}: ${detail}`;
+      if (Array.isArray(detail) && detail.length > 0) return `${fallback}: ${JSON.stringify(detail)}`;
+    }
+    const text = await response.text();
+    if (text.trim()) return `${fallback}: ${text.trim()}`;
+  } catch {
+    // Keep the compact fallback if the error response cannot be parsed.
+  }
+  return fallback;
+}
+
 // Backend intent string emitted by AskResponse for ranked test answers.
 const INTENT_RANKING_LIST = 'ranking_list';
 
@@ -198,6 +216,15 @@ function contextualSuggestions(result: QALensResult | null, cards: ApiHomepageCa
       { id: 'run-flaky', question: 'Were any of these failures flaky before?' },
       { id: 'run-risk', question: 'Which tests are most likely to fail next run?' },
       { id: 'run-root', question: 'What is the most common root cause?' },
+    ], 6);
+  }
+
+  if (result.type === 'run_pass_rate_extrema') {
+    return uniqueSuggestions([
+      { id: 'run-pass-trend', question: `Show pass-rate trend for ${result.scope.label.toLowerCase()}` },
+      { id: 'run-most-failures', question: 'Which run had the most failures?' },
+      { id: 'run-new-failures', question: 'Which run introduced the most new failures?' },
+      { id: 'run-suite-lowest', question: 'Which suites had the lowest pass rate?' },
     ], 6);
   }
 
@@ -1070,7 +1097,7 @@ export function ChatPanel() {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ question: q, project: currentProject || null, history }),
       });
-      if (!res.ok) throw new Error(`API ${res.status}`);
+      if (!res.ok) throw new Error(await apiErrorMessage(res));
       const data: ApiAskResponse = await res.json();
       const provisionalResult =
         data.result

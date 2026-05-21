@@ -404,6 +404,37 @@ export type RunRetrievalResult = {
   }>;
 };
 
+export type RunPassRateExtremaRun = {
+  runId: string;
+  runSequence?: number | null;
+  runLabel: string;
+  project?: string | null;
+  reportFormat?: string | null;
+  startedAt?: number | null;
+  totalTests: number;
+  passed: number;
+  failed: number;
+  skipped: number;
+  passRate: number;
+  passRateLabel: string;
+};
+
+export type RunPassRateExtremaResult = {
+  type: 'run_pass_rate_extrema';
+  title: string;
+  scope: {
+    label: string;
+    runCount: number;
+  };
+  requested: {
+    highest: boolean;
+    lowest: boolean;
+  };
+  highest: RunPassRateExtremaRun[];
+  lowest: RunPassRateExtremaRun[];
+  runs: RunPassRateExtremaRun[];
+};
+
 export type ExceptionRetrievalResult = {
   type: 'exception_retrieval';
   title: string;
@@ -717,6 +748,7 @@ export type QALensResult =
   | SharedSuiteFailuresResult
   | SuiteFailureRankingResult
   | RunRetrievalResult
+  | RunPassRateExtremaResult
   | ExceptionRetrievalResult
   | StabilityTrendResult
   | RootCauseInsightResult

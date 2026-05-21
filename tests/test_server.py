@@ -306,6 +306,7 @@ def test_settings_returns_runtime_and_llm_config(db_path: Path, tmp_path: Path) 
     assert data["runtime"]["database_path"] == str(db_path)
     assert data["runtime"]["config_path"] == str(config)
     assert data["llm"]["provider"] == "ollama"
+    assert data["llm"]["enabled"] is True
     assert data["llm"]["api_key_configured"] is False
     assert data["artifacts"]["svg_enabled"] is False
     assert data["security"]["redaction_enabled"] is True
@@ -320,6 +321,7 @@ def test_settings_updates_llm_config(db_path: Path, tmp_path: Path) -> None:
         "/api/settings/llm",
         json={
             "provider": "lmstudio",
+            "enabled": False,
             "model": "google/gemma-4-e4b",
             "base_url": "http://localhost:1234/v1",
             "max_tokens": 4096,
@@ -332,8 +334,56 @@ def test_settings_updates_llm_config(db_path: Path, tmp_path: Path) -> None:
     assert res.status_code == 200, res.text
     body = res.json()
     assert body["llm"]["provider"] == "lmstudio"
+    assert body["llm"]["enabled"] is False
     assert body["llm"]["model"] == "google/gemma-4-e4b"
+    assert "enabled = false" in config.read_text(encoding="utf-8")
     assert "allow_external = false" in config.read_text(encoding="utf-8")
+
+
+def test_settings_can_reenable_llm_assistance(
+    db_path: Path,
+    tmp_path: Path,
+) -> None:
+    config = tmp_path / "config.toml"
+    appl = create_app(db_path=str(db_path), config_path=str(config))
+    c = TestClient(appl)
+
+    disabled = c.patch("/api/settings/llm", json={"enabled": False})
+    assert disabled.status_code == 200, disabled.text
+    assert disabled.json()["llm"]["enabled"] is False
+
+    enabled = c.patch("/api/settings/llm", json={"enabled": True})
+    assert enabled.status_code == 200, enabled.text
+    assert enabled.json()["llm"]["enabled"] is True
+
+    reloaded = c.get("/api/settings")
+    assert reloaded.status_code == 200, reloaded.text
+    assert reloaded.json()["llm"]["enabled"] is True
+    assert "enabled = true" in config.read_text(encoding="utf-8")
+
+
+def test_settings_treats_local_openai_compatible_endpoint_as_local(
+    db_path: Path,
+    tmp_path: Path,
+) -> None:
+    config = tmp_path / "config.toml"
+    appl = create_app(db_path=str(db_path), config_path=str(config))
+    c = TestClient(appl)
+
+    res = c.patch(
+        "/api/settings/llm",
+        json={
+            "provider": "openai",
+            "model": "gemma-4-e4b",
+            "base_url": "http://localhost:11434/v1",
+            "allow_external": False,
+        },
+    )
+
+    assert res.status_code == 200, res.text
+    body = res.json()
+    assert body["llm"]["endpoint_is_local"] is True
+    assert body["llm"]["external_llm_allowed"] is True
 
 
 def test_settings_rejects_unknown_llm_provider(
@@ -534,6 +584,55 @@ def test_ask_fix_test_returns_deterministic_playbook(db_path: Path) -> None:
     assert data["result"]["diagnosis"] == "database connection pool exhaustion"
     assert data["result"]["checks"]
     assert data["result"]["verification"]
+
+
+def test_ask_run_pass_rate_extremes_are_deterministic(db_path: Path) -> None:
+    conn = get_connection(str(db_path))
+    repo = RunRepository(conn)
+    repo.save_run(
+        _make_run(
+            "run-003",
+            [
+                _tc("testLogin", TestStatus.PASSED, idx=3),
+                _tc("testSearch", TestStatus.PASSED, idx=3),
+                _tc("testCreate", TestStatus.PASSED, idx=3),
+                _tc("testCheckout", TestStatus.PASSED, idx=3),
+            ],
+            seq=3,
+        )
+    )
+    repo.save_run(
+        _make_run(
+            "run-004",
+            [
+                _tc("testLogin", TestStatus.FAILED, idx=4, error_type="java.lang.AssertionError"),
+                _tc("testSearch", TestStatus.FAILED, idx=4, error_type="java.lang.AssertionError"),
+                _tc("testCreate", TestStatus.PASSED, idx=4),
+                _tc("testCheckout", TestStatus.PASSED, idx=4),
+            ],
+            seq=4,
+        )
+    )
+    conn.close()
+
+    appl = create_app(db_path=str(db_path))
+    c = TestClient(appl)
+    res = c.post(
+        "/api/ask",
+        json={
+            "question": "In the last 20 runs which run has the highest and lowest pass percentage?",
+            "project": "ServerProject",
+        },
+    )
+
+    assert res.status_code == 200
+    data = res.json()
+    assert "Highest pass percentage: Run #3 at 100%" in data["answer"]
+    assert "Lowest pass percentage: Run #2, Run #1 tied at 33.3%" in data["answer"]
+    assert data["result"]["type"] == "run_pass_rate_extrema"
+    assert data["result"]["highest"][0]["runSequence"] == 3
+    assert data["result"]["lowest"][0]["runSequence"] == 2
+    assert data["sources"]
 
 
 # ---------------------------------------------------------------------------

@@ -111,6 +111,12 @@ function toneFor(rate: number) {
   return 'text-danger';
 }
 
+function suiteHealthLabel(rate: number) {
+  if (rate >= 0.8) return 'Healthy';
+  if (rate >= 0.5) return 'Watch';
+  return 'Attention';
+}
+
 function bgToneFor(rate: number) {
   if (rate >= 0.8) return 'bg-success/10 border-success/20';
   if (rate >= 0.5) return 'bg-warning/10 border-warning/20';
@@ -516,13 +522,24 @@ function ClusterRow({ group, firstSeq, lastSeq }: { group: ApiFailureGroup; firs
 function SuiteCard({ name, tests, passRate, sparkline }: { name: string; tests: number; passRate: number; sparkline: string }) {
   const tone = passRate >= 0.8 ? 'var(--color-success)' : passRate >= 0.5 ? 'var(--color-warning)' : 'var(--color-danger)';
   const textTone = toneFor(passRate);
+  const healthLabel = suiteHealthLabel(passRate);
   return (
     <div className={`rounded-xl border p-3.5 ${bgToneFor(passRate)}`}>
-      <div className="text-sm font-semibold text-primary truncate">{name}</div>
-      <div className="text-xs text-muted mt-0.5"><span className="type-nums">{tests}</span> tests</div>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-primary truncate">{name}</div>
+          <div className="text-xs text-muted mt-0.5"><span className="type-nums">{tests}</span> tests tracked</div>
+        </div>
+        <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${textTone} bg-page/70 border-current/20`}>
+          {healthLabel}
+        </span>
+      </div>
       <div className="flex items-end justify-between mt-2 gap-2">
-        <div className={`text-2xl font-bold type-nums tracking-tight leading-none ${textTone}`}>
-          {Math.round(passRate * 100)}%
+        <div>
+          <div className={`text-2xl font-bold type-nums tracking-tight leading-none ${textTone}`}>
+            {Math.round(passRate * 100)}%
+          </div>
+          <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Pass rate</div>
         </div>
         <SparkFromString sparkline={sparkline} color={tone} />
       </div>
@@ -947,7 +964,10 @@ export function AnalysisPanel() {
 
       <SectionCard source="/api/stability (aggregated by suite)">
         <Eyebrow>By suite</Eyebrow>
-        <CardTitle>Which suites are degrading?</CardTitle>
+        <CardTitle>Which suites need attention?</CardTitle>
+        <p className="mt-1 text-xs text-muted">
+          Cards are colored by average pass rate in the selected window: below 50% needs attention, 50-79% is watch, and 80%+ is healthy.
+        </p>
         {suites.length === 0 ? (
           <p className="text-sm text-muted mt-4">No suite data available.</p>
         ) : (

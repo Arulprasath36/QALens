@@ -112,6 +112,11 @@ class LLMClient:
         sys = system_prompt or self._config.system_prompt or _DEFAULT_SYSTEM_PROMPT
         provider = self._config.provider.lower()
 
+        if not self._config.enabled:
+            raise LLMError(
+                "LLM-assisted answers are disabled. Deterministic QA Lens answers are still available."
+            )
+
         if provider not in LOCAL_LLM_PROVIDERS and not self._config.external_llm_allowed:
             raise LLMError(
                 f"External LLM provider '{self._config.provider}' is disabled. "

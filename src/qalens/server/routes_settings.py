@@ -23,6 +23,7 @@ from qalens.security import (
     LOCAL_LLM_PROVIDERS,
     MAX_LLM_PROMPT_CHARS,
     SUPPORTED_IMAGE_MIME_TYPES,
+    is_local_llm_endpoint,
 )
 
 if TYPE_CHECKING:
@@ -33,6 +34,7 @@ if TYPE_CHECKING:
 class LLMSettingsPatch(BaseModel):
     """Editable LLM settings accepted from the UI."""
 
+    enabled: bool | None = None
     provider: str | None = Field(default=None, max_length=40)
     base_url: str | None = Field(default=None, max_length=500)
     model: str | None = Field(default=None, max_length=200)
@@ -134,6 +136,8 @@ def make_settings_router(
             if payload.base_url is None:
                 cfg.base_url = str(defaults.get("base_url", cfg.base_url))
 
+        if payload.enabled is not None:
+            cfg.enabled = payload.enabled
         if payload.base_url is not None:
             cfg.base_url = payload.base_url.strip()
         if payload.model is not None:
@@ -176,6 +180,7 @@ def _resolve_db_display_path(db_path: str | PathType | None) -> str | Path:
 
 def _llm_payload(cfg: LLMConfig) -> dict[str, Any]:
     return {
+        "enabled": cfg.enabled,
         "provider": cfg.provider,
         "provider_display": provider_display_name(cfg.provider),
         "base_url": cfg.base_url,
@@ -186,6 +191,7 @@ def _llm_payload(cfg: LLMConfig) -> dict[str, Any]:
         "temperature": cfg.temperature,
         "allow_external": cfg.allow_external,
         "external_llm_allowed": cfg.external_llm_allowed,
+        "endpoint_is_local": is_local_llm_endpoint(cfg.effective_base_url),
         "api_key_configured": bool(cfg.api_key),
         "api_key_env_configured": bool(os.environ.get("QALENS_LLM_API_KEY")),
         "system_prompt": cfg.system_prompt,
@@ -211,6 +217,7 @@ def _write_llm_config(config_path: Path, cfg: LLMConfig) -> None:
         "# Managed by QA Lens Settings UI or `qalens llm-config`.\n",
         "\n",
         "[llm]\n",
+        f"enabled = {_toml_bool(cfg.enabled)}\n",
         f'provider = "{_toml_escape(cfg.provider)}"\n',
         f'base_url = "{_toml_escape(cfg.base_url)}"\n',
         f'model = "{_toml_escape(cfg.model)}"\n',
