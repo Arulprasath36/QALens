@@ -190,17 +190,7 @@ Open:
 http://127.0.0.1:8080/api/docs
 ```
 
-ReDoc:
-
-```text
-http://127.0.0.1:8080/api/redoc
-```
-
-OpenAPI JSON:
-
-```text
-http://127.0.0.1:8080/openapi.json
-```
+QA Lens exposes one human-facing API documentation page. If it appears unstyled, restart the backend so the latest Content Security Policy is active.
 
 ## Port Already In Use
 
@@ -225,4 +215,3 @@ Avoid protected system directories.
 QA Lens is intended to bind to localhost by default.
 
 If you bind publicly, enable authentication and use a trusted reverse proxy.
-

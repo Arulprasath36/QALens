@@ -2,7 +2,7 @@
 
 QA Lens exposes a FastAPI application. The same API powers the React UI.
 
-## Swagger / OpenAPI
+## API Docs Page
 
 Start the server:
 
@@ -16,19 +16,7 @@ Open Swagger UI:
 http://127.0.0.1:8080/api/docs
 ```
 
-Open ReDoc:
-
-```text
-http://127.0.0.1:8080/api/redoc
-```
-
-OpenAPI JSON:
-
-```text
-http://127.0.0.1:8080/openapi.json
-```
-
-Use `/api/docs` as the Swagger-style interactive API page.
+Use `/api/docs` as the single interactive API reference page. It includes endpoint groups, request models, response models, and a browser-based "Try it out" workflow.
 
 ## Authentication
 
@@ -204,4 +192,3 @@ For integrations:
 - Use `/api/report/export` for generated artifacts.
 - Use `/api/docs` to inspect current request and response schemas.
 - Pin a QA Lens version when building API clients.
-
