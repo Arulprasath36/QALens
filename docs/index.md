@@ -21,7 +21,7 @@ This documentation is intended for the product-site **Docs** menu. Keep the repo
 | [CLI Reference](cli-reference.md) | Practical command reference for `qalens`. |
 | [UI Guide](ui-guide.md) | Runs, Action Brief, Incidents, Analysis, Risk, Compare, Chat, Reports, and Settings. |
 | [Chat and LLMs](chat-and-llm.md) | Deterministic answers, local LLMs, cloud providers, and security boundaries. |
-| [API Reference](api-reference.md) | Swagger/OpenAPI location and endpoint groups. |
+| [API Reference](api-reference.md) | Interactive API docs location and endpoint groups. |
 | [Security and Deployment](security-and-deployment.md) | Auth, local-first defaults, LLM opt-in, report parsing, and deployment notes. |
 | [Troubleshooting](troubleshooting.md) | Common setup, ingestion, UI, LLM, and API issues. |
 | [Architecture](architecture.md) | Internal pipeline and module map. |
@@ -67,4 +67,3 @@ Developers and maintainers:
 2. [API Reference](api-reference.md)
 3. [Security and Deployment](security-and-deployment.md)
 4. [CLI Reference](cli-reference.md)
-

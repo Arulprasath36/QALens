@@ -16,7 +16,7 @@ Open Swagger UI:
 http://127.0.0.1:8080/api/docs
 ```
 
-Use `/api/docs` as the single interactive API reference page. It includes the current OpenAPI schema, endpoint groups, request models, response models, and a browser-based "Try it out" workflow.
+Use `/api/docs` as the single interactive API reference page. It includes endpoint groups, request models, response models, and a browser-based "Try it out" workflow.
 
 ## Authentication
 
