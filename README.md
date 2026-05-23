@@ -5,35 +5,35 @@
 </p>
 
 <p align="center">
-  <a href="https://qalens.dev/docs">
+  <a href="https://qalens.dev/docs/" target="_blank" rel="noopener noreferrer">
     <img alt="Docs" src="https://img.shields.io/badge/docs-qalens.dev%2Fdocs-2563eb?style=for-the-badge&labelColor=111827">
   </a>
-  <a href="https://qalens.dev/">
+  <a href="https://qalens.dev/" target="_blank" rel="noopener noreferrer">
     <img alt="Website" src="https://img.shields.io/badge/website-qalens.dev-f3f4f6?style=for-the-badge&labelColor=374151&color=f3f4f6">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/qalens/">
+  <a href="https://pypi.org/project/qalens/" target="_blank" rel="noopener noreferrer">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/qalens?style=flat-square&label=pypi&color=2563eb">
   </a>
-  <a href="https://www.python.org/">
+  <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer">
     <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square">
   </a>
   <a href="LICENSE">
     <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue?style=flat-square">
   </a>
-  <a href="https://github.com/Arulprasath36/QALens">
+  <a href="https://github.com/Arulprasath36/QALens" target="_blank" rel="noopener noreferrer">
     <img alt="Open source" src="https://img.shields.io/badge/open%20source-yes-16a34a?style=flat-square">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://qalens.dev/docs"><strong>Read the docs</strong></a>
+  <a href="https://qalens.dev/docs/" target="_blank" rel="noopener noreferrer"><strong>Read the docs</strong></a>
   ·
-  <a href="https://qalens.dev/"><strong>Website</strong></a>
+  <a href="https://qalens.dev/" target="_blank" rel="noopener noreferrer"><strong>Website</strong></a>
   ·
-  <a href="https://qalens-demo.onrender.com"><strong>Live demo</strong></a>
+  <a href="https://qalens-demo.onrender.com" target="_blank" rel="noopener noreferrer"><strong>Live demo</strong></a>
 </p>
 
 <p align="center">
