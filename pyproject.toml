@@ -124,6 +124,7 @@ include = [
     "/hatch_build.py",
     "/pyproject.toml",
     "/README.md",
+    "/docs",
     "/LICENSE",
 ]
 

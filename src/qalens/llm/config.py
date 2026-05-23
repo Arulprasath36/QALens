@@ -6,6 +6,7 @@ use.  Users can also override any field via environment variables.
 Example ``~/.qalens/config.toml``::
 
     [llm]
+    enabled   = true
     provider  = "ollama"
     base_url  = "http://localhost:11434/v1"
     model     = "llama3.2"
@@ -94,6 +95,10 @@ DEFAULT_CONFIG_TOML = """\
 # Run `qalens llm-config` to interactively set up a provider.
 
 [llm]
+# Enable LLM-assisted narration and free-form answers. Deterministic QA Lens
+# answers still work when this is false.
+enabled     = true
+
 # Provider: ollama | openai | azure | lmstudio | anthropic | gemini | custom
 provider    = "ollama"
 
@@ -136,6 +141,7 @@ class LLMConfig:
 
     Attributes:
         provider: Lowercase provider identifier.
+        enabled: Whether LLM-assisted narration and free-form answers are enabled.
         base_url: API base URL.
         model: Model name/identifier.
         api_key: API key (empty string for local providers).
@@ -148,6 +154,7 @@ class LLMConfig:
     """
 
     provider: str = "ollama"
+    enabled: bool = True
     base_url: str = "http://localhost:11434/v1"
     model: str = "llama3.2"
     api_key: str = ""
@@ -177,9 +184,9 @@ class LLMConfig:
     @property
     def external_llm_allowed(self) -> bool:
         """Return whether this config may send prompts to an external provider."""
-        from qalens.security import EXTERNAL_LLM_OPT_IN_ENV, LOCAL_LLM_PROVIDERS
+        from qalens.security import EXTERNAL_LLM_OPT_IN_ENV, LOCAL_LLM_PROVIDERS, is_local_llm_endpoint
 
-        if self.provider in LOCAL_LLM_PROVIDERS:
+        if self.provider in LOCAL_LLM_PROVIDERS or is_local_llm_endpoint(self.effective_base_url):
             return True
         env_value = os.environ.get(EXTERNAL_LLM_OPT_IN_ENV, "").strip().lower()
         return self.allow_external or env_value in {"1", "true", "yes", "on"}
@@ -238,6 +245,7 @@ def load_config(path: Path | None = None) -> LLMConfig:
 
     cfg = LLMConfig(
         provider=provider,
+        enabled=bool(raw.get("enabled", True)),
         base_url=raw.get("base_url", defaults.get("base_url", "")),
         model=raw.get("model", defaults.get("model", "default")),
         api_key=raw.get("api_key", defaults.get("api_key", "")),

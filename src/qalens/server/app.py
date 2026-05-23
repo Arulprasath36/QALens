@@ -100,7 +100,7 @@ def create_app(
         title="QA Lens — Quality Assurance + Lens",
         version=__version__,
         docs_url="/api/docs",
-        redoc_url="/api/redoc",
+        redoc_url=None,
     )
 
     _db = db_path
@@ -188,7 +188,7 @@ def create_app(
     _CSP = (
         "default-src 'self'; "
         "script-src 'self' https://cdn.jsdelivr.net 'unsafe-inline'; "
-        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; "
+        "style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com 'unsafe-inline'; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data: https://avatars.githubusercontent.com; "
         "connect-src 'self'; "

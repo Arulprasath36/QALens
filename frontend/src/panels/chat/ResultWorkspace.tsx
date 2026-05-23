@@ -20,6 +20,7 @@ import type {
   NewFailuresIntroducedResult,
   RunComparisonResult,
   FailureTrendResult,
+  RunPassRateExtremaResult,
   TestFixPlaybookResult,
 } from './types';
 
@@ -67,6 +68,16 @@ function formatDurationMs(ms: number | null | undefined) {
   const minutes = Math.floor(ms / 60_000);
   const seconds = Math.round((ms % 60_000) / 1000);
   return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+}
+
+function formatRunDate(ts: number | null | undefined) {
+  if (ts == null || Number.isNaN(ts)) return 'Unknown date';
+  return new Date(ts * 1000).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
 
 function normalizeResultTestName(testName: string) {
@@ -3203,6 +3214,161 @@ function RunRetrievalWorkspace({
   );
 }
 
+function RunPassRateExtremaWorkspace({
+  result,
+}: {
+  result: RunPassRateExtremaResult;
+}) {
+  const best = result.highest[0] ?? null;
+  const worst = result.lowest[0] ?? null;
+  const summaryText = useMemo(() => {
+    const lines = [
+      result.title,
+      `Scope: ${result.scope.label}`,
+      `Runs evaluated: ${result.scope.runCount}`,
+      ...(best ? [`Highest: ${best.runLabel} — ${best.passRateLabel} (${best.passed}/${best.totalTests} passed)`] : []),
+      ...(worst ? [`Lowest: ${worst.runLabel} — ${worst.passRateLabel} (${worst.passed}/${worst.totalTests} passed)`] : []),
+      '',
+      'Run pass rates:',
+      ...result.runs.map(run => `${run.runLabel} — ${run.passRateLabel} · ${run.passed}/${run.totalTests} passed · ${run.failed} failed`),
+    ];
+    return lines.join('\n');
+  }, [best, result, worst]);
+  const { copied, handleCopySummary } = useCopySummary(summaryText);
+
+  const highestIds = new Set(result.highest.map(run => run.runId));
+  const lowestIds = new Set(result.lowest.map(run => run.runId));
+
+  function highlightLabel(run: RunPassRateExtremaResult['runs'][number]) {
+    const isHigh = highestIds.has(run.runId);
+    const isLow = lowestIds.has(run.runId);
+    if (isHigh && isLow) return 'Highest and lowest';
+    if (isHigh) return 'Highest';
+    if (isLow) return 'Lowest';
+    return null;
+  }
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Result workspace</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">{result.title}</h2>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              Verifies the highest and lowest pass percentages across the selected run window.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+              {result.scope.label}
+            </span>
+            <button
+              type="button"
+              onClick={handleCopySummary}
+              className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-900"
+              aria-label="Copy result summary"
+            >
+              {copied ? 'Copied' : 'Copy summary'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <MiniStat label="Runs evaluated" value={String(result.scope.runCount)} />
+        <MiniStat label="Highest pass" value={best ? `${best.runLabel} · ${best.passRateLabel}` : 'NA'} />
+        <MiniStat label="Lowest pass" value={worst ? `${worst.runLabel} · ${worst.passRateLabel}` : 'NA'} />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm dark:border-emerald-500/30 dark:bg-slate-950">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">Highest pass percentage</p>
+          {result.highest.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">No highest run could be calculated.</p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {result.highest.map(run => (
+                <div key={`high-${run.runId}`} className="flex items-center justify-between gap-4 rounded-xl border border-emerald-100 bg-emerald-50/50 px-4 py-3 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+                  <div>
+                    <p className="font-semibold text-slate-950 dark:text-slate-50">{run.runLabel}</p>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{run.passed}/{run.totalTests} passed · {run.failed} failed</p>
+                  </div>
+                  <p className="text-2xl font-semibold text-emerald-700 dark:text-emerald-300">{run.passRateLabel}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-red-200 bg-white p-5 shadow-sm dark:border-red-500/30 dark:bg-slate-950">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-red-700 dark:text-red-300">Lowest pass percentage</p>
+          {result.lowest.length === 0 ? (
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">No lowest run could be calculated.</p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {result.lowest.map(run => (
+                <div key={`low-${run.runId}`} className="flex items-center justify-between gap-4 rounded-xl border border-red-100 bg-red-50/50 px-4 py-3 dark:border-red-500/20 dark:bg-red-500/10">
+                  <div>
+                    <p className="font-semibold text-slate-950 dark:text-slate-50">{run.runLabel}</p>
+                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{run.passed}/{run.totalTests} passed · {run.failed} failed</p>
+                  </div>
+                  <p className="text-2xl font-semibold text-red-700 dark:text-red-300">{run.passRateLabel}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Run-by-run pass rate</h3>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            Pass percentage is passed tests divided by total tests in each run.
+          </p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+            <thead className="bg-slate-50 dark:bg-slate-900">
+              <tr>
+                <th className="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Run</th>
+                <th className="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Pass %</th>
+                <th className="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Passed / Total</th>
+                <th className="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Failed</th>
+                <th className="px-6 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">Started</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+              {result.runs.map(run => {
+                const label = highlightLabel(run);
+                return (
+                  <tr key={run.runId} className={label ? 'bg-slate-50/80 dark:bg-slate-900/70' : undefined}>
+                    <td className="px-6 py-4 font-semibold text-slate-950 dark:text-slate-50">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {run.runLabel}
+                        {label && (
+                          <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">
+                            {label}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-200">{run.passRateLabel}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-200">{run.passed}/{run.totalTests}</td>
+                    <td className="px-6 py-4 text-slate-700 dark:text-slate-200">{run.failed}</td>
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300">{formatRunDate(run.startedAt)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ExceptionRetrievalWorkspace({
   result,
 }: {
@@ -3401,6 +3567,10 @@ export function ResultWorkspace({
 
   if (result.type === 'run_retrieval') {
     return <RunRetrievalWorkspace result={result} />;
+  }
+
+  if (result.type === 'run_pass_rate_extrema') {
+    return <RunPassRateExtremaWorkspace result={result} />;
   }
 
   if (result.type === 'exception_retrieval') {

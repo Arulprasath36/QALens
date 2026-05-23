@@ -1272,6 +1272,32 @@ def _run_comparison_question(question: str) -> bool:
     return False
 
 
+def _run_pass_rate_extrema_question(question: str) -> bool:
+    normalized = _normalize_text(question)
+    has_run_scope = "run" in normalized or "runs" in normalized
+    has_pass_rate = any(
+        phrase in normalized
+        for phrase in (
+            "pass rate", "pass percentage", "pass percent",
+            "passing rate", "passing percentage", "passing percent",
+            "failure rate", "fail rate", "failing rate",
+            "failure percentage", "fail percentage", "fail %",
+            "fewest failures", "most failures", "fewest failed", "most failed",
+            "performed best", "performed worst", "best performing", "worst performing",
+            "best run", "worst run",
+        )
+    ) or "pass %" in question.lower()
+    has_extrema = any(
+        phrase in normalized
+        for phrase in (
+            "highest", "lowest", "best", "worst",
+            "maximum", "minimum", "max", "min",
+            "fewest", "most",
+        )
+    )
+    return has_run_scope and has_pass_rate and has_extrema
+
+
 def _new_failures_introduced_question(question: str) -> bool:
     normalized = _normalize_text(question)
     phrases = (
@@ -2885,6 +2911,143 @@ def _trend_scope(question: str, available_runs: int) -> tuple[int, str, bool, bo
 
     default_count = min(max(available_runs, 1), 10)
     return default_count, f"Last {default_count} runs", True, True
+
+
+def _run_pass_rate(row) -> float | None:
+    total = int(row.total_tests or 0)
+    if total <= 0:
+        return None
+    return int(row.passed_count or 0) / total
+
+
+def _format_percent(value: float) -> str:
+    percent = value * 100
+    rounded = round(percent, 1)
+    if rounded.is_integer():
+        return f"{int(rounded)}%"
+    return f"{rounded:.1f}%"
+
+
+def _run_pass_rate_payload(row) -> dict:
+    total = int(row.total_tests or 0)
+    passed = int(row.passed_count or 0)
+    failed = int(row.failed_count or 0)
+    skipped = int(row.skipped_count or 0)
+    rate = _run_pass_rate(row) or 0.0
+    run_label = f"Run #{row.run_sequence}" if row.run_sequence else row.run_id
+    return {
+        "runId": row.run_id,
+        "runSequence": row.run_sequence,
+        "runLabel": run_label,
+        "project": row.project,
+        "reportFormat": row.report_format,
+        "startedAt": row.started_at,
+        "totalTests": total,
+        "passed": passed,
+        "failed": failed,
+        "skipped": skipped,
+        "passRate": rate,
+        "passRateLabel": _format_percent(rate),
+    }
+
+
+def _build_run_pass_rate_extrema_result(runs: list, scope_label: str, question: str) -> dict:
+    rows = [row for row in runs if _run_pass_rate(row) is not None]
+    normalized = _normalize_text(question)
+    # Detect whether the user is asking in failure-rate terms.
+    # "lowest failure rate" = "highest pass rate", so we invert the extrema.
+    is_failure_framing = any(
+        phrase in normalized
+        for phrase in (
+            "failure rate", "fail rate", "failing rate",
+            "failure percentage", "fail percentage",
+            "fewest failures", "most failures", "fewest failed", "most failed",
+        )
+    )
+    wants_highest = any(phrase in normalized for phrase in ("highest", "best", "maximum", "max", "fewest"))
+    wants_lowest = any(phrase in normalized for phrase in ("lowest", "worst", "minimum", "min", "most"))
+    if is_failure_framing:
+        wants_highest, wants_lowest = wants_lowest, wants_highest
+    if not wants_highest and not wants_lowest:
+        wants_highest = wants_lowest = True
+
+    highest_rate = max((_run_pass_rate(row) or 0.0) for row in rows)
+    lowest_rate = min((_run_pass_rate(row) or 0.0) for row in rows)
+    highest = [
+        _run_pass_rate_payload(row)
+        for row in rows
+        if (_run_pass_rate(row) or 0.0) == highest_rate
+    ]
+    lowest = [
+        _run_pass_rate_payload(row)
+        for row in rows
+        if (_run_pass_rate(row) or 0.0) == lowest_rate
+    ]
+    highest.sort(key=lambda item: item["runSequence"] or 0, reverse=True)
+    lowest.sort(key=lambda item: item["runSequence"] or 0, reverse=True)
+
+    return {
+        "type": "run_pass_rate_extrema",
+        "title": "Run pass-rate extremes",
+        "scope": {
+            "label": scope_label,
+            "runCount": len(rows),
+        },
+        "requested": {
+            "highest": wants_highest,
+            "lowest": wants_lowest,
+        },
+        "highest": highest if wants_highest else [],
+        "lowest": lowest if wants_lowest else [],
+        "runs": [_run_pass_rate_payload(row) for row in sorted(rows, key=lambda item: item.run_sequence or 0)],
+    }
+
+
+def _run_extrema_phrase(items: list[dict]) -> str:
+    if not items:
+        return "not available"
+    if len(items) == 1:
+        item = items[0]
+        return (
+            f"{item['runLabel']} at {item['passRateLabel']} "
+            f"({item['passed']}/{item['totalTests']} passed)"
+        )
+    labels = ", ".join(item["runLabel"] for item in items[:4])
+    first = items[0]
+    suffix = f", and {len(items) - 4} more" if len(items) > 4 else ""
+    return (
+        f"{labels}{suffix} tied at {first['passRateLabel']} "
+        f"({first['passed']}/{first['totalTests']} passed)"
+    )
+
+
+def _run_pass_rate_extrema_summary(result: dict) -> str:
+    scope = result["scope"]["label"].lower()
+    lines = [f"I checked pass percentage across {scope}."]
+    if result["requested"]["highest"]:
+        lines.append(f"Highest pass percentage: {_run_extrema_phrase(result['highest'])}.")
+    if result["requested"]["lowest"]:
+        lines.append(f"Lowest pass percentage: {_run_extrema_phrase(result['lowest'])}.")
+    lines.append("Pass percentage is calculated as passed tests divided by total tests in that run.")
+    return "\n".join(lines)
+
+
+def _run_pass_rate_extrema_sources(result: dict) -> list[dict]:
+    source_runs: list[dict] = []
+    seen: set[str] = set()
+    for item in [*result.get("highest", []), *result.get("lowest", [])]:
+        run_id = item.get("runId")
+        if not run_id or run_id in seen:
+            continue
+        seen.add(run_id)
+        source_runs.append({
+            "type": "run",
+            "icon": "📈",
+            "label": f"{item['runLabel']} · {item['passRateLabel']} pass",
+            "meta": f"{item['passed']}/{item['totalTests']} passed · {item['failed']} failed",
+            "run_id": run_id,
+        })
+    return source_runs
 
 
 def _trend_classification_label(value) -> str:
@@ -4553,6 +4716,59 @@ def make_llm_router(
         _answer_plan = build_answer_plan(
             _answer_intent, question=body.question, prior_context=_prior_context
         )
+
+        if _run_pass_rate_extrema_question(body.question):
+            from qalens.db.repository import RunRepository
+            from qalens.db.schema import get_connection, init_db
+
+            conn = get_connection(db_path)
+            try:
+                init_db(conn)
+                repo = RunRepository(conn)
+                available_runs = repo.list_runs(project=body.project, limit=5000)
+                if not available_runs:
+                    return AskResponse(
+                        answer="I could not find any runs in the available QA Lens data for this project.",
+                        context_mode="project",
+                        sources=[],
+                        intent=_answer_intent.value,
+                        follow_ups=[],
+                    )
+
+                limit, scope_label, _default_scoped, _has_window_phrase = _trend_scope(
+                    body.question,
+                    len(available_runs),
+                )
+                selected_runs = available_runs[:limit]
+                if not any(_run_pass_rate(run) is not None for run in selected_runs):
+                    return AskResponse(
+                        answer=f"I found {scope_label.lower()}, but none of those runs have test counts available to calculate pass percentage.",
+                        context_mode="project",
+                        sources=[],
+                        intent=_answer_intent.value,
+                        follow_ups=[],
+                    )
+
+                result = _build_run_pass_rate_extrema_result(
+                    selected_runs,
+                    scope_label=scope_label,
+                    question=body.question,
+                )
+                return AskResponse(
+                    answer=_run_pass_rate_extrema_summary(result),
+                    context_mode="project",
+                    sources=_run_pass_rate_extrema_sources(result),
+                    intent=_answer_intent.value,
+                    follow_ups=[
+                        f"Show pass-rate trend for {scope_label.lower()}",
+                        "Which run introduced the most new failures?",
+                        "Which suites had the lowest pass rate?",
+                    ],
+                    result=result,
+                    uiHints={"activeTab": "results", "openWorkspace": True},
+                )
+            finally:
+                conn.close()
 
         root_cause_kind = _root_cause_query_kind(body.question)
         if root_cause_kind is not None:

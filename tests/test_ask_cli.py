@@ -12,6 +12,7 @@ from typer.testing import CliRunner
 from qalens.cli import app
 from qalens.db.repository import RunRepository
 from qalens.db.schema import get_connection
+from qalens.llm.deterministic_answers import answer_test_fix_payload
 from qalens.models.failure import FailureInfo
 from qalens.models.run import RunMetadata, TestRun
 from qalens.models.test_case import TestCaseResult, TestStatus
@@ -249,6 +250,33 @@ def test_ask_project_mode_on_summary_question(ask_db, mock_config):
     assert result.exit_code == 0
     assert "QA Lens has" in result.output
     assert "Latest run" in result.output
+
+
+def test_ask_run_pass_rate_extremes_are_deterministic(ask_db, mock_config):
+    result = runner.invoke(
+        app,
+        [
+            "ask", "in the last 3 runs which run has the highest and lowest pass percentage?",
+            "--db", str(ask_db),
+            "--project", "AskProject",
+            "--config", str(mock_config),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    assert "Highest pass percentage: Run #2 at 100%" in result.output
+    assert "Lowest pass percentage: Run #3, Run #1 tied at 50%" in result.output
+
+
+def test_unrelated_question_does_not_open_test_fix_database(tmp_path):
+    missing_parent_db = tmp_path / "missing" / "qalens.db"
+
+    payload = answer_test_fix_payload(
+        "in the last 20 runs which run has the highest pass percentage?",
+        db_path=missing_parent_db,
+    )
+
+    assert payload is None
 
 
 def test_ask_fix_test_uses_deterministic_playbook(fix_db, mock_config):

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from urllib.parse import urlparse
 
 MAX_LLM_PROMPT_CHARS = 80_000
 MAX_ASK_QUESTION_CHARS = 4_000
@@ -79,6 +80,18 @@ LOCAL_LLM_PROVIDERS = frozenset({"ollama", "lmstudio"})
 EXTERNAL_LLM_OPT_IN_ENV = "QALENS_ALLOW_EXTERNAL_LLM"
 UNTRUSTED_DATA_START = "===== BEGIN UNTRUSTED REPORT DATA ====="
 UNTRUSTED_DATA_END = "===== END UNTRUSTED REPORT DATA ====="
+
+
+def is_local_llm_endpoint(base_url: str | None) -> bool:
+    """Return True when an LLM endpoint clearly targets the local machine."""
+    if not base_url:
+        return False
+    try:
+        parsed = urlparse(base_url)
+    except ValueError:
+        return False
+    host = (parsed.hostname or "").strip().lower()
+    return host in {"localhost", "127.0.0.1", "::1", "0.0.0.0"}
 
 _SECRET_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     # ── Private keys ──────────────────────────────────────────────────────────
