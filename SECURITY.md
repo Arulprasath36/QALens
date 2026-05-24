@@ -107,6 +107,17 @@ networked deployment. The summary below is kept as a quick reference.
 - [ ] Pin production image/runtime versions; avoid floating `^`/`>=` in lock files
 - [ ] Enable Dependabot (or Renovate) alerts on the repository
 
+### Automated security checks
+
+QA Lens CI runs dependency and source checks for the Python and frontend code:
+
+- `pip-audit` checks installed Python dependencies for known vulnerabilities.
+- `bandit` checks Python source for common insecure patterns.
+- `npm audit --audit-level=high` checks frontend dependencies for high/critical advisories.
+- OpenSSF Scorecard runs weekly and on changes to `main` to assess repository security practices, publishing results to the public Scorecard service and retaining a short-lived workflow artifact.
+
+Scorecard is a repository security posture assessment; it does not replace the dependency and source checks above.
+
 ### Recommended local checks before networked deployment
 - [ ] `pytest`
 - [ ] `npm audit --audit-level=high`
