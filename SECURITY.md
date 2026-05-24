@@ -114,9 +114,10 @@ QA Lens CI runs dependency and source checks for the Python and frontend code:
 - `pip-audit` checks installed Python dependencies for known vulnerabilities.
 - `bandit` checks Python source for common insecure patterns.
 - `npm audit --audit-level=high` checks frontend dependencies for high/critical advisories.
+- CodeQL scans Python and JavaScript/TypeScript source on pull requests, changes to `main`, and a weekly schedule, publishing findings to GitHub code scanning.
 - OpenSSF Scorecard runs weekly and on changes to `main` to assess repository security practices, publishing results to the public Scorecard service and retaining a short-lived workflow artifact.
 
-Scorecard is a repository security posture assessment; it does not replace the dependency and source checks above.
+Scorecard is a repository security posture assessment; it does not replace the dependency and source checks above. CodeQL complements Bandit by scanning both the backend and frontend with GitHub-recognized SAST analysis.
 
 ### Recommended local checks before networked deployment
 - [ ] `pytest`
