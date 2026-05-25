@@ -1,3 +1,5 @@
+name: qalens
+
 services:
   qalens:
     build:
