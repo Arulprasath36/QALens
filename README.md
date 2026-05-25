@@ -123,6 +123,7 @@ qalens --help
 ### From Docker
 
 QA Lens also runs as a container. The published image stores its database and configuration under `/data`.
+Install and start Docker Desktop or another Docker engine first. On macOS, installing only the `docker` CLI is not sufficient.
 
 ```bash
 docker volume create qalens-data

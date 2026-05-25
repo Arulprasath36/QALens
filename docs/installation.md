@@ -30,8 +30,11 @@ Use Docker when you want an isolated installation with no local Python or Node.j
 
 Requirements:
 
-- Docker Engine or Docker Desktop.
+- A running Docker engine, such as Docker Desktop or Colima on macOS.
+- The Docker Compose plugin if you use `docker compose`.
 - A browser.
+
+On macOS, installing only the `docker` CLI does not start a container engine.
 
 Pull and start the published image:
 

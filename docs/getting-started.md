@@ -14,7 +14,8 @@ You do **not** need Node.js when installing the published package because the we
 
 For Docker use:
 
-- Docker Engine or Docker Desktop
+- A running Docker engine, such as Docker Desktop or Colima on macOS
+- The Docker Compose plugin only if you use the Compose commands
 - A browser
 
 For development from source:

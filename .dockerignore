@@ -1,5 +1,11 @@
 .git
 .github
+.claude
+.codex
+.idea
+.vscode
+.env
+.env.*
 .venv
 .pytest_cache
 .mypy_cache
@@ -11,6 +17,8 @@ __pycache__
 *.db
 *.db-shm
 *.db-wal
+*.key
+*.pem
 dist
 build
 frontend/node_modules

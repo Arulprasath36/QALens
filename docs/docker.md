@@ -2,6 +2,14 @@
 
 QA Lens is available as a container image for users who do not want to install Python or Node.js locally. The container includes the CLI, API server, and built web UI.
 
+## Requirements
+
+- A running Docker engine.
+- Docker Desktop or Colima is a normal choice on macOS.
+- The Docker Compose plugin is required only for the `docker compose` examples.
+
+On macOS, installing the `docker` CLI alone is not enough: it provides commands but not the local engine that builds and runs containers.
+
 ## Image
 
 The publishing workflow builds images for `linux/amd64` and `linux/arm64`:
