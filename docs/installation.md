@@ -1,6 +1,6 @@
 # Installation
 
-QA Lens can be installed from PyPI for normal use or from source for development.
+QA Lens can be installed from PyPI, run in Docker, or installed from source for development.
 
 ## Install From PyPI
 
@@ -23,6 +23,45 @@ Verify:
 qalens --version
 qalens --help
 ```
+
+## Run With Docker
+
+Use Docker when you want an isolated installation with no local Python or Node.js setup.
+
+Requirements:
+
+- A running Docker engine, such as Docker Desktop or Colima on macOS.
+- The Docker Compose plugin if you use `docker compose`.
+- A browser.
+
+On macOS, installing only the `docker` CLI does not start a container engine.
+
+Pull and start the published image:
+
+```bash
+docker volume create qalens-data
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  ghcr.io/arulprasath36/qalens:latest
+```
+
+Open `http://127.0.0.1:8080`.
+
+The named volume stores:
+
+```text
+/data/qalens.db
+/data/config.toml
+```
+
+From a source checkout, build and run the current code:
+
+```bash
+docker compose up --build
+```
+
+See [Docker](docker.md) for ingestion commands, upgrades, authentication, and deployment notes.
 
 ## Install From Source
 
@@ -168,4 +207,3 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install qalens
 ```
-

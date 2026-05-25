@@ -120,6 +120,39 @@ qalens --version
 qalens --help
 ```
 
+### From Docker
+
+QA Lens also runs as a container. The published image stores its database and configuration under `/data`.
+Install and start Docker Desktop or another Docker engine first. On macOS, installing only the `docker` CLI is not sufficient.
+
+```bash
+docker volume create qalens-data
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  ghcr.io/arulprasath36/qalens:latest
+```
+
+Open `http://127.0.0.1:8080`. The `127.0.0.1` port binding keeps the no-auth default available only on your machine.
+
+To ingest a local report before starting the UI:
+
+```bash
+docker run --rm \
+  -v qalens-data:/data \
+  -v "$PWD/tests/fixtures/allure_sample:/reports/input:ro" \
+  ghcr.io/arulprasath36/qalens:latest \
+  ingest /reports/input --db /data/qalens.db
+```
+
+Build and run the image directly from a repository checkout:
+
+```bash
+docker compose up --build
+```
+
+Detailed container usage and deployment guidance: [docs/docker.md](docs/docker.md).
+
 ### From source
 
 Required: Python 3.10+, Node.js 18+, npm, Git.
@@ -565,6 +598,7 @@ QALens/
 - LLM-assisted answers require a configured provider. Deterministic answers do not.
 - Parser accuracy depends on the data exported by the report tool. Reports that omit stack traces or error types reduce classification confidence.
 - The web server is local-first. Do not expose it publicly without authentication, HTTPS, and network controls.
+- Docker deployments use a persistent `/data` volume. Keep the default localhost port mapping unless authentication and TLS are configured.
 - Repository-wide strict `ruff` / `mypy` / `bandit` cleanup is in progress.
 
 ---

@@ -12,6 +12,12 @@ For normal use from PyPI:
 
 You do **not** need Node.js when installing the published package because the web UI is bundled into the Python wheel.
 
+For Docker use:
+
+- A running Docker engine, such as Docker Desktop or Colima on macOS
+- The Docker Compose plugin only if you use the Compose commands
+- A browser
+
 For development from source:
 
 - Python 3.10 or newer
@@ -52,6 +58,25 @@ On Windows PowerShell, activate the virtual environment with:
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
+
+### Docker alternative
+
+If you prefer not to install Python locally:
+
+```bash
+docker volume create qalens-data
+docker run --rm \
+  -v qalens-data:/data \
+  -v "$PWD/tests/fixtures/allure_sample:/reports/input:ro" \
+  ghcr.io/arulprasath36/qalens:latest \
+  ingest /reports/input --db /data/qalens.db
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  ghcr.io/arulprasath36/qalens:latest
+```
+
+This command assumes you are in a cloned repository so `tests/fixtures/allure_sample` exists. For your own report, replace that host path with its location.
 
 ## 2. Ingest a Sample Report
 
@@ -147,4 +172,3 @@ Use this checklist when validating a new installation:
 - Read [UI Guide](ui-guide.md) to understand Action Brief, Incidents, Analysis, and Risk.
 - Read [Chat and LLMs](chat-and-llm.md) before enabling local or cloud LLMs.
 - Read [Security and Deployment](security-and-deployment.md) before sharing QA Lens beyond localhost.
-

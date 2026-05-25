@@ -149,6 +149,27 @@ qalens serve --host 0.0.0.0
 
 unless explicitly needed and protected.
 
+## Docker Deployment
+
+The Docker image must bind to `0.0.0.0` inside its container so Docker can forward traffic to it. This does not require exposing QA Lens beyond your machine.
+
+For a local no-auth deployment, publish only on localhost:
+
+```bash
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-data:/data \
+  ghcr.io/arulprasath36/qalens:latest
+```
+
+The image:
+
+- Runs as a non-root user.
+- Stores its SQLite database and settings in `/data`.
+- Provides an HTTP health check at `/api/health`.
+
+If you expose a container on a network or through a hosted platform, enable token or GitHub OAuth authentication, place it behind TLS, and mount `/data` on durable restricted storage.
+
 ## LLM Security
 
 Local LLM providers are safest because prompt context stays on the machine or private network.
@@ -218,4 +239,3 @@ Before exposing QA Lens:
 - Report data sensitivity reviewed.
 - Backup and retention policy defined.
 - Version pinned.
-

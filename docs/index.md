@@ -16,7 +16,8 @@ This documentation is intended for the product-site **Docs** menu. Keep the repo
 | Page | Purpose |
 |---|---|
 | [Getting Started](getting-started.md) | First successful run from a clean machine. |
-| [Installation](installation.md) | PyPI install, source install, development setup, and requirements. |
+| [Installation](installation.md) | PyPI, Docker, source install, development setup, and requirements. |
+| [Docker](docker.md) | Container image, Compose, persistence, ingestion, upgrades, and secure exposure. |
 | [Ingesting Reports](ingesting-reports.md) | Supported formats, ingestion commands, artifact policy, projects, owners, and database behavior. |
 | [CLI Reference](cli-reference.md) | Practical command reference for `qalens`. |
 | [UI Guide](ui-guide.md) | Runs, Action Brief, Incidents, Analysis, Risk, Compare, Chat, Reports, and Settings. |
@@ -57,9 +58,10 @@ QA Lens has four main layers:
 New users:
 
 1. [Getting Started](getting-started.md)
-2. [Ingesting Reports](ingesting-reports.md)
-3. [UI Guide](ui-guide.md)
-4. [Chat and LLMs](chat-and-llm.md)
+2. [Docker](docker.md) if using containers
+3. [Ingesting Reports](ingesting-reports.md)
+4. [UI Guide](ui-guide.md)
+5. [Chat and LLMs](chat-and-llm.md)
 
 Developers and maintainers:
 
