@@ -112,13 +112,13 @@ allow_external = true
 
 
 def test_external_llm_requires_opt_in_by_default():
-    cfg = LLMConfig(provider="openai")
+    cfg = LLMConfig(provider="openai", base_url="https://api.openai.com/v1")
     assert cfg.external_llm_allowed is False
 
 
 def test_external_llm_env_opt_in(monkeypatch):
     monkeypatch.setenv("QALENS_ALLOW_EXTERNAL_LLM", "1")
-    cfg = LLMConfig(provider="openai")
+    cfg = LLMConfig(provider="openai", base_url="https://api.openai.com/v1")
     assert cfg.external_llm_allowed is True
 
 

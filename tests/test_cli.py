@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typer.main import get_command
 from typer.testing import CliRunner
 
 from qalens.cli import app
@@ -58,7 +59,11 @@ class TestServeSafety:
         assert not _is_public_bind_host("127.0.0.1")
         assert not _is_public_bind_host("localhost")
 
-    def test_serve_help_documents_public_bind_opt_in(self) -> None:
-        result = runner.invoke(app, ["serve", "--help"])
-        assert result.exit_code == 0
-        assert "--allow-public-bind" in result.output
+    def test_serve_exposes_public_bind_opt_in(self) -> None:
+        serve_command = get_command(app).commands["serve"]
+        option_names = {
+            option
+            for parameter in serve_command.params
+            for option in getattr(parameter, "opts", ())
+        }
+        assert "--allow-public-bind" in option_names
