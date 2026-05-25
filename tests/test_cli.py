@@ -59,6 +59,6 @@ class TestServeSafety:
         assert not _is_public_bind_host("localhost")
 
     def test_serve_help_documents_public_bind_opt_in(self) -> None:
-        result = runner.invoke(app, ["serve", "--help"])
+        result = runner.invoke(app, ["serve", "--help"], terminal_width=120)
         assert result.exit_code == 0
         assert "--allow-public-bind" in result.output
