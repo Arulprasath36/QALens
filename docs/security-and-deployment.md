@@ -159,7 +159,7 @@ For a local no-auth deployment, publish only on localhost:
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest
+  arulprasath36/qalens:latest
 ```
 
 The image:

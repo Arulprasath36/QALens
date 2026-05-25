@@ -68,15 +68,16 @@ docker volume create qalens-data
 docker run --rm \
   -v qalens-data:/data \
   -v "$PWD/tests/fixtures/allure_sample:/reports/input:ro" \
-  ghcr.io/arulprasath36/qalens:latest \
+  arulprasath36/qalens:latest \
   ingest /reports/input --db /data/qalens.db
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest
+  arulprasath36/qalens:latest
 ```
 
 This command assumes you are in a cloned repository so `tests/fixtures/allure_sample` exists. For your own report, replace that host path with its location.
+The public Docker Hub repository is [arulprasath36/qalens](https://hub.docker.com/r/arulprasath36/qalens).
 
 ## 2. Ingest a Sample Report
 
