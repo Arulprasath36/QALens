@@ -60,6 +60,38 @@ http://127.0.0.1:8080
 
 QA Lens defaults to no authentication. The explicit `127.0.0.1` host mapping prevents other machines from reaching this local container.
 
+## Try The Preloaded Demo Database
+
+QA Lens provides a released demo database with 50 synthetic ShopNow E-Commerce runs. Use it to explore trends, incidents, risk, and the action brief without importing a report first.
+
+Download and unpack the demo database:
+
+```bash
+mkdir -p qalens-demo
+cd qalens-demo
+curl -fL https://github.com/Arulprasath36/QALens/releases/download/v0.1.2/shopnow-demo.zip \
+  -o shopnow-demo.zip
+unzip shopnow-demo.zip
+```
+
+Load the database into a dedicated Docker volume and start the UI:
+
+```bash
+docker volume create qalens-demo-data
+docker run --rm --entrypoint sh \
+  -v qalens-demo-data:/data \
+  -v "$PWD:/seed:ro" \
+  arulprasath36/qalens:latest \
+  -c 'cp /seed/shopnow-demo.db /data/qalens.db'
+
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-demo-data:/data \
+  arulprasath36/qalens:latest
+```
+
+Open `http://127.0.0.1:8080`. Keep the demo in `qalens-demo-data` rather than your normal `qalens-data` volume so it does not replace your own history.
+
 ## Persistent Data
 
 The container stores mutable state in `/data`:

@@ -302,6 +302,24 @@ qalens serve --db shopnow-demo.db
 
 Open `http://127.0.0.1:8080` — the full UI with 50 runs of history, failure clusters, risk scores, and trends is ready immediately.
 
+To open the same demo database with Docker, load it into a separate demo volume:
+
+```bash
+docker volume create qalens-demo-data
+docker run --rm --entrypoint sh \
+  -v qalens-demo-data:/data \
+  -v "$PWD:/seed:ro" \
+  arulprasath36/qalens:latest \
+  -c 'cp /seed/shopnow-demo.db /data/qalens.db'
+
+docker run --rm \
+  -p 127.0.0.1:8080:8080 \
+  -v qalens-demo-data:/data \
+  arulprasath36/qalens:latest
+```
+
+Use the separate `qalens-demo-data` volume so the sample database does not replace your own ingested history.
+
 You can also run CLI commands against it:
 
 ```bash
