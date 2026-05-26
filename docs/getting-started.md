@@ -78,6 +78,7 @@ docker run --rm \
 
 This command assumes you are in a cloned repository so `tests/fixtures/allure_sample` exists. For your own report, replace that host path with its location.
 The public Docker Hub repository is [arulprasath36/qalens](https://hub.docker.com/r/arulprasath36/qalens).
+To start with a pre-populated 50-run demo database instead, follow [Try The Preloaded Demo Database](docker.md#try-the-preloaded-demo-database).
 
 ## 2. Ingest a Sample Report
 
