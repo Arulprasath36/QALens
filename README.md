@@ -125,12 +125,14 @@ qalens --help
 QA Lens also runs as a container. The published image stores its database and configuration under `/data`.
 Install and start Docker Desktop or another Docker engine first. On macOS, installing only the `docker` CLI is not sufficient.
 
+Docker Hub repository: [arulprasath36/qalens](https://hub.docker.com/r/arulprasath36/qalens)
+
 ```bash
 docker volume create qalens-data
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest
+  arulprasath36/qalens:latest
 ```
 
 Open `http://127.0.0.1:8080`. The `127.0.0.1` port binding keeps the no-auth default available only on your machine.
@@ -141,7 +143,7 @@ To ingest a local report before starting the UI:
 docker run --rm \
   -v qalens-data:/data \
   -v "$PWD/tests/fixtures/allure_sample:/reports/input:ro" \
-  ghcr.io/arulprasath36/qalens:latest \
+  arulprasath36/qalens:latest \
   ingest /reports/input --db /data/qalens.db
 ```
 

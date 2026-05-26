@@ -38,12 +38,14 @@ On macOS, installing only the `docker` CLI does not start a container engine.
 
 Pull and start the published image:
 
+Docker Hub repository: [arulprasath36/qalens](https://hub.docker.com/r/arulprasath36/qalens)
+
 ```bash
 docker volume create qalens-data
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest
+  arulprasath36/qalens:latest
 ```
 
 Open `http://127.0.0.1:8080`.

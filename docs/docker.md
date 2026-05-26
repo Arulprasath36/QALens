@@ -12,21 +12,33 @@ On macOS, installing the `docker` CLI alone is not enough: it provides commands 
 
 ## Image
 
-The publishing workflow builds images for `linux/amd64` and `linux/arm64`:
+The user-facing Docker Hub repository is:
+
+```text
+https://hub.docker.com/r/arulprasath36/qalens
+```
+
+Pull the latest Docker Hub image with:
+
+```bash
+docker pull arulprasath36/qalens:latest
+```
+
+The GitHub Actions publishing workflow also builds `linux/amd64` and `linux/arm64` images for GitHub Container Registry (GHCR):
 
 ```text
 ghcr.io/arulprasath36/qalens:latest
 ```
 
-The `latest` tag represents the current image built from the `main` branch. A SHA-specific image is also published for each build:
+For GHCR, the `latest` tag represents the current image built from the `main` branch. A SHA-specific image is also published for each build:
 
 ```text
 ghcr.io/arulprasath36/qalens:sha-<git-commit-sha>
 ```
 
-For repeatable deployments, use the SHA-specific tag after validating it.
+For repeatable deployments, use a versioned Docker Hub tag or the SHA-specific GHCR tag after validating it.
 
-After the first workflow publication, the repository owner must set the GHCR package visibility to public for unauthenticated users to pull the image. Until then, authenticated GitHub users with package access can use `docker login ghcr.io`.
+The current workflow publishes GHCR images automatically from `main`. Docker Hub images are published separately until Docker Hub publishing is added to CI. After the first GHCR publication, the repository owner must set the GHCR package visibility to public for unauthenticated users to pull that registry's image.
 
 ## Local Quick Start
 
@@ -37,7 +49,7 @@ docker volume create qalens-data
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest
+  arulprasath36/qalens:latest
 ```
 
 Open:
@@ -67,7 +79,7 @@ Mount the source report read-only and use the same `/data` volume as the UI serv
 docker run --rm \
   -v qalens-data:/data \
   -v "/absolute/path/to/allure-report:/reports/input:ro" \
-  ghcr.io/arulprasath36/qalens:latest \
+  arulprasath36/qalens:latest \
   ingest /reports/input --db /data/qalens.db
 ```
 
@@ -77,7 +89,7 @@ From a repository checkout, ingest the included sample:
 docker run --rm \
   -v qalens-data:/data \
   -v "$PWD/tests/fixtures/allure_sample:/reports/input:ro" \
-  ghcr.io/arulprasath36/qalens:latest \
+  arulprasath36/qalens:latest \
   ingest /reports/input --db /data/qalens.db
 ```
 
@@ -92,7 +104,7 @@ mkdir -p qalens-output
 docker run --rm \
   -v qalens-data:/data \
   -v "$PWD/qalens-output:/output" \
-  ghcr.io/arulprasath36/qalens:latest \
+  arulprasath36/qalens:latest \
   report --db /data/qalens.db --out /output/qalens-report.html
 ```
 
@@ -139,7 +151,7 @@ docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
   -e QALENS_AUTH_TOKEN="replace-with-a-strong-token" \
-  ghcr.io/arulprasath36/qalens:latest
+  arulprasath36/qalens:latest
 ```
 
 For shared hosting:
@@ -157,11 +169,11 @@ See [Security and Deployment](security-and-deployment.md) for the complete secur
 Pull the latest image and start it with the existing volume:
 
 ```bash
-docker pull ghcr.io/arulprasath36/qalens:latest
+docker pull arulprasath36/qalens:latest
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
   -v qalens-data:/data \
-  ghcr.io/arulprasath36/qalens:latest
+  arulprasath36/qalens:latest
 ```
 
 Back up the volume before upgrading a shared or important installation.
