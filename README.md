@@ -287,6 +287,63 @@ qalens summarize path/to/report --format markdown --out summary.md
 qalens clusters path/to/report
 ```
 
+### Parallel CI / matrix jobs
+
+If your CI runs modules in parallel, do not run `qalens ingest` inside each
+matrix job when those jobs are shards of one test execution. Upload each
+module's raw report as a CI artifact, then ingest once in a final fan-in job.
+
+```text
+auth tests      -> upload JUnit/Allure report
+checkout tests  -> upload JUnit/Allure report
+payments tests  -> upload JUnit/Allure report
+                       |
+                       v
+final QA Lens job downloads all reports, merges them, and runs one ingest
+```
+
+This keeps one QA Lens run equal to one complete CI execution, so latest-run
+analysis, regressions, trends, and Action Brief comparisons remain valid.
+
+For JUnit XML reports, a fan-in job can combine all module XML files into one
+folder and ingest that folder:
+
+```yaml
+qalens:
+  needs: [test]
+  if: always()
+  runs-on: ubuntu-latest
+  concurrency:
+    group: qalens-db-${{ github.ref }}
+    cancel-in-progress: false
+
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Download module reports
+      uses: actions/download-artifact@v4
+      with:
+        path: qalens-input
+
+    - name: Combine JUnit reports without filename collisions
+      run: |
+        mkdir -p qalens-merged/junit
+        find qalens-input -name "*.xml" -type f | while read -r file; do
+          artifact="$(echo "$file" | cut -d/ -f2)"
+          cp "$file" "qalens-merged/junit/${artifact}-$(basename "$file")"
+        done
+
+    - name: Install QA Lens
+      run: pip install qalens
+
+    - name: Ingest once
+      run: qalens ingest qalens-merged/junit --db qalens.db
+```
+
+See [Ingesting Reports](docs/ingesting-reports.md#parallel-ci--matrix-jobs)
+and [examples/ci/github-actions-example.yml](examples/ci/github-actions-example.yml)
+for the complete workflow.
+
 ---
 
 ## Demo Dataset

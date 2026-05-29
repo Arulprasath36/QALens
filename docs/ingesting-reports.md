@@ -162,7 +162,7 @@ History enables:
 
 ## CI Usage
 
-Example GitHub Actions pattern:
+For a single test job, ingest the report after the test command finishes:
 
 ```yaml
 - name: Ingest test report
@@ -180,6 +180,194 @@ Example GitHub Actions pattern:
 
 For long-lived history, persist `qalens.db` between CI runs or store it in an artifact/cache strategy your team controls.
 
+## Parallel CI / Matrix Jobs
+
+If your CI runs modules in parallel, treat each module report as a shard of one
+larger execution. Do not run `qalens ingest` inside every matrix job when those
+jobs are parts of the same build.
+
+Wrong pattern:
+
+```text
+auth job     -> qalens ingest auth-report       -> QA Lens Run #41
+checkout job -> qalens ingest checkout-report   -> QA Lens Run #42
+payments job -> qalens ingest payments-report   -> QA Lens Run #43
+```
+
+That makes QA Lens compare partial module runs against each other. Latest-run
+summaries, new regressions, pass-rate trends, and Action Brief priorities can
+become misleading.
+
+Use this fan-in pattern instead:
+
+```text
+parallel module jobs produce raw reports
+          |
+          v
+upload each report as a CI artifact
+          |
+          v
+one final QA Lens job downloads all reports
+          |
+          v
+merge reports and run one qalens ingest
+```
+
+### GitHub Actions Fan-In Example
+
+This example assumes every module produces JUnit XML. JUnit is the simplest
+interchange format for fan-in because QA Lens can parse a folder of XML files
+as one run.
+
+```yaml
+name: Tests with QA Lens Fan-In
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [auth, checkout, payments]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests for module
+        run: |
+          ./scripts/test-${{ matrix.module }}.sh
+
+      - name: Upload JUnit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-${{ matrix.module }}
+          path: reports/${{ matrix.module }}/junit/
+          if-no-files-found: error
+
+  qalens:
+    needs: [test]
+    if: always()
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: qalens-db-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download module reports
+        uses: actions/download-artifact@v4
+        with:
+          path: qalens-input
+
+      - name: Combine JUnit reports
+        run: |
+          mkdir -p qalens-merged/junit
+          find qalens-input -name "*.xml" -type f | while read -r file; do
+            artifact="$(echo "$file" | cut -d/ -f2)"
+            cp "$file" "qalens-merged/junit/${artifact}-$(basename "$file")"
+          done
+
+      - name: Install QA Lens
+        run: |
+          python -m pip install --upgrade pip
+          pip install qalens
+
+      - name: Restore QA Lens database
+        run: |
+          # Optional: download qalens.db from S3, GCS, Azure Blob, or
+          # another storage location here. If no DB is restored, QA Lens
+          # starts a fresh history for this workflow.
+          echo "No persisted QA Lens database configured; starting fresh history."
+
+      - name: Ingest merged report as one QA Lens run
+        run: |
+          qalens ingest qalens-merged/junit --db qalens.db
+
+      - name: Export QA Lens report
+        run: |
+          qalens report --db qalens.db --out qalens-report.html
+
+      - name: Upload QA Lens outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: qalens-output
+          path: |
+            qalens.db
+            qalens-report.html
+```
+
+Important details:
+
+- `fail-fast: false` lets all matrix modules upload their reports even if one fails.
+- `if: always()` on the report upload step preserves failed test reports.
+- `if: always()` on the final QA Lens job runs analysis when the build is red.
+- The copy loop prefixes each XML file with the artifact folder name so files
+  like `TEST-results.xml` from different modules do not overwrite each other.
+- The `concurrency` group reduces lost updates when multiple jobs update the
+  same persisted `qalens.db`.
+
+### Persisting History Safely
+
+QA Lens history lives in SQLite. In CI, a fresh runner starts with no history
+unless you restore `qalens.db`.
+
+For long-lived history, use storage your team controls:
+
+```text
+download previous qalens.db
+ingest the merged report
+upload updated qalens.db
+```
+
+If two workflows update the same database at the same time, the last upload can
+overwrite the first. Serialize the QA Lens fan-in job with a GitHub Actions
+`concurrency` group, a storage lock, or a single hosted ingestion service.
+
+Use one shared concurrency group when all branches write to the same DB:
+
+```yaml
+concurrency:
+  group: qalens-db
+  cancel-in-progress: false
+```
+
+Use a branch-scoped group when each branch has separate history:
+
+```yaml
+concurrency:
+  group: qalens-db-${{ github.ref }}
+  cancel-in-progress: false
+```
+
+### Allure Fan-In
+
+For Allure, combine `allure-results` folders first, generate one Allure report,
+then ingest that generated report once:
+
+```bash
+mkdir -p qalens-merged/allure-results
+find qalens-input -path "*/allure-results/*" -type f \
+  -exec cp {} qalens-merged/allure-results/ \;
+
+allure generate qalens-merged/allure-results \
+  -o qalens-merged/allure-report \
+  --clean
+
+qalens ingest qalens-merged/allure-report --db qalens.db
+```
+
+For Playwright, Cypress, or mixed tools, prefer exporting JUnit XML from each
+module for the QA Lens fan-in job until execution-aware shard ingestion exists.
+
 ## What QA Lens Stores
 
 The SQLite database stores:
@@ -196,4 +384,3 @@ The SQLite database stores:
 - Optional artifact storage references.
 
 QA Lens does not need the original report after ingestion unless you chose not to store needed artifacts and still want to inspect original files separately.
-
