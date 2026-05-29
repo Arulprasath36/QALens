@@ -180,6 +180,9 @@ For a single test job, ingest the report after the test command finishes:
 
 For long-lived history, persist `qalens.db` between CI runs or store it in an artifact/cache strategy your team controls.
 
+See [examples/qalens-ci.yml](../examples/qalens-ci.yml) for a complete
+single-job quality gate example.
+
 ## Parallel CI / Matrix Jobs
 
 If your CI runs modules in parallel, treat each module report as a shard of one
@@ -292,6 +295,14 @@ jobs:
         run: |
           qalens ingest qalens-merged/junit --db qalens.db
 
+      - name: QA Lens quality gate
+        run: |
+          qalens summarize qalens-merged/junit \
+            --format json \
+            --out qalens-summary.json \
+            --fail-on-defects 0 \
+            --fail-on-environment 3
+
       - name: Export QA Lens report
         run: |
           qalens report --db qalens.db --out qalens-report.html
@@ -303,6 +314,7 @@ jobs:
           path: |
             qalens.db
             qalens-report.html
+            qalens-summary.json
 ```
 
 Important details:
@@ -312,6 +324,7 @@ Important details:
 - `if: always()` on the final QA Lens job runs analysis when the build is red.
 - The copy loop prefixes each XML file with the artifact folder name so files
   like `TEST-results.xml` from different modules do not overwrite each other.
+- The quality gate step can fail the build after the merged report is available.
 - The `concurrency` group reduces lost updates when multiple jobs update the
   same persisted `qalens.db`.
 
@@ -367,6 +380,8 @@ qalens ingest qalens-merged/allure-report --db qalens.db
 
 For Playwright, Cypress, or mixed tools, prefer exporting JUnit XML from each
 module for the QA Lens fan-in job until execution-aware shard ingestion exists.
+See [examples/ci/github-actions-example.yml](../examples/ci/github-actions-example.yml)
+for a complete fan-in workflow.
 
 ## What QA Lens Stores
 

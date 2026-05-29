@@ -1,8 +1,13 @@
-# QA Lens fan-in CI example for parallel or matrix test jobs.
+# QA Lens single-job CI quality gate example.
 #
-# This file mirrors examples/ci/github-actions-example.yml.
+# Use this when one CI job produces one complete report. If your tests run as
+# parallel matrix shards, use examples/ci/github-actions-example.yml instead.
+#
+# Exit code 2 = quality gate breached.
+# Exit code 1 = QA Lens error.
+# Exit code 0 = pass.
 
-name: QA Lens Fan-In
+name: QA Lens Quality Gate
 
 on:
   push:
@@ -11,80 +16,53 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        module: [auth, checkout, payments]
-
+  test-and-gate:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run tests for module
-        run: |
-          # Replace this with your real module test command.
-          ./scripts/test-${{ matrix.module }}.sh
-
-      - name: Upload JUnit report
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: junit-${{ matrix.module }}
-          path: reports/${{ matrix.module }}/junit/
-          if-no-files-found: error
+          python-version: "3.12"
+          cache: "pip"
 
-  qalens:
-    needs: [test]
-    if: always()
-    runs-on: ubuntu-latest
-
-    concurrency:
-      group: qalens-db-${{ github.ref }}
-      cancel-in-progress: false
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download module reports
-        uses: actions/download-artifact@v4
-        with:
-          path: qalens-input
-
-      - name: Combine JUnit reports without filename collisions
-        run: |
-          mkdir -p qalens-merged/junit
-          find qalens-input -name "*.xml" -type f | while read -r file; do
-            artifact="$(echo "$file" | cut -d/ -f2)"
-            cp "$file" "qalens-merged/junit/${artifact}-$(basename "$file")"
-          done
-
-      - name: Install QA Lens
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install qalens
 
-      - name: Restore QA Lens database
+      - name: Run tests and generate report
         run: |
-          # Optional: restore qalens.db from S3, GCS, Azure Blob, or another
-          # storage location here. If no DB is restored, QA Lens starts a
-          # fresh history for this workflow.
-          echo "No persisted QA Lens database configured; starting fresh history."
+          # Replace this block with your real test command.
+          # The example assumes JUnit XML output under reports/junit/.
+          ./scripts/test.sh
 
-      - name: Ingest merged report as one QA Lens run
+      - name: Ingest report into QA Lens database
         run: |
-          qalens ingest qalens-merged/junit --db qalens.db
+          qalens ingest reports/junit --db qalens.db
+
+      - name: QA Lens quality gate
+        run: |
+          qalens summarize reports/junit \
+            --format json \
+            --out qalens-summary.json \
+            --fail-on-defects 0 \
+            --fail-on-environment 3
 
       - name: Export QA Lens report
+        if: always()
         run: |
           qalens report --db qalens.db --out qalens-report.html
 
       - name: Upload QA Lens outputs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: qalens-output
           path: |
             qalens.db
             qalens-report.html
+            qalens-summary.json
           retention-days: 30

@@ -86,6 +86,14 @@ jobs:
         run: |
           qalens ingest qalens-merged/junit --db qalens.db
 
+      - name: QA Lens quality gate
+        run: |
+          qalens summarize qalens-merged/junit \
+            --format json \
+            --out qalens-summary.json \
+            --fail-on-defects 0 \
+            --fail-on-environment 3
+
       - name: Export QA Lens report
         run: |
           qalens report --db qalens.db --out qalens-report.html
@@ -97,4 +105,5 @@ jobs:
           path: |
             qalens.db
             qalens-report.html
+            qalens-summary.json
           retention-days: 30
