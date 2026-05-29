@@ -1,9 +1,11 @@
-# QA Lens — Quality Assurance + Lens
-# Example CI workflow: run your test suite, ingest the Allure/Extent report,
-# then use QA Lens's CI gate to break the build when failure counts exceed thresholds.
+# QA Lens single-job CI quality gate example.
 #
-# Customise the threshold flags to match your team's quality bar.
-# Exit code 2 = gate breached; exit code 1 = QA Lens error; exit code 0 = pass.
+# Use this when one CI job produces one complete report. If your tests run as
+# parallel matrix shards, use examples/ci/github-actions-example.yml instead.
+#
+# Exit code 2 = quality gate breached.
+# Exit code 1 = QA Lens error.
+# Exit code 0 = pass.
 
 name: QA Lens Quality Gate
 
@@ -18,89 +20,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ── 1. Check out code ──────────────────────────────────────────────────
       - uses: actions/checkout@v4
 
-      # ── 2. Set up Python ───────────────────────────────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
 
-      # ── 3. Install your project + QA Lens ────────────────────────────────────
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install -e ".[dev]"
+          python -m pip install --upgrade pip
+          pip install qalens
 
-      # ── 4. Run your test suite and generate an Allure report ──────────────
-      #    Replace this block with your actual test runner command.
-      #    The example below uses pytest with allure-pytest.
-      - name: Run tests (generate Allure report)
+      - name: Run tests and generate report
         run: |
-          pip install allure-pytest
-          pytest --alluredir=allure-results || true   # don't fail here; let QA Lens decide
-          allure generate allure-results --clean -o allure-report
+          # Replace this block with your real test command.
+          # The example assumes JUnit XML output under reports/junit/.
+          ./scripts/test.sh
 
-      # ── 5. Ingest the report into QA Lens's local database ───────────────────
-      #    This step is optional but enables flaky scoring across runs.
       - name: Ingest report into QA Lens database
         run: |
-          qalens ingest allure-report
+          qalens ingest reports/junit --db qalens.db
 
-      # ── 6. Run the QA Lens CI gate ───────────────────────────────────────────
-      #    Adjust thresholds to match your quality bar.
-      #    --fail-on-defects 0   → fail on ANY product defect
-      #    --fail-on-flaky   5   → allow up to 4 flaky tests before failing
-      #    --fail-on-environment 3 → allow up to 2 environment failures
-      #    --strict              → fail on any failure of any category
       - name: QA Lens quality gate
         run: |
-          qalens summarize allure-report \
+          qalens summarize reports/junit \
             --format json \
             --out qalens-summary.json \
             --fail-on-defects 0 \
             --fail-on-environment 3
-        # Exit code 2 = gate breached → step fails → job fails
 
-      # ── 7. Upload QA Lens summary as an artifact ─────────────────────────────
-      - name: Upload QA Lens summary
-        if: always()   # upload even when gate fires
+      - name: Export QA Lens report
+        if: always()
+        run: |
+          qalens report --db qalens.db --out qalens-report.html
+
+      - name: Upload QA Lens outputs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qalens-summary
-          path: qalens-summary.json
+          name: qalens-output
+          path: |
+            qalens.db
+            qalens-report.html
+            qalens-summary.json
           retention-days: 30
-
-      # ── 8. (Optional) Post QA Lens summary as a PR comment ──────────────────
-      # Uncomment and add a GITHUB_TOKEN secret to enable PR comments.
-      #
-      # - name: Comment QA Lens summary on PR
-      #   if: github.event_name == 'pull_request' && always()
-      #   uses: actions/github-script@v7
-      #   with:
-      #     script: |
-      #       const fs = require('fs');
-      #       const summary = JSON.parse(fs.readFileSync('qalens-summary.json', 'utf8'));
-      #       const sc = summary.status_counts;
-      #       const cc = summary.category_counts;
-      #       const body = [
-      #         '## QA Lens Quality Gate Report',
-      #         `**Pass rate:** ${(sc.pass_rate * 100).toFixed(1)}%  ` +
-      #         `Total: ${sc.total} | Passed: ${sc.passed} | Failed: ${sc.failed}`,
-      #         '',
-      #         '| Category | Count |',
-      #         '|----------|------:|',
-      #         `| Product defects | ${cc.likely_product_defect} |`,
-      #         `| Flaky tests | ${cc.likely_flaky} |`,
-      #         `| Environment issues | ${cc.likely_environment_issue} |`,
-      #         `| Test script issues | ${cc.likely_test_script_issue} |`,
-      #         `| Unknown | ${cc.unknown} |`,
-      #       ].join('\n');
-      #       github.rest.issues.createComment({
-      #         issue_number: context.issue.number,
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         body,
-      #       });
