@@ -78,11 +78,11 @@ Load the database into a dedicated Docker volume and start the UI:
 
 ```bash
 docker volume create qalens-demo-data
-docker run --rm --entrypoint sh \
+docker run --rm --entrypoint python \
   -v qalens-demo-data:/data \
   -v "$PWD:/seed:ro" \
   arulprasath36/qalens:latest \
-  -c 'cp /seed/shopnow-demo.db /data/qalens.db'
+  -c 'import shutil; shutil.copyfile("/seed/shopnow-demo.db", "/data/qalens.db")'
 
 docker run --rm \
   -p 127.0.0.1:8080:8080 \
