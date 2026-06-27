@@ -51,6 +51,44 @@ If `--db` is omitted, QA Lens uses:
 ~/.qalens/qalens.db
 ```
 
+## Ingest Multiple Files From One Folder
+
+This applies to JUnit XML or TestNG XML output only, since QA Lens scans the
+folder recursively for XML files. Use one XML format per folder. Use this when
+one test execution produces more than one report file for the same run. Put the
+files under one folder and pass that folder to `qalens ingest`:
+
+```text
+reports/current-run/
+  TEST-auth.xml
+  TEST-checkout.xml
+  TEST-payments.xml
+```
+
+```bash
+qalens ingest reports/current-run --db ./qalens.db
+```
+
+QA Lens treats the folder as one ingested run. Nested module folders also work:
+
+```text
+reports/current-run/
+  auth/TEST-auth.xml
+  checkout/TEST-checkout.xml
+  payments/TEST-payments.xml
+```
+
+Before ingesting, verify that QA Lens detects the folder as the expected format:
+
+```bash
+qalens detect reports/current-run --verbose
+```
+
+Do not use this pattern for multiple complete HTML report folders from different
+runs. For Allure or Extent, pass the generated report root for one run. For
+Playwright or Cypress JSON shards, merge or export a single supported report
+first, or export JUnit XML from each shard and ingest the combined XML folder.
+
 ## Idempotency
 
 Ingestion is idempotent by run identity. If the same run already exists, QA Lens skips it.

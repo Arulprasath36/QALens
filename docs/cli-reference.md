@@ -42,6 +42,13 @@ Parse and store a report in SQLite.
 qalens ingest path/to/report --db ./qalens.db
 ```
 
+For one run split across multiple JUnit or TestNG XML files, pass the folder
+that contains those files:
+
+```bash
+qalens ingest reports/current-run --db ./qalens.db
+```
+
 Important options:
 
 | Option | Purpose |
