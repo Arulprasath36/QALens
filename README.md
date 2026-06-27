@@ -244,6 +244,16 @@ qalens ingest path/to/report --db ./qalens.db
 qalens ingest path/to/report --db ./qalens.db --owner-map owners.toml
 ```
 
+For one run split across multiple JUnit or TestNG XML files, put the files under
+one folder and ingest the folder:
+
+```bash
+qalens ingest reports/current-run --db ./qalens.db
+```
+
+See [Ingesting Reports](docs/ingesting-reports.md#ingest-multiple-files-from-one-folder)
+for nested folders and format-specific caveats.
+
 If you haven't ingested any reports yet, ingest at least one so the UI has something to show.
 
 ### Analyze stored runs
@@ -306,43 +316,12 @@ This keeps one QA Lens run equal to one complete CI execution, so latest-run
 analysis, regressions, trends, and Action Brief comparisons remain valid.
 
 For JUnit XML reports, a fan-in job can combine all module XML files into one
-folder and ingest that folder:
-
-```yaml
-qalens:
-  needs: [test]
-  if: always()
-  runs-on: ubuntu-latest
-  concurrency:
-    group: qalens-db-${{ github.ref }}
-    cancel-in-progress: false
-
-  steps:
-    - uses: actions/checkout@v4
-
-    - name: Download module reports
-      uses: actions/download-artifact@v4
-      with:
-        path: qalens-input
-
-    - name: Combine JUnit reports without filename collisions
-      run: |
-        mkdir -p qalens-merged/junit
-        find qalens-input -name "*.xml" -type f | while read -r file; do
-          artifact="$(echo "$file" | cut -d/ -f2)"
-          cp "$file" "qalens-merged/junit/${artifact}-$(basename "$file")"
-        done
-
-    - name: Install QA Lens
-      run: pip install qalens
-
-    - name: Ingest once
-      run: qalens ingest qalens-merged/junit --db qalens.db
-```
+folder and ingest that folder in a single `qalens ingest` step.
 
 See [Ingesting Reports](docs/ingesting-reports.md#parallel-ci--matrix-jobs)
-and [examples/ci/github-actions-example.yml](examples/ci/github-actions-example.yml)
-for the complete workflow.
+for the full fan-in job (download artifacts, merge XML, ingest once) and
+[examples/ci/github-actions-example.yml](examples/ci/github-actions-example.yml)
+for the complete, runnable workflow.
 
 ---
 
